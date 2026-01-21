@@ -69,12 +69,14 @@ function extractJsonFromResponse(text: string): Record<string, unknown> {
  */
 export class AgenticScreenshotCrawler {
   private browser: Browser | null = null;
-  private genAI: GoogleGenerativeAI | null = null;
+  private apiKeys: string[] = [];
 
   constructor() {
-    const apiKeys = getGeminiApiKeys();
-    if (apiKeys.length > 0) {
-      this.genAI = new GoogleGenerativeAI(apiKeys[0]);
+    this.apiKeys = getGeminiApiKeys();
+    if (this.apiKeys.length > 0) {
+      console.log(`[Agentic] Gemini API 키 ${this.apiKeys.length}개 로드됨 (멀티 키 Fallback 활성화)`);
+    } else {
+      console.warn('[Agentic] Gemini API 키가 설정되지 않았습니다');
     }
   }
 
@@ -120,30 +122,67 @@ export class AgenticScreenshotCrawler {
   }
 
   /**
-   * Vision AI로 스크린샷에서 데이터 추출
+   * Vision AI로 스크린샷에서 데이터 추출 (멀티 키 Fallback 적용)
    */
   private async extractDataWithVision(
     screenshot: string,
     prompt: string
   ): Promise<Record<string, unknown>> {
-    if (!this.genAI) {
+    if (this.apiKeys.length === 0) {
       throw new Error('Gemini API 키가 설정되지 않았습니다');
     }
 
-    const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    let lastError: Error | null = null;
 
-    const result = await model.generateContent([
-      {
-        inlineData: {
-          mimeType: 'image/png',
-          data: screenshot,
-        },
-      },
-      prompt,
-    ]);
+    // 모든 API 키를 순차적으로 시도
+    for (let i = 0; i < this.apiKeys.length; i++) {
+      const apiKey = this.apiKeys[i];
+      const keyLabel = i === 0 ? 'Primary' : `Fallback ${i}`;
 
-    const responseText = result.response.text();
-    return extractJsonFromResponse(responseText);
+      try {
+        console.log(`[Agentic Vision] ${keyLabel} API 키로 시도 중...`);
+
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+        const result = await model.generateContent([
+          {
+            inlineData: {
+              mimeType: 'image/png',
+              data: screenshot,
+            },
+          },
+          prompt,
+        ]);
+
+        const responseText = result.response.text();
+        console.log(`[Agentic Vision] ${keyLabel} API 키로 성공`);
+        return extractJsonFromResponse(responseText);
+
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error));
+        const errorMessage = lastError.message;
+
+        // Rate Limit 오류인지 확인
+        const isRateLimitError = errorMessage.includes('429') ||
+                                  errorMessage.includes('Too Many Requests') ||
+                                  errorMessage.includes('quota');
+
+        if (isRateLimitError && i < this.apiKeys.length - 1) {
+          console.warn(`[Agentic Vision] ${keyLabel} API 키 Rate Limit 초과, 다음 키로 전환...`);
+          continue;
+        }
+
+        // 마지막 키이거나 Rate Limit 외 오류면 로그 출력
+        if (i === this.apiKeys.length - 1) {
+          console.error(`[Agentic Vision] 모든 API 키 실패: ${errorMessage.substring(0, 100)}...`);
+        } else if (!isRateLimitError) {
+          console.error(`[Agentic Vision] ${keyLabel} API 키 오류 (Rate Limit 아님): ${errorMessage.substring(0, 100)}...`);
+        }
+      }
+    }
+
+    throw lastError || new Error('Vision AI 호출 실패');
   }
 
   /**
