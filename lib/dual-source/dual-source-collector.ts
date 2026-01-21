@@ -99,6 +99,20 @@ function normalizeKoreaSymbol(symbol: string): string {
   return symbol.replace(/\.(KS|KQ)$/, '');
 }
 
+// 소스 설명 상수
+const SOURCE_DESCRIPTIONS = {
+  KR: {
+    A_AGENTIC: '네이버금융 Screenshot + Gemini Vision AI',
+    A_CRAWLING: '네이버금융 HTML 크롤링',
+    B: '다음금융 REST API',
+  },
+  US: {
+    A_AGENTIC: 'Yahoo Finance Screenshot + Gemini Vision AI',
+    A_FINNHUB: 'Finnhub REST API',
+    B: 'Yahoo Finance API (yahoo-finance2)',
+  },
+};
+
 /**
  * 한국 주식 듀얼 소스 수집
  *
@@ -124,9 +138,11 @@ async function collectKoreaStockDualSource(
 
   // Source A: Agentic Screenshot (Vision AI) 또는 전통적 크롤링 (폴백)
   let sourceAPromise: Promise<CollectionResult<ComprehensiveStockData>>;
+  let sourceADescription: string;
 
   if (agentic) {
-    console.log('[DualSource KR] Source A: Agentic Screenshot (Vision AI) 시작');
+    sourceADescription = SOURCE_DESCRIPTIONS.KR.A_AGENTIC;
+    console.log(`[DualSource KR] Source A 시작: ${sourceADescription}`);
     sourceAPromise = agentic
       .collectKoreaStock(normalizedSymbol)
       .catch((error): CollectionResult<ComprehensiveStockData> => ({
@@ -139,7 +155,8 @@ async function collectKoreaStockDualSource(
       }));
   } else {
     // Agentic 사용 불가 시 전통적 크롤링으로 폴백
-    console.log('[DualSource KR] Source A: 전통적 크롤링 (Agentic 불가)');
+    sourceADescription = SOURCE_DESCRIPTIONS.KR.A_CRAWLING;
+    console.log(`[DualSource KR] Source A 시작: ${sourceADescription} (Agentic 불가)`);
     sourceAPromise = koreaStockCrawler
       .collectAll(normalizedSymbol)
       .catch((error): CollectionResult<ComprehensiveStockData> => ({
@@ -153,7 +170,8 @@ async function collectKoreaStockDualSource(
   }
 
   // Source B: 다음 금융 REST API
-  console.log('[DualSource KR] Source B: 다음 금융 API 시작');
+  const sourceBDescription = SOURCE_DESCRIPTIONS.KR.B;
+  console.log(`[DualSource KR] Source B 시작: ${sourceBDescription}`);
   const sourceBPromise = koreaStockDaumCollector
     .collectAll(normalizedSymbol)
     .catch((error): CollectionResult<ComprehensiveStockData> => ({
@@ -170,6 +188,10 @@ async function collectKoreaStockDualSource(
     Promise.race([sourceAPromise, timeoutPromise]),
     Promise.race([sourceBPromise, timeoutPromise]),
   ]);
+
+  // 결과에 소스 설명 추가
+  (sourceA as CollectionResult<ComprehensiveStockData> & { description?: string }).description = sourceADescription;
+  (sourceB as CollectionResult<ComprehensiveStockData> & { description?: string }).description = sourceBDescription;
 
   return { sourceA, sourceB };
 }
@@ -197,9 +219,11 @@ async function collectUSStockDualSource(
 
   // Source A: Agentic Screenshot (Vision AI) 또는 Finnhub API (폴백)
   let sourceAPromise: Promise<CollectionResult<ComprehensiveStockData>>;
+  let sourceADescription: string;
 
   if (agentic) {
-    console.log('[DualSource US] Source A: Agentic Screenshot (Vision AI) 시작');
+    sourceADescription = SOURCE_DESCRIPTIONS.US.A_AGENTIC;
+    console.log(`[DualSource US] Source A 시작: ${sourceADescription}`);
     sourceAPromise = agentic
       .collectUSStock(symbol)
       .catch((error): CollectionResult<ComprehensiveStockData> => ({
@@ -212,7 +236,8 @@ async function collectUSStockDualSource(
       }));
   } else {
     // Agentic 사용 불가 시 Finnhub API로 폴백
-    console.log('[DualSource US] Source A: Finnhub API (Agentic 불가)');
+    sourceADescription = SOURCE_DESCRIPTIONS.US.A_FINNHUB;
+    console.log(`[DualSource US] Source A 시작: ${sourceADescription} (Agentic 불가)`);
     sourceAPromise = usStockFinnhubCollector
       .collectAll(symbol)
       .catch((error): CollectionResult<ComprehensiveStockData> => ({
@@ -226,7 +251,8 @@ async function collectUSStockDualSource(
   }
 
   // Source B: Yahoo Finance API (라이브러리)
-  console.log('[DualSource US] Source B: Yahoo Finance API 시작');
+  const sourceBDescription = SOURCE_DESCRIPTIONS.US.B;
+  console.log(`[DualSource US] Source B 시작: ${sourceBDescription}`);
   const sourceBPromise = usStockYahooCollector
     .collectAll(symbol)
     .catch((error): CollectionResult<ComprehensiveStockData> => ({
@@ -244,6 +270,10 @@ async function collectUSStockDualSource(
     Promise.race([sourceBPromise, timeoutPromise]),
   ]);
 
+  // 결과에 소스 설명 추가
+  (sourceA as CollectionResult<ComprehensiveStockData> & { description?: string }).description = sourceADescription;
+  (sourceB as CollectionResult<ComprehensiveStockData> & { description?: string }).description = sourceBDescription;
+
   return { sourceA, sourceB };
 }
 
@@ -257,7 +287,7 @@ export async function collectStockDataDualSource(
   const opts = { ...DEFAULT_OPTIONS, ...options };
   const marketType = detectMarketType(symbol);
 
-  console.log(`[DualSource] 수집 시작: ${symbol} (${marketType})`);
+  console.log(`[DualSource] 수집 시작: ${symbol} (${marketType === 'KR' ? '한국' : '미국'})`);
 
   let dualSourceResult: DualSourceResult<ComprehensiveStockData>;
 
@@ -267,19 +297,37 @@ export async function collectStockDataDualSource(
     dualSourceResult = await collectUSStockDualSource(symbol, opts);
   }
 
-  // 수집 결과 로깅
-  console.log(`[DualSource] Source A: ${dualSourceResult.sourceA.success ? '성공' : '실패'} (${dualSourceResult.sourceA.latency}ms)`);
-  console.log(`[DualSource] Source B: ${dualSourceResult.sourceB.success ? '성공' : '실패'} (${dualSourceResult.sourceB.latency}ms)`);
+  // 소스 설명 추출
+  const sourceADesc = (dualSourceResult.sourceA as CollectionResult<ComprehensiveStockData> & { description?: string }).description || 'Source A';
+  const sourceBDesc = (dualSourceResult.sourceB as CollectionResult<ComprehensiveStockData> & { description?: string }).description || 'Source B';
+
+  // 수집 결과 로깅 (상세)
+  const aStatus = dualSourceResult.sourceA.success ? '✓ 성공' : '✗ 실패';
+  const bStatus = dualSourceResult.sourceB.success ? '✓ 성공' : '✗ 실패';
+  const aError = dualSourceResult.sourceA.error ? ` (${dualSourceResult.sourceA.error.substring(0, 50)}...)` : '';
+  const bError = dualSourceResult.sourceB.error ? ` (${dualSourceResult.sourceB.error.substring(0, 50)}...)` : '';
+
+  console.log(`[DualSource] Source A [${sourceADesc}]: ${aStatus} (${dualSourceResult.sourceA.latency}ms)${aError}`);
+  console.log(`[DualSource] Source B [${sourceBDesc}]: ${bStatus} (${dualSourceResult.sourceB.latency}ms)${bError}`);
 
   // 둘 다 실패한 경우
   if (!dualSourceResult.sourceA.success && !dualSourceResult.sourceB.success) {
     const errorA = dualSourceResult.sourceA.error || '알 수 없는 오류';
     const errorB = dualSourceResult.sourceB.error || '알 수 없는 오류';
-    throw new Error(`듀얼 소스 수집 실패: Source A: ${errorA}, Source B: ${errorB}`);
+    throw new Error(`듀얼 소스 수집 실패: Source A(${sourceADesc}): ${errorA}, Source B(${sourceBDesc}): ${errorB}`);
   }
 
   // 검증 및 병합
   const validatedResult = validateAndMerge(dualSourceResult.sourceA, dualSourceResult.sourceB);
+
+  // 최종 결과 요약 로깅
+  const successCount = (dualSourceResult.sourceA.success ? 1 : 0) + (dualSourceResult.sourceB.success ? 1 : 0);
+  const resultType = successCount === 2 ? '교차검증 완료' : '단일소스 사용';
+  const successSource = successCount === 1
+    ? (dualSourceResult.sourceA.success ? sourceADesc : sourceBDesc)
+    : '양쪽 모두';
+
+  console.log(`[DualSource] 결과: ${resultType} | 성공소스: ${successSource} | 신뢰도: ${(validatedResult.confidence * 100).toFixed(0)}% | 상태: ${validatedResult.validation.status}`);
 
   // 결과 로깅 (옵션)
   if (opts.logResults) {
