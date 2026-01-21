@@ -125,6 +125,91 @@ async function retryWithDelay<T>(
 }
 
 /**
+ * Yahoo Finance Chart API를 사용한 quote 데이터 조회 (crumb 불필요!)
+ *
+ * quote() API는 crumb 토큰이 필요하여 Rate Limit에 취약하지만,
+ * chart() API는 crumb 없이 동작하므로 안정적입니다.
+ *
+ * @param symbol 주식/환율/지수 심볼 (예: "AAPL", "KRW=X", "^VIX")
+ */
+export interface ChartQuoteData {
+  symbol: string;
+  regularMarketPrice: number;
+  chartPreviousClose: number;
+  regularMarketVolume: number;
+  regularMarketDayHigh: number;
+  regularMarketDayLow: number;
+  fiftyTwoWeekHigh?: number;
+  fiftyTwoWeekLow?: number;
+  longName?: string;
+  shortName?: string;
+  currency?: string;
+}
+
+async function fetchChartQuote(symbol: string): Promise<ChartQuoteData | null> {
+  try {
+    // ^ 문자를 URL 인코딩 (VIX 등 지수용)
+    const encodedSymbol = symbol.replace('^', '%5E');
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodedSymbol}?interval=1d&range=1d`;
+
+    const response = await axios.get(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+      },
+      timeout: 10000,
+    });
+
+    const result = response.data?.chart?.result?.[0];
+    if (!result?.meta) {
+      return null;
+    }
+
+    const meta = result.meta;
+    return {
+      symbol: meta.symbol,
+      regularMarketPrice: meta.regularMarketPrice,
+      chartPreviousClose: meta.chartPreviousClose,
+      regularMarketVolume: meta.regularMarketVolume || 0,
+      regularMarketDayHigh: meta.regularMarketDayHigh,
+      regularMarketDayLow: meta.regularMarketDayLow,
+      fiftyTwoWeekHigh: meta.fiftyTwoWeekHigh,
+      fiftyTwoWeekLow: meta.fiftyTwoWeekLow,
+      longName: meta.longName,
+      shortName: meta.shortName,
+      currency: meta.currency,
+    };
+  } catch (error) {
+    console.error(`[Chart API] Error fetching ${symbol}:`, error instanceof Error ? error.message : error);
+    return null;
+  }
+}
+
+/**
+ * 여러 심볼의 Chart quote를 배치로 조회 (crumb 불필요!)
+ * @param symbols 심볼 배열
+ */
+export async function fetchChartQuotesBatch(symbols: string[]): Promise<Map<string, ChartQuoteData>> {
+  const results = new Map<string, ChartQuoteData>();
+
+  // 병렬로 조회 (최대 5개씩)
+  const batchSize = 5;
+  for (let i = 0; i < symbols.length; i += batchSize) {
+    const batch = symbols.slice(i, i + batchSize);
+    const promises = batch.map(symbol => fetchChartQuote(symbol));
+    const batchResults = await Promise.all(promises);
+
+    batchResults.forEach((data, idx) => {
+      if (data) {
+        results.set(batch[idx], data);
+      }
+    });
+  }
+
+  console.log(`[Chart API] Batch fetched ${results.size}/${symbols.length} symbols (crumb-free)`);
+  return results;
+}
+
+/**
  * 여러 종목의 quote 데이터를 배치로 수집
  * @param symbols 주식 티커 심볼 배열
  */
@@ -466,12 +551,22 @@ export async function fetchStocksDataBatch(symbols: string[]): Promise<Map<strin
 
 /**
  * 환율 데이터 조회 (USD/KRW) - 캐시 적용 (10분 TTL)
+ * Chart API 사용 (crumb 불필요로 Rate Limit 회피)
  */
 export async function fetchExchangeRate(): Promise<number> {
   const cacheKey = CacheKey.exchangeRate();
 
   return withCache(cacheKey, CACHE_TTL.EXCHANGE_RATE, async () => {
     try {
+      // Chart API 사용 (crumb 불필요!)
+      const chartData = await fetchChartQuote('KRW=X');
+      if (chartData?.regularMarketPrice) {
+        console.log(`[Yahoo Chart API] Exchange rate fetched: ${chartData.regularMarketPrice} (crumb-free)`);
+        return chartData.regularMarketPrice;
+      }
+
+      // Fallback: 기존 quote API (crumb 필요)
+      console.log('[Yahoo Finance] Chart API failed, trying quote API...');
       const quote = await retryWithDelay(() => yahooFinance.quote('KRW=X'), 3, 2000);
       if (!quote || !quote.regularMarketPrice) {
         throw new Error('Failed to fetch exchange rate');
@@ -491,12 +586,22 @@ export async function fetchExchangeRate(): Promise<number> {
 
 /**
  * VIX 지수 조회 (공포/탐욕 지표 대용) - 캐시 적용 (10분 TTL)
+ * Chart API 사용 (crumb 불필요로 Rate Limit 회피)
  */
 export async function fetchVIX(): Promise<number | null> {
   const cacheKey = CacheKey.vix();
 
   try {
     return await withCache(cacheKey, CACHE_TTL.VIX, async () => {
+      // Chart API 사용 (crumb 불필요!)
+      const chartData = await fetchChartQuote('^VIX');
+      if (chartData?.regularMarketPrice) {
+        console.log(`[Yahoo Chart API] VIX fetched: ${chartData.regularMarketPrice} (crumb-free)`);
+        return chartData.regularMarketPrice;
+      }
+
+      // Fallback: 기존 quote API (crumb 필요)
+      console.log('[Yahoo Finance] Chart API failed, trying quote API...');
       const quote = await retryWithDelay(() => yahooFinance.quote('^VIX'), 3, 2000);
       const vix = quote?.regularMarketPrice || null;
       console.log(`[Yahoo Finance] VIX fetched: ${vix}`);
