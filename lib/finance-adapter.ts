@@ -1,11 +1,14 @@
 /**
- * 데이터 소스 어댑터
+ * 데이터 소스 어댑터 (개선된 Fallback 구조)
  *
- * 여러 데이터 소스를 통합 관리하고, 필요에 따라 전환할 수 있도록 함
- * - Dual Source (추천) - 교차 검증으로 신뢰성 향상
- * - Yahoo Finance (기존)
- * - Finnhub (대체)
- * - Fallback 메커니즘
+ * 아키텍처:
+ * ┌─────────────────────────────────────────────────────┐
+ * │  Yahoo Finance (1차 시도)                           │
+ * │  ↓ 실패 시                                          │
+ * │  [미국 주식] Finnhub → Twelve Data                  │
+ * │  [한국 주식] 다음 금융 → 공공데이터포털             │
+ * │  [환율/VIX] Finnhub → Twelve Data                  │
+ * └─────────────────────────────────────────────────────┘
  */
 
 import type { StockData, SupplyDemandData, UnifiedQuoteResult } from './finance';
@@ -38,6 +41,17 @@ import {
 } from './finance-vercel';
 
 import {
+  isTwelveDataAvailable,
+  fetchStocksDataBatchTwelveData,
+  fetchTwelveDataExchangeRate,
+} from './finance-twelvedata';
+
+import {
+  isPublicDataAvailable,
+  fetchStocksDataBatchPublicData,
+} from './finance-publicdata';
+
+import {
   collectStockDataDualSource,
   detectMarketType,
   type ValidatedStockData,
@@ -53,53 +67,57 @@ const DEFAULT_DATA_SOURCE: DataSource =
 const USE_DUAL_SOURCE = process.env.USE_DUAL_SOURCE === 'true';
 
 /**
+ * 심볼이 한국 주식인지 판별
+ */
+function isKoreanStock(symbol: string): boolean {
+  return symbol.endsWith('.KS') || symbol.endsWith('.KQ') || /^\d{6}$/.test(symbol);
+}
+
+/**
+ * 심볼을 미국/한국으로 분류
+ */
+function categorizeSymbols(symbols: string[]): { us: string[]; kr: string[] } {
+  const us: string[] = [];
+  const kr: string[] = [];
+
+  for (const symbol of symbols) {
+    if (isKoreanStock(symbol)) {
+      kr.push(symbol);
+    } else {
+      us.push(symbol);
+    }
+  }
+
+  return { us, kr };
+}
+
+/**
  * 자동으로 최적의 데이터 소스 선택
- *
- * 우선순위:
- * 1. DATA_SOURCE 명시적 설정
- * 2. USE_DUAL_SOURCE=true → 듀얼소스 (교차 검증)
- * 3. Finnhub API 키 존재 → Finnhub
- * 4. 기본값 → Yahoo Finance
- *
- * 참고: Python/Vercel fallback은 analyze/route.ts에서 처리
  */
 function selectDataSource(symbols: string[]): DataSource {
-  // 명시적으로 설정된 경우
   if (DEFAULT_DATA_SOURCE !== 'auto') {
-    console.log(`[DataSource] Using explicit DATA_SOURCE: ${DEFAULT_DATA_SOURCE} for ${symbols.length} symbols`);
+    console.log(`[DataSource] Using explicit DATA_SOURCE: ${DEFAULT_DATA_SOURCE}`);
     return DEFAULT_DATA_SOURCE;
   }
 
-  // 듀얼 소스 활성화 설정이 있으면 최우선
   if (USE_DUAL_SOURCE) {
     console.log('[DataSource] Using dual-source (cross-validation enabled)');
     return 'dual-source';
   }
 
-  // Finnhub API 키가 있으면 Finnhub 사용
-  if (process.env.FINNHUB_API_KEY) {
-    console.log('[DataSource] Using Finnhub API');
-    return 'finnhub';
-  }
-
-  // 그 외에는 Yahoo Finance
-  console.log('[DataSource] Using Yahoo Finance (default)');
+  // 기본값: Yahoo Finance 우선 (Fallback 시스템 적용)
+  console.log('[DataSource] Using Yahoo Finance with multi-source fallback');
   return 'yahoo';
 }
 
 /**
  * 듀얼 소스에서 historicalData 수집을 위한 Yahoo Finance 호출 (캐시 적용)
- *
- * 캐시 TTL: 1시간 (과거 데이터는 변하지 않으므로)
  */
 async function fetchHistoricalDataYahoo(
   symbol: string
 ): Promise<Array<{ date: string; close: number; volume: number; high?: number; low?: number; open?: number }>> {
   try {
-    // 캐시된 Historical 데이터 조회 (1시간 TTL)
     const historicalData = await fetchHistoricalDataCached(symbol, 180);
-
-    // Date 객체를 string으로 변환
     return historicalData.map((d) => ({
       date: d.date instanceof Date ? d.date.toISOString().split('T')[0] : String(d.date),
       close: d.close,
@@ -124,7 +142,6 @@ function convertToStockData(
   const { data, confidence } = validated;
   const closes = historicalData.map((d) => d.close);
 
-  // RSI, MA, Disparity 계산
   const rsi = closes.length >= 15 ? calculateRSI(closes, 14) : 50;
   const ma5 = calculateMA(closes, 5) || data.priceData.currentPrice;
   const ma20 = calculateMA(closes, 20) || data.priceData.currentPrice;
@@ -134,8 +151,7 @@ function convertToStockData(
 
   console.log(
     `[DualSource] Converted ${data.basicInfo.symbol}: confidence=${(confidence * 100).toFixed(1)}%, ` +
-      `status=${validated.validation.status}, matched=${validated.validation.matchedFields.length}, ` +
-      `conflict=${validated.validation.conflictFields.length}`
+      `status=${validated.validation.status}`
   );
 
   return {
@@ -146,21 +162,13 @@ function convertToStockData(
     volume: data.priceData.volume,
     marketCap: data.marketData.marketCap || undefined,
     rsi,
-    movingAverages: {
-      ma5,
-      ma20,
-      ma60,
-      ma120,
-    },
+    movingAverages: { ma5, ma20, ma60, ma120 },
     disparity,
     historicalData,
-    // 추가 메타데이터 (확장용)
     _dualSource: {
       confidence,
       status: validated.validation.status,
       sources: validated.sources,
-      matchedFields: validated.validation.matchedFields.length,
-      conflictFields: validated.validation.conflictFields.length,
     },
   } as StockData & { _dualSource: unknown };
 }
@@ -178,27 +186,20 @@ async function fetchStocksDataDualSource(
   for (let i = 0; i < symbols.length; i++) {
     const symbol = symbols[i];
 
-    // Rate limit 방지 딜레이 (첫 번째 이후)
     if (i > 0) {
       await new Promise((resolve) => setTimeout(resolve, 1500));
     }
 
     try {
-      // 1. 듀얼 소스로 현재가/밸류에이션 데이터 수집
       const validated = await collectStockDataDualSource(symbol, {
         timeout: 60000,
         logResults: false,
       });
-
-      // 2. 히스토리컬 데이터 수집 (Yahoo Finance)
       const historicalData = await fetchHistoricalDataYahoo(symbol);
-
-      // 3. StockData 형식으로 변환
       const stockData = convertToStockData(validated, historicalData);
       results.set(symbol, stockData);
     } catch (error) {
       console.error(`[DualSource] Failed to collect ${symbol}:`, error);
-      // 개별 종목 실패 시 계속 진행
     }
   }
 
@@ -207,145 +208,290 @@ async function fetchStocksDataDualSource(
 }
 
 /**
- * 통합 주식 데이터 수집 (데이터 소스 자동 선택)
+ * 미국 주식 Fallback 체인
+ * Yahoo → Finnhub → Twelve Data
+ */
+async function fetchUSStocksWithFallback(
+  symbols: string[]
+): Promise<Map<string, StockData>> {
+  if (symbols.length === 0) return new Map();
+
+  console.log(`[US Stocks] Fetching ${symbols.length} symbols with fallback chain`);
+
+  // 1차: Yahoo Finance
+  try {
+    console.log('[US Stocks] 1차 시도: Yahoo Finance');
+    const yahooResult = await fetchYahooBatch(symbols);
+    if (yahooResult.size > 0) {
+      console.log(`[US Stocks] Yahoo Finance 성공: ${yahooResult.size}/${symbols.length} symbols`);
+      return yahooResult;
+    }
+  } catch (yahooError) {
+    console.warn('[US Stocks] Yahoo Finance 실패:', yahooError instanceof Error ? yahooError.message : yahooError);
+  }
+
+  // 2차: Finnhub
+  if (process.env.FINNHUB_API_KEY) {
+    try {
+      console.log('[US Stocks] 2차 시도: Finnhub');
+      const finnhubResult = await fetchStocksDataBatchFinnhub(symbols);
+      if (finnhubResult.size > 0) {
+        console.log(`[US Stocks] Finnhub 성공: ${finnhubResult.size}/${symbols.length} symbols`);
+        return finnhubResult;
+      }
+    } catch (finnhubError) {
+      console.warn('[US Stocks] Finnhub 실패:', finnhubError instanceof Error ? finnhubError.message : finnhubError);
+    }
+  }
+
+  // 3차: Twelve Data
+  if (isTwelveDataAvailable()) {
+    try {
+      console.log('[US Stocks] 3차 시도: Twelve Data');
+      const twelveDataResult = await fetchStocksDataBatchTwelveData(symbols);
+      if (twelveDataResult.size > 0) {
+        console.log(`[US Stocks] Twelve Data 성공: ${twelveDataResult.size}/${symbols.length} symbols`);
+        return twelveDataResult;
+      }
+    } catch (twelveDataError) {
+      console.warn('[US Stocks] Twelve Data 실패:', twelveDataError instanceof Error ? twelveDataError.message : twelveDataError);
+    }
+  }
+
+  console.error(`[US Stocks] 모든 데이터 소스 실패: ${symbols.join(', ')}`);
+  return new Map();
+}
+
+/**
+ * 한국 주식 Fallback 체인
+ * Yahoo → 다음 금융(DualSource) → 공공데이터포털
+ */
+async function fetchKRStocksWithFallback(
+  symbols: string[]
+): Promise<Map<string, StockData>> {
+  if (symbols.length === 0) return new Map();
+
+  console.log(`[KR Stocks] Fetching ${symbols.length} symbols with fallback chain`);
+
+  // 1차: Yahoo Finance
+  try {
+    console.log('[KR Stocks] 1차 시도: Yahoo Finance');
+    const yahooResult = await fetchYahooBatch(symbols);
+    if (yahooResult.size > 0) {
+      console.log(`[KR Stocks] Yahoo Finance 성공: ${yahooResult.size}/${symbols.length} symbols`);
+      return yahooResult;
+    }
+  } catch (yahooError) {
+    console.warn('[KR Stocks] Yahoo Finance 실패:', yahooError instanceof Error ? yahooError.message : yahooError);
+  }
+
+  // 2차: DualSource (다음 금융 포함)
+  if (USE_DUAL_SOURCE) {
+    try {
+      console.log('[KR Stocks] 2차 시도: DualSource (다음 금융)');
+      const dualSourceResult = await fetchStocksDataDualSource(symbols);
+      if (dualSourceResult.size > 0) {
+        console.log(`[KR Stocks] DualSource 성공: ${dualSourceResult.size}/${symbols.length} symbols`);
+        return dualSourceResult;
+      }
+    } catch (dualSourceError) {
+      console.warn('[KR Stocks] DualSource 실패:', dualSourceError instanceof Error ? dualSourceError.message : dualSourceError);
+    }
+  }
+
+  // 3차: 공공데이터포털
+  if (isPublicDataAvailable()) {
+    try {
+      console.log('[KR Stocks] 3차 시도: 공공데이터포털');
+      const publicDataResult = await fetchStocksDataBatchPublicData(symbols);
+      if (publicDataResult.size > 0) {
+        console.log(`[KR Stocks] 공공데이터포털 성공: ${publicDataResult.size}/${symbols.length} symbols`);
+        return publicDataResult;
+      }
+    } catch (publicDataError) {
+      console.warn('[KR Stocks] 공공데이터포털 실패:', publicDataError instanceof Error ? publicDataError.message : publicDataError);
+    }
+  }
+
+  // 4차: Twelve Data (한국 주식도 지원)
+  if (isTwelveDataAvailable()) {
+    try {
+      console.log('[KR Stocks] 4차 시도: Twelve Data');
+      const twelveDataResult = await fetchStocksDataBatchTwelveData(symbols);
+      if (twelveDataResult.size > 0) {
+        console.log(`[KR Stocks] Twelve Data 성공: ${twelveDataResult.size}/${symbols.length} symbols`);
+        return twelveDataResult;
+      }
+    } catch (twelveDataError) {
+      console.warn('[KR Stocks] Twelve Data 실패:', twelveDataError instanceof Error ? twelveDataError.message : twelveDataError);
+    }
+  }
+
+  console.error(`[KR Stocks] 모든 데이터 소스 실패: ${symbols.join(', ')}`);
+  return new Map();
+}
+
+/**
+ * 통합 주식 데이터 수집 (개선된 Fallback 구조)
+ *
+ * Yahoo Finance를 1차로 시도하고, 실패 시 대안 소스로 전환
  */
 export async function fetchStocksData(
   symbols: string[]
 ): Promise<Map<string, StockData>> {
   const dataSource = selectDataSource(symbols);
 
-  console.log(`[DataAdapter] Using data source: ${dataSource} for symbols: ${symbols.join(', ')}`);
+  console.log(`[DataAdapter] Processing ${symbols.length} symbols`);
 
-  try {
-    if (dataSource === 'dual-source') {
-      // 듀얼 소스 시스템 사용 (교차 검증)
-      return await fetchStocksDataDualSource(symbols);
-    } else if (dataSource === 'vercel') {
-      // Vercel Serverless Functions 사용
-      return await fetchStocksDataBatchVercel(symbols);
-    } else if (dataSource === 'finnhub') {
-      // 한국 주식 심볼 정규화
-      const normalizedSymbols = symbols.map(normalizeKoreaSymbol);
-      return await fetchStocksDataBatchFinnhub(normalizedSymbols);
-    } else {
-      return await fetchYahooBatch(symbols);
-    }
-  } catch (error) {
-    // Fallback 전략
-    if (dataSource === 'dual-source') {
-      console.warn('[DataAdapter] Dual source failed, falling back to Yahoo:', error);
-      try {
-        return await fetchYahooBatch(symbols);
-      } catch (fallbackError) {
-        console.error('[DataAdapter] All data sources failed:', fallbackError);
-        throw fallbackError;
-      }
-    } else if (dataSource === 'vercel') {
-      console.warn('[DataAdapter] Vercel Python failed, falling back to Finnhub/Yahoo:', error);
-      try {
-        if (process.env.FINNHUB_API_KEY) {
-          const normalizedSymbols = symbols.map(normalizeKoreaSymbol);
-          return await fetchStocksDataBatchFinnhub(normalizedSymbols);
-        } else {
-          return await fetchYahooBatch(symbols);
-        }
-      } catch (fallbackError) {
-        console.error('[DataAdapter] All data sources failed:', fallbackError);
-        throw fallbackError;
-      }
-    } else if (dataSource === 'finnhub') {
-      console.warn('[DataAdapter] Finnhub failed, falling back to Yahoo Finance:', error);
-      try {
-        return await fetchYahooBatch(symbols);
-      } catch (fallbackError) {
-        console.error('[DataAdapter] Both data sources failed:', fallbackError);
-        throw fallbackError;
-      }
-    }
-    throw error;
+  // DualSource 또는 Vercel 명시적 설정 시 기존 로직 사용
+  if (dataSource === 'dual-source') {
+    return await fetchStocksDataDualSource(symbols);
   }
+
+  if (dataSource === 'vercel') {
+    try {
+      return await fetchStocksDataBatchVercel(symbols);
+    } catch (error) {
+      console.warn('[DataAdapter] Vercel failed, using fallback chain');
+    }
+  }
+
+  // 심볼을 미국/한국으로 분류
+  const { us, kr } = categorizeSymbols(symbols);
+  console.log(`[DataAdapter] Categorized: ${us.length} US, ${kr.length} KR stocks`);
+
+  // 병렬로 수집
+  const [usResults, krResults] = await Promise.all([
+    fetchUSStocksWithFallback(us),
+    fetchKRStocksWithFallback(kr),
+  ]);
+
+  // 결과 병합
+  const results = new Map<string, StockData>();
+  usResults.forEach((data, symbol) => results.set(symbol, data));
+  krResults.forEach((data, symbol) => results.set(symbol, data));
+
+  console.log(`[DataAdapter] Total results: ${results.size}/${symbols.length} symbols`);
+  return results;
 }
 
 /**
- * 통합 환율 조회
+ * 통합 환율 조회 (Fallback 체인)
+ * Yahoo → Finnhub → Twelve Data
  */
 export async function fetchExchangeRate(): Promise<number | null> {
-  const dataSource = selectDataSource([]);
+  console.log('[ExchangeRate] Fetching with fallback chain');
 
+  // 1차: Yahoo Finance
   try {
-    if (dataSource === 'finnhub') {
-      const rate = await fetchExchangeRateFinnhub();
-      if (rate !== null) return rate;
-      // Fallback to Yahoo
-      return await fetchYahooExchangeRate();
-    } else {
-      return await fetchYahooExchangeRate();
+    const yahooRate = await fetchYahooExchangeRate();
+    if (yahooRate !== null) {
+      console.log(`[ExchangeRate] Yahoo Finance 성공: ${yahooRate}`);
+      return yahooRate;
     }
-  } catch (error) {
-    console.error('Error fetching exchange rate:', error);
-    return null;
+  } catch (yahooError) {
+    console.warn('[ExchangeRate] Yahoo Finance 실패:', yahooError instanceof Error ? yahooError.message : yahooError);
   }
+
+  // 2차: Finnhub
+  if (process.env.FINNHUB_API_KEY) {
+    try {
+      const finnhubRate = await fetchExchangeRateFinnhub();
+      if (finnhubRate !== null) {
+        console.log(`[ExchangeRate] Finnhub 성공: ${finnhubRate}`);
+        return finnhubRate;
+      }
+    } catch (finnhubError) {
+      console.warn('[ExchangeRate] Finnhub 실패:', finnhubError instanceof Error ? finnhubError.message : finnhubError);
+    }
+  }
+
+  // 3차: Twelve Data
+  if (isTwelveDataAvailable()) {
+    try {
+      const twelveDataRate = await fetchTwelveDataExchangeRate();
+      if (twelveDataRate !== null) {
+        console.log(`[ExchangeRate] Twelve Data 성공: ${twelveDataRate}`);
+        return twelveDataRate;
+      }
+    } catch (twelveDataError) {
+      console.warn('[ExchangeRate] Twelve Data 실패:', twelveDataError instanceof Error ? twelveDataError.message : twelveDataError);
+    }
+  }
+
+  console.error('[ExchangeRate] 모든 데이터 소스 실패');
+  return null;
 }
 
 /**
- * 통합 VIX 조회
+ * 통합 VIX 조회 (Fallback 체인)
+ * Yahoo → Finnhub
  */
 export async function fetchVIX(): Promise<number | null> {
-  const dataSource = selectDataSource([]);
+  console.log('[VIX] Fetching with fallback chain');
 
+  // 1차: Yahoo Finance
   try {
-    if (dataSource === 'finnhub') {
-      const vix = await fetchVIXFinnhub();
-      if (vix !== null) return vix;
-      // Fallback to Yahoo
-      return await fetchYahooVIX();
-    } else {
-      return await fetchYahooVIX();
+    const yahooVIX = await fetchYahooVIX();
+    if (yahooVIX !== null) {
+      console.log(`[VIX] Yahoo Finance 성공: ${yahooVIX}`);
+      return yahooVIX;
     }
-  } catch (error) {
-    console.error('Error fetching VIX:', error);
-    return null;
+  } catch (yahooError) {
+    console.warn('[VIX] Yahoo Finance 실패:', yahooError instanceof Error ? yahooError.message : yahooError);
   }
+
+  // 2차: Finnhub
+  if (process.env.FINNHUB_API_KEY) {
+    try {
+      const finnhubVIX = await fetchVIXFinnhub();
+      if (finnhubVIX !== null) {
+        console.log(`[VIX] Finnhub 성공: ${finnhubVIX}`);
+        return finnhubVIX;
+      }
+    } catch (finnhubError) {
+      console.warn('[VIX] Finnhub 실패:', finnhubError instanceof Error ? finnhubError.message : finnhubError);
+    }
+  }
+
+  console.error('[VIX] 모든 데이터 소스 실패');
+  return null;
 }
 
 /**
- * 통합 뉴스 조회
+ * 통합 뉴스 조회 (Fallback 체인)
+ * Yahoo → Finnhub
  */
 export async function fetchNews(
   symbol: string,
   count: number = 5
 ): Promise<Array<{ title: string; link: string; date: string }>> {
-  console.log(`[fetchNews] Fetching news for ${symbol}...`);
+  console.log(`[News] Fetching news for ${symbol}`);
 
-  // 1차 시도: Yahoo Finance
+  // 1차: Yahoo Finance
   try {
     const yahooNews = await fetchYahooNews(symbol, count);
     if (yahooNews.length > 0) {
-      console.log(`[fetchNews] Yahoo Finance success: ${yahooNews.length} news for ${symbol}`);
+      console.log(`[News] Yahoo Finance 성공: ${yahooNews.length} articles`);
       return yahooNews;
     }
-    console.log(`[fetchNews] Yahoo Finance returned empty, trying Finnhub fallback...`);
   } catch (yahooError) {
-    console.warn(`[fetchNews] Yahoo Finance failed for ${symbol}:`, yahooError instanceof Error ? yahooError.message : yahooError);
+    console.warn('[News] Yahoo Finance 실패:', yahooError instanceof Error ? yahooError.message : yahooError);
   }
 
-  // 2차 시도: Finnhub (fallback)
-  try {
-    // 한국 주식의 경우 미국 주식 심볼로 변환 불가하므로 Finnhub은 미국 주식만 지원
-    // 한국 주식(.KS, .KQ 또는 6자리 숫자)인 경우 빈 배열 반환
-    const isKoreaStock = symbol.endsWith('.KS') || symbol.endsWith('.KQ') || /^\d{6}$/.test(symbol.replace(/\.(KS|KQ)$/, ''));
-
-    if (!isKoreaStock && process.env.FINNHUB_API_KEY) {
+  // 2차: Finnhub (미국 주식만)
+  if (!isKoreanStock(symbol) && process.env.FINNHUB_API_KEY) {
+    try {
       const finnhubNews = await fetchNewsFinnhub(symbol, count);
       if (finnhubNews.length > 0) {
-        console.log(`[fetchNews] Finnhub fallback success: ${finnhubNews.length} news for ${symbol}`);
+        console.log(`[News] Finnhub 성공: ${finnhubNews.length} articles`);
         return finnhubNews;
       }
+    } catch (finnhubError) {
+      console.warn('[News] Finnhub 실패:', finnhubError instanceof Error ? finnhubError.message : finnhubError);
     }
-  } catch (finnhubError) {
-    console.warn(`[fetchNews] Finnhub fallback also failed for ${symbol}:`, finnhubError instanceof Error ? finnhubError.message : finnhubError);
   }
 
-  console.warn(`[fetchNews] All news sources failed for ${symbol}, returning empty array`);
+  console.warn(`[News] 모든 뉴스 소스 실패: ${symbol}`);
   return [];
 }

@@ -19,7 +19,21 @@
       "Bash(pkill:*)",
       "Bash(nslookup:*)",
       "Bash(sort:*)",
-      "Bash(iconv:*)"
+      "Bash(iconv:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: Agentic Web Browsing 기술검토 및 종목 검색 버그 수정\n\n## 주요 변경사항\n\n### 1. 종목 검색 버그 수정\n- 네이버 자동완성 API\\(ac.finance.naver.com\\) 서비스 종료 대응\n- 모바일 API + 검색 페이지 파싱 방식으로 전환\n- symbols.json 크롤링 개선 \\(sise_market_sum.naver + 페이지네이션\\)\n- 한국 주식 종목 수: 2,513 → 4,286개로 확대\n- 지투지바이오\\(456160\\) 등 신규 상장 종목 검색 가능\n\n### 2. Agentic Web Browsing 기술검토 문서 작성\n- 지표 및 수치 데이터 수집 관점 효용성 분석\n- Browser-Use, Claude Computer Use, Skyvern 도구 비교\n- 재무 지표 수집\\(미구현 영역\\) 해결방안 제시\n- 수급 데이터 크롤링 안정성 개선방안\n\n### 3. 듀얼 소스 병렬 수집 + 상호검증 아키텍처 분석\n- 전통적 크롤링과 Agentic 방식 병렬 수행 후 교차 검증\n- 데이터 정합성 검증 로직 설계\n- 비용/성능/신뢰성 트레이드오프 평가\n- 충돌 해결 정책 및 구현 예시 제공\n\n### 4. 문서 정리\n- 기존 분석 문서 docs/archive/로 이동\n- 신규 분석 문서 추가:\n  - AGENTIC_WEB_BROWSING_ANALYSIS.md\n  - DUAL_SOURCE_VALIDATION_ANALYSIS.md\n  - PROJECT_DESIGN.md\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "WebFetch(domain:finance.naver.com)",
+      "Bash(npm ls:*)",
+      "Bash(npx tsc:*)",
+      "WebFetch(domain:gist.github.com)",
+      "WebFetch(domain:dev.to)",
+      "WebFetch(domain:www.nstbrowser.io)",
+      "Bash(npm install:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: Agentic Screenshot 방식 듀얼 소스 시스템 구현\n\n- Agentic Screenshot 크롤러 구현 \\(Puppeteer + Gemini Vision AI\\)\n  - 브라우저 자동화 → 스크린샷 캡처 → Vision AI 데이터 추출\n  - 웹사이트 구조 변경에 자동 적응하는 방식\n\n- 한국 주식 듀얼 소스\n  - Source A: Agentic Screenshot \\(네이버 금융\\)\n  - Source B: 다음 금융 REST API \\(신규\\)\n\n- 미국 주식 듀얼 소스\n  - Source A: Agentic Screenshot \\(Yahoo Finance\\)\n  - Source B: Yahoo Finance API \\(yahoo-finance2\\)\n\n- 교차 검증 엔진으로 데이터 신뢰도 향상\n- 서버리스 환경 폴백 전략 포함\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(source .env.local)",
+      "Bash(git commit:*)",
+      "Bash(export FINNHUB_API_KEY=***FINNHUB_API_KEY_REMOVED***)",
+      "Bash(git fetch:*)",
+      "Bash(git restore:*)"
     ]
   }
 }
