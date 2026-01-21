@@ -648,9 +648,16 @@ async function fetchKoreaSupplyDemandNaver(symbol: string): Promise<SupplyDemand
 export async function fetchNews(symbol: string, count: number = 5): Promise<Array<{ title: string; link: string; date: string }>> {
   const cacheKey = CacheKey.news(symbol);
 
+  // 한국 주식 심볼 변환 (6자리 코드 -> Yahoo Finance 형식)
+  let searchSymbol = symbol;
+  if (/^\d{6}$/.test(symbol)) {
+    searchSymbol = `${symbol}.KS`;
+    console.log(`[Yahoo Finance News] 한국 주식 심볼 변환: ${symbol} -> ${searchSymbol}`);
+  }
+
   try {
     return await withCache(cacheKey, CACHE_TTL.NEWS, async () => {
-      const news = await yahooFinance.search(symbol, {
+      const news = await yahooFinance.search(searchSymbol, {
         newsCount: count,
       });
 
@@ -680,6 +687,79 @@ export async function fetchNews(symbol: string, count: number = 5): Promise<Arra
     });
   } catch (error) {
     console.error(`Error fetching news for ${symbol}:`, error);
+    return [];
+  }
+}
+
+/**
+ * 네이버 금융에서 한국 주식 뉴스 수집 (모바일 API 사용)
+ * @param symbol 한국 주식 코드 (6자리)
+ * @param count 수집할 뉴스 개수 (기본값: 5)
+ */
+export async function fetchNaverNews(symbol: string, count: number = 5): Promise<Array<{ title: string; link: string; date: string }>> {
+  const cacheKey = `naver:news:${symbol}`;
+
+  try {
+    return await withCache(cacheKey, CACHE_TTL.NEWS, async () => {
+      // 네이버 주식 모바일 API 사용 (더 안정적)
+      const url = `https://m.stock.naver.com/api/news/stock/${symbol}?page=1&size=${count}`;
+
+      const response = await axios.get(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Mobile/15E148 Safari/604.1',
+          'Accept': 'application/json',
+          'Referer': 'https://m.stock.naver.com/',
+        },
+        timeout: 10000,
+      });
+
+      interface NaverNewsItem {
+        officeId: string;
+        articleId: string;
+        title: string;
+        titleFull?: string;
+        datetime: string; // 형식: "202601211710" (YYYYMMDDHHMM)
+      }
+
+      interface NaverNewsGroup {
+        total: number;
+        items: NaverNewsItem[];
+      }
+
+      const newsGroups: NaverNewsGroup[] = response.data;
+      const news: Array<{ title: string; link: string; date: string }> = [];
+
+      // API 응답은 그룹화된 형태로 반환됨
+      for (const group of newsGroups) {
+        if (news.length >= count) break;
+
+        for (const item of group.items) {
+          if (news.length >= count) break;
+
+          const title = item.titleFull || item.title;
+          // 네이버 뉴스 링크 생성
+          const link = `https://n.news.naver.com/mnews/article/${item.officeId}/${item.articleId}`;
+
+          // 날짜 파싱 (YYYYMMDDHHMM → ISO 8601)
+          let date = '';
+          if (item.datetime && item.datetime.length >= 8) {
+            const year = item.datetime.substring(0, 4);
+            const month = item.datetime.substring(4, 6);
+            const day = item.datetime.substring(6, 8);
+            const hour = item.datetime.length >= 10 ? item.datetime.substring(8, 10) : '00';
+            const minute = item.datetime.length >= 12 ? item.datetime.substring(10, 12) : '00';
+            date = new Date(`${year}-${month}-${day}T${hour}:${minute}:00+09:00`).toISOString();
+          }
+
+          news.push({ title, link, date });
+        }
+      }
+
+      console.log(`[Naver Finance API] News fetched for ${symbol}: ${news.length} items`);
+      return news;
+    });
+  } catch (error) {
+    console.error(`Error fetching Naver news for ${symbol}:`, error instanceof Error ? error.message : error);
     return [];
   }
 }

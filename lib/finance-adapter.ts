@@ -23,6 +23,7 @@ import {
   fetchExchangeRate as fetchYahooExchangeRate,
   fetchVIX as fetchYahooVIX,
   fetchNews as fetchYahooNews,
+  fetchNaverNews,
   fetchUnifiedQuotesBatch,
   fetchHistoricalDataCached,
   calculateRSI,
@@ -512,7 +513,8 @@ export async function fetchVIX(): Promise<number | null> {
 
 /**
  * 통합 뉴스 조회 (Fallback 체인)
- * Yahoo → Finnhub
+ * 한국 주식: 네이버 금융 → Yahoo Finance
+ * 미국 주식: Yahoo Finance → Finnhub
  */
 export async function fetchNews(
   symbol: string,
@@ -520,6 +522,38 @@ export async function fetchNews(
 ): Promise<Array<{ title: string; link: string; date: string }>> {
   console.log(`[News] Fetching news for ${symbol}`);
 
+  // 한국 주식인 경우: 네이버 → Yahoo 순으로 시도
+  if (isKoreanStock(symbol)) {
+    // 6자리 코드 추출 (064350.KS → 064350)
+    const koreanSymbol = symbol.replace(/\.(KS|KQ)$/, '');
+
+    // 1차: 네이버 금융 (한국 주식 뉴스 전문)
+    try {
+      const naverNews = await fetchNaverNews(koreanSymbol, count);
+      if (naverNews.length > 0) {
+        console.log(`[News] 네이버 금융 성공: ${naverNews.length} articles`);
+        return naverNews;
+      }
+    } catch (naverError) {
+      console.warn('[News] 네이버 금융 실패:', naverError instanceof Error ? naverError.message : naverError);
+    }
+
+    // 2차: Yahoo Finance (Fallback)
+    try {
+      const yahooNews = await fetchYahooNews(symbol, count);
+      if (yahooNews.length > 0) {
+        console.log(`[News] Yahoo Finance 성공 (한국주식 Fallback): ${yahooNews.length} articles`);
+        return yahooNews;
+      }
+    } catch (yahooError) {
+      console.warn('[News] Yahoo Finance 실패 (한국주식):', yahooError instanceof Error ? yahooError.message : yahooError);
+    }
+
+    console.warn(`[News] 한국 주식 뉴스 소스 모두 실패: ${symbol}`);
+    return [];
+  }
+
+  // 미국/기타 주식인 경우: Yahoo → Finnhub 순으로 시도
   // 1차: Yahoo Finance
   try {
     const yahooNews = await fetchYahooNews(symbol, count);
@@ -531,8 +565,8 @@ export async function fetchNews(
     console.warn('[News] Yahoo Finance 실패:', yahooError instanceof Error ? yahooError.message : yahooError);
   }
 
-  // 2차: Finnhub (미국 주식만)
-  if (!isKoreanStock(symbol) && process.env.FINNHUB_API_KEY) {
+  // 2차: Finnhub
+  if (process.env.FINNHUB_API_KEY) {
     try {
       const finnhubNews = await fetchNewsFinnhub(symbol, count);
       if (finnhubNews.length > 0) {
