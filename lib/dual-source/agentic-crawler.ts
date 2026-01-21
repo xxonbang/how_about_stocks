@@ -2,7 +2,7 @@
  * Agentic Screenshot 크롤러
  *
  * 진정한 Agentic Web Browsing 방식:
- * 1. Puppeteer로 브라우저 자동화 및 페이지 렌더링
+ * 1. Playwright로 브라우저 자동화 및 페이지 렌더링
  * 2. 화면 캡처 (Screenshot)
  * 3. Vision AI (Gemini)로 시각적 정보 추출
  * 4. 구조화된 데이터 반환
@@ -11,12 +11,10 @@
  * - 웹사이트 구조 변경에 자동 적응
  * - CSS 셀렉터 하드코딩 불필요
  * - AI가 시각적으로 데이터 위치 파악
+ * - Playwright의 빠른 성능 및 안정적인 자동 대기
  */
 
-import puppeteer from 'puppeteer-extra';
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-import type { Browser, Page } from 'puppeteer';
+import { chromium, type Browser, type Page } from 'playwright';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getGeminiApiKeys } from '../gemini-client';
 import type {
@@ -29,9 +27,6 @@ import type {
   StockSupplyDemandData,
   StockMarketData,
 } from './types';
-
-// Stealth Plugin 적용
-puppeteer.use(StealthPlugin());
 
 const USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
@@ -82,17 +77,13 @@ export class AgenticScreenshotCrawler {
 
   private async getBrowser(): Promise<Browser> {
     if (!this.browser) {
-      this.browser = await puppeteer.launch({
+      this.browser = await chromium.launch({
         headless: true,
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
           '--disable-dev-shm-usage',
-          '--disable-accelerated-2d-canvas',
-          '--no-first-run',
-          '--no-zygote',
           '--disable-gpu',
-          '--disable-blink-features=AutomationControlled',
         ],
       });
     }
@@ -101,14 +92,13 @@ export class AgenticScreenshotCrawler {
 
   private async createPage(): Promise<Page> {
     const browser = await this.getBrowser();
-    const page = await browser.newPage();
-
-    await page.setUserAgent(USER_AGENT);
-    await page.setViewport({ width: 1400, height: 900 });
-
-    await page.setExtraHTTPHeaders({
-      'Accept-Language': 'ko-KR,ko;q=0.9,en;q=0.8',
-      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    const page = await browser.newPage({
+      userAgent: USER_AGENT,
+      viewport: { width: 1400, height: 900 },
+      extraHTTPHeaders: {
+        'Accept-Language': 'ko-KR,ko;q=0.9,en;q=0.8',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+      },
     });
 
     return page;
@@ -198,19 +188,19 @@ export class AgenticScreenshotCrawler {
 
       // 네이버 금융 페이지 접속
       await page.goto(`https://finance.naver.com/item/main.naver?code=${symbol}`, {
-        waitUntil: 'networkidle2',
+        waitUntil: 'networkidle',
         timeout: 30000,
       });
 
       await delay(2000); // 페이지 완전 로딩 대기
 
-      // 스크린샷 캡처
+      // 스크린샷 캡처 (Playwright는 Buffer 반환)
       console.log('[Agentic] 스크린샷 캡처 중...');
-      const screenshot = await page.screenshot({
-        encoding: 'base64',
+      const screenshotBuffer = await page.screenshot({
         fullPage: false,
         clip: { x: 0, y: 0, width: 1400, height: 900 },
       });
+      const screenshot = screenshotBuffer.toString('base64');
 
       // Vision AI로 데이터 추출
       console.log('[Agentic] Vision AI로 데이터 추출 중...');
@@ -351,7 +341,7 @@ JSON만 출력하세요.`;
 
       // Yahoo Finance 페이지 접속
       await page.goto(`https://finance.yahoo.com/quote/${symbol}`, {
-        waitUntil: 'networkidle2',
+        waitUntil: 'networkidle',
         timeout: 30000,
       });
 
@@ -359,8 +349,8 @@ JSON만 출력하세요.`;
 
       // 쿠키 동의 팝업 처리
       try {
-        const consentButton = await page.$('button[name="agree"]');
-        if (consentButton) {
+        const consentButton = page.locator('button[name="agree"]');
+        if (await consentButton.count() > 0) {
           await consentButton.click();
           await delay(1000);
         }
@@ -368,13 +358,13 @@ JSON만 출력하세요.`;
         // 팝업 없음
       }
 
-      // 스크린샷 캡처
+      // 스크린샷 캡처 (Playwright는 Buffer 반환)
       console.log('[Agentic] 스크린샷 캡처 중...');
-      const screenshot = await page.screenshot({
-        encoding: 'base64',
+      const screenshotBuffer = await page.screenshot({
         fullPage: false,
         clip: { x: 0, y: 0, width: 1400, height: 900 },
       });
+      const screenshot = screenshotBuffer.toString('base64');
 
       // Vision AI로 데이터 추출
       console.log('[Agentic] Vision AI로 데이터 추출 중...');

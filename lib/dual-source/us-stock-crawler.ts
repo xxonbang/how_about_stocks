@@ -1,19 +1,15 @@
 /**
  * 미국 주식 데이터 크롤러 (Yahoo Finance)
- * Source A: Puppeteer + Stealth Plugin 기반 웹 크롤링
+ * Source A: Playwright 기반 웹 크롤링
  *
  * 참고자료:
  * - https://www.nstbrowser.io/en/blog/yahoo-finance-scraping
  * - https://dev.to/code_jedi/scrape-the-latest-stock-prices-with-node-js-and-puppeteer-4p2g
- * - https://www.zenrows.com/blog/puppeteer-stealth
  */
 
-import puppeteer from 'puppeteer-extra';
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-import type { Browser, Page } from 'puppeteer';
+import { chromium, type Browser, type Page } from 'playwright';
 
-// 대기 함수 (waitForTimeout 대체)
+// 대기 함수
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 import type {
   StockDataCollector,
@@ -26,9 +22,6 @@ import type {
   StockMarketData,
   ComprehensiveStockData,
 } from './types';
-
-// Stealth Plugin 적용
-puppeteer.use(StealthPlugin());
 
 const YAHOO_FINANCE_BASE_URL = 'https://finance.yahoo.com';
 const USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
@@ -106,9 +99,9 @@ async function handleConsentPopup(page: Page): Promise<void> {
 
     for (const selector of consentSelectors) {
       try {
-        const button = await page.$(selector);
-        if (button) {
-          await button.click();
+        const button = page.locator(selector);
+        if (await button.count() > 0) {
+          await button.first().click();
           await delay(1000);
           console.log('[USCrawler] Consent popup handled');
           return;
@@ -128,9 +121,9 @@ async function handleConsentPopup(page: Page): Promise<void> {
 async function getElementText(page: Page, selectors: string[]): Promise<string | null> {
   for (const selector of selectors) {
     try {
-      const element = await page.$(selector);
-      if (element) {
-        const text = await page.evaluate((el) => el.textContent, element);
+      const element = page.locator(selector);
+      if (await element.count() > 0) {
+        const text = await element.first().textContent();
         if (text && text.trim()) {
           return text.trim();
         }
@@ -212,17 +205,13 @@ export class USStockCrawler implements StockDataCollector {
 
   private async getBrowser(): Promise<Browser> {
     if (!this.browser) {
-      this.browser = await puppeteer.launch({
+      this.browser = await chromium.launch({
         headless: true,
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
           '--disable-dev-shm-usage',
-          '--disable-accelerated-2d-canvas',
-          '--no-first-run',
-          '--no-zygote',
           '--disable-gpu',
-          '--disable-blink-features=AutomationControlled',
         ],
       });
     }
@@ -231,15 +220,13 @@ export class USStockCrawler implements StockDataCollector {
 
   private async createPage(): Promise<Page> {
     const browser = await this.getBrowser();
-    const page = await browser.newPage();
-
-    await page.setUserAgent(USER_AGENT);
-    await page.setViewport({ width: 1920, height: 1080 });
-
-    // Extra headers
-    await page.setExtraHTTPHeaders({
-      'Accept-Language': 'en-US,en;q=0.9',
-      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    const page = await browser.newPage({
+      userAgent: USER_AGENT,
+      viewport: { width: 1920, height: 1080 },
+      extraHTTPHeaders: {
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+      },
     });
 
     return page;
@@ -344,7 +331,7 @@ export class USStockCrawler implements StockDataCollector {
       });
 
       await handleConsentPopup(page);
-      await page.waitForSelector('fin-streamer[data-field="regularMarketPrice"]', { timeout: 15000 });
+      await page.locator('fin-streamer[data-field="regularMarketPrice"]').waitFor({ timeout: 15000 });
 
       // 현재가
       const priceText = await getElementText(page, [
@@ -585,7 +572,7 @@ export class USStockCrawler implements StockDataCollector {
       });
 
       await handleConsentPopup(page);
-      await page.waitForSelector('fin-streamer[data-field="regularMarketPrice"]', { timeout: 15000 });
+      await page.locator('fin-streamer[data-field="regularMarketPrice"]').waitFor({ timeout: 15000 });
 
       // 회사명 - 다양한 셀렉터 시도
       const name = await page.evaluate(() => {
