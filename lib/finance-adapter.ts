@@ -1,13 +1,19 @@
 /**
- * 데이터 소스 어댑터 (개선된 Fallback 구조)
+ * 데이터 소스 어댑터 (DualSource 최우선 Fallback 구조)
  *
- * 아키텍처:
+ * 아키텍처 (USE_DUAL_SOURCE=true):
  * ┌─────────────────────────────────────────────────────┐
- * │  Yahoo Finance (1차 시도)                           │
+ * │  [미국 주식]                                        │
+ * │  DualSource (1차) - Agentic + Yahoo API 교차검증   │
+ * │  ↓ 실패 시 (Yahoo 스킵 - 이미 시도했으므로)         │
+ * │  Finnhub (2차) → Twelve Data (3차)                 │
+ * ├─────────────────────────────────────────────────────┤
+ * │  [한국 주식]                                        │
+ * │  DualSource (1차) - Agentic + 다음 금융 교차검증   │
  * │  ↓ 실패 시                                          │
- * │  [미국 주식] Finnhub → Twelve Data                  │
- * │  [한국 주식] 다음 금융 → 공공데이터포털             │
- * │  [환율/VIX] Finnhub → Twelve Data                  │
+ * │  Yahoo (2차) → 공공데이터포털 (3차) → Twelve (4차) │
+ * ├─────────────────────────────────────────────────────┤
+ * │  [환율/VIX] Yahoo → Finnhub → Twelve Data          │
  * └─────────────────────────────────────────────────────┘
  */
 
@@ -93,6 +99,9 @@ function categorizeSymbols(symbols: string[]): { us: string[]; kr: string[] } {
 
 /**
  * 자동으로 최적의 데이터 소스 선택
+ *
+ * USE_DUAL_SOURCE=true: DualSource → Yahoo → Finnhub/공공데이터 → Twelve Data
+ * USE_DUAL_SOURCE=false: Yahoo → Finnhub/공공데이터 → Twelve Data
  */
 function selectDataSource(symbols: string[]): DataSource {
   if (DEFAULT_DATA_SOURCE !== 'auto') {
@@ -100,14 +109,15 @@ function selectDataSource(symbols: string[]): DataSource {
     return DEFAULT_DATA_SOURCE;
   }
 
+  // DualSource 활성화 여부와 관계없이 fallback 체인 사용
+  // (fallback 체인 내부에서 USE_DUAL_SOURCE 확인)
   if (USE_DUAL_SOURCE) {
-    console.log('[DataSource] Using dual-source (cross-validation enabled)');
-    return 'dual-source';
+    console.log('[DataSource] DualSource 최우선 + Fallback 체인 사용');
+  } else {
+    console.log('[DataSource] Yahoo Finance 최우선 + Fallback 체인 사용');
   }
 
-  // 기본값: Yahoo Finance 우선 (Fallback 시스템 적용)
-  console.log('[DataSource] Using Yahoo Finance with multi-source fallback');
-  return 'yahoo';
+  return 'auto';
 }
 
 /**
@@ -209,7 +219,10 @@ async function fetchStocksDataDualSource(
 
 /**
  * 미국 주식 Fallback 체인
- * Yahoo → Finnhub → Twelve Data
+ *
+ * USE_DUAL_SOURCE=true:  DualSource → Finnhub → Twelve Data
+ *                        (Yahoo는 DualSource 내부에서 이미 시도하므로 스킵)
+ * USE_DUAL_SOURCE=false: Yahoo → Finnhub → Twelve Data
  */
 async function fetchUSStocksWithFallback(
   symbols: string[]
@@ -218,22 +231,44 @@ async function fetchUSStocksWithFallback(
 
   console.log(`[US Stocks] Fetching ${symbols.length} symbols with fallback chain`);
 
-  // 1차: Yahoo Finance
-  try {
-    console.log('[US Stocks] 1차 시도: Yahoo Finance');
-    const yahooResult = await fetchYahooBatch(symbols);
-    if (yahooResult.size > 0) {
-      console.log(`[US Stocks] Yahoo Finance 성공: ${yahooResult.size}/${symbols.length} symbols`);
-      return yahooResult;
+  let dualSourceAttempted = false;
+
+  // 1차: DualSource (Agentic Screenshot + Yahoo API 교차검증)
+  if (USE_DUAL_SOURCE) {
+    dualSourceAttempted = true;
+    try {
+      console.log('[US Stocks] 1차 시도: DualSource (Agentic + Yahoo API 교차검증)');
+      const dualSourceResult = await fetchStocksDataDualSource(symbols);
+      if (dualSourceResult.size > 0) {
+        console.log(`[US Stocks] DualSource 성공: ${dualSourceResult.size}/${symbols.length} symbols`);
+        return dualSourceResult;
+      }
+    } catch (dualSourceError) {
+      console.warn('[US Stocks] DualSource 실패:', dualSourceError instanceof Error ? dualSourceError.message : dualSourceError);
     }
-  } catch (yahooError) {
-    console.warn('[US Stocks] Yahoo Finance 실패:', yahooError instanceof Error ? yahooError.message : yahooError);
   }
 
-  // 2차: Finnhub
+  // 2차: Yahoo Finance (DualSource 미시도 시에만)
+  // DualSource 내부에서 Yahoo API를 이미 시도했으므로, 중복 호출 방지
+  if (!dualSourceAttempted) {
+    try {
+      console.log('[US Stocks] 2차 시도: Yahoo Finance');
+      const yahooResult = await fetchYahooBatch(symbols);
+      if (yahooResult.size > 0) {
+        console.log(`[US Stocks] Yahoo Finance 성공: ${yahooResult.size}/${symbols.length} symbols`);
+        return yahooResult;
+      }
+    } catch (yahooError) {
+      console.warn('[US Stocks] Yahoo Finance 실패:', yahooError instanceof Error ? yahooError.message : yahooError);
+    }
+  } else {
+    console.log('[US Stocks] Yahoo Finance 스킵 (DualSource 내부에서 이미 시도함)');
+  }
+
+  // 3차: Finnhub
   if (process.env.FINNHUB_API_KEY) {
     try {
-      console.log('[US Stocks] 2차 시도: Finnhub');
+      console.log(`[US Stocks] ${dualSourceAttempted ? '2' : '3'}차 시도: Finnhub`);
       const finnhubResult = await fetchStocksDataBatchFinnhub(symbols);
       if (finnhubResult.size > 0) {
         console.log(`[US Stocks] Finnhub 성공: ${finnhubResult.size}/${symbols.length} symbols`);
@@ -244,10 +279,10 @@ async function fetchUSStocksWithFallback(
     }
   }
 
-  // 3차: Twelve Data
+  // 4차: Twelve Data
   if (isTwelveDataAvailable()) {
     try {
-      console.log('[US Stocks] 3차 시도: Twelve Data');
+      console.log(`[US Stocks] ${dualSourceAttempted ? '3' : '4'}차 시도: Twelve Data`);
       const twelveDataResult = await fetchStocksDataBatchTwelveData(symbols);
       if (twelveDataResult.size > 0) {
         console.log(`[US Stocks] Twelve Data 성공: ${twelveDataResult.size}/${symbols.length} symbols`);
@@ -264,7 +299,7 @@ async function fetchUSStocksWithFallback(
 
 /**
  * 한국 주식 Fallback 체인
- * Yahoo → 다음 금융(DualSource) → 공공데이터포털
+ * DualSource → Yahoo → 공공데이터포털 → Twelve Data
  */
 async function fetchKRStocksWithFallback(
   symbols: string[]
@@ -273,22 +308,10 @@ async function fetchKRStocksWithFallback(
 
   console.log(`[KR Stocks] Fetching ${symbols.length} symbols with fallback chain`);
 
-  // 1차: Yahoo Finance
-  try {
-    console.log('[KR Stocks] 1차 시도: Yahoo Finance');
-    const yahooResult = await fetchYahooBatch(symbols);
-    if (yahooResult.size > 0) {
-      console.log(`[KR Stocks] Yahoo Finance 성공: ${yahooResult.size}/${symbols.length} symbols`);
-      return yahooResult;
-    }
-  } catch (yahooError) {
-    console.warn('[KR Stocks] Yahoo Finance 실패:', yahooError instanceof Error ? yahooError.message : yahooError);
-  }
-
-  // 2차: DualSource (다음 금융 포함)
+  // 1차: DualSource (Agentic Screenshot + 다음 금융 교차검증)
   if (USE_DUAL_SOURCE) {
     try {
-      console.log('[KR Stocks] 2차 시도: DualSource (다음 금융)');
+      console.log('[KR Stocks] 1차 시도: DualSource (Agentic + 다음 금융 교차검증)');
       const dualSourceResult = await fetchStocksDataDualSource(symbols);
       if (dualSourceResult.size > 0) {
         console.log(`[KR Stocks] DualSource 성공: ${dualSourceResult.size}/${symbols.length} symbols`);
@@ -297,6 +320,18 @@ async function fetchKRStocksWithFallback(
     } catch (dualSourceError) {
       console.warn('[KR Stocks] DualSource 실패:', dualSourceError instanceof Error ? dualSourceError.message : dualSourceError);
     }
+  }
+
+  // 2차: Yahoo Finance
+  try {
+    console.log('[KR Stocks] 2차 시도: Yahoo Finance');
+    const yahooResult = await fetchYahooBatch(symbols);
+    if (yahooResult.size > 0) {
+      console.log(`[KR Stocks] Yahoo Finance 성공: ${yahooResult.size}/${symbols.length} symbols`);
+      return yahooResult;
+    }
+  } catch (yahooError) {
+    console.warn('[KR Stocks] Yahoo Finance 실패:', yahooError instanceof Error ? yahooError.message : yahooError);
   }
 
   // 3차: 공공데이터포털
@@ -332,35 +367,52 @@ async function fetchKRStocksWithFallback(
 }
 
 /**
- * 통합 주식 데이터 수집 (개선된 Fallback 구조)
+ * 통합 주식 데이터 수집 (DualSource 최우선 Fallback 구조)
  *
- * Yahoo Finance를 1차로 시도하고, 실패 시 대안 소스로 전환
+ * DualSource(Agentic + API 교차검증)를 1차로 시도하고, 실패 시 대안 소스로 전환
  */
 export async function fetchStocksData(
   symbols: string[]
 ): Promise<Map<string, StockData>> {
   const dataSource = selectDataSource(symbols);
 
-  console.log(`[DataAdapter] Processing ${symbols.length} symbols`);
+  console.log(`[DataAdapter] Processing ${symbols.length} symbols (mode: ${dataSource})`);
 
-  // DualSource 또는 Vercel 명시적 설정 시 기존 로직 사용
-  if (dataSource === 'dual-source') {
-    return await fetchStocksDataDualSource(symbols);
-  }
-
+  // DATA_SOURCE=vercel 명시적 설정 시 Vercel 함수 사용 (실패 시 Fallback)
   if (dataSource === 'vercel') {
     try {
-      return await fetchStocksDataBatchVercel(symbols);
+      const result = await fetchStocksDataBatchVercel(symbols);
+      if (result.size > 0) {
+        return result;
+      }
     } catch (error) {
       console.warn('[DataAdapter] Vercel failed, using fallback chain');
     }
   }
 
+  // DATA_SOURCE=dual-source 명시적 설정 시 DualSource 우선 시도 (실패 시 Fallback)
+  if (dataSource === 'dual-source') {
+    console.log('[DataAdapter] 명시적 dual-source 모드');
+    try {
+      const result = await fetchStocksDataDualSource(symbols);
+      if (result.size > 0) {
+        return result;
+      }
+    } catch (error) {
+      console.warn('[DataAdapter] DualSource failed, using fallback chain:', error instanceof Error ? error.message : error);
+    }
+    // DualSource 실패 시 Fallback 체인으로 계속 진행
+  }
+
+  // 기본 모드: Fallback 체인 사용
+  // USE_DUAL_SOURCE=true:  DualSource → Finnhub/공공데이터 → Twelve Data (US는 Yahoo 스킵)
+  // USE_DUAL_SOURCE=false: Yahoo → Finnhub/공공데이터 → Twelve Data
+
   // 심볼을 미국/한국으로 분류
   const { us, kr } = categorizeSymbols(symbols);
   console.log(`[DataAdapter] Categorized: ${us.length} US, ${kr.length} KR stocks`);
 
-  // 병렬로 수집
+  // 병렬로 수집 (각각 Fallback 체인 적용)
   const [usResults, krResults] = await Promise.all([
     fetchUSStocksWithFallback(us),
     fetchKRStocksWithFallback(kr),
