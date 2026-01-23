@@ -616,230 +616,230 @@ function HomePageContent() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                <label className="flex items-center space-x-2 cursor-pointer py-1">
-                  <Checkbox
-                    checked={indicators.rsi}
-                    onChange={(e) =>
-                      setIndicators({ ...indicators, rsi: e.target.checked })
-                    }
-                    disabled={isLoading}
-                  />
-                  <span className="text-xs sm:text-sm flex items-center">
-                    RSI
-                    <IndicatorInfoButton indicatorKey="rsi" />
-                  </span>
-                </label>
-                <label className="flex items-center space-x-2 cursor-pointer py-1">
-                  <Checkbox
-                    checked={indicators.movingAverages}
-                    onChange={(e) =>
-                      setIndicators({
-                        ...indicators,
-                        movingAverages: e.target.checked,
-                      })
-                    }
-                    disabled={isLoading}
-                  />
-                  <span className="text-xs sm:text-sm flex items-center">
-                    이동평균선 (5/20/60/120)
-                    <IndicatorInfoButton indicatorKey="movingAverages" />
-                  </span>
-                </label>
-                <label className="flex items-center space-x-2 cursor-pointer py-1">
-                  <Checkbox
-                    checked={indicators.disparity}
-                    onChange={(e) =>
-                      setIndicators({
-                        ...indicators,
-                        disparity: e.target.checked,
-                      })
-                    }
-                    disabled={isLoading}
-                  />
-                  <span className="text-xs sm:text-sm flex items-center">
-                    이격도
-                    <IndicatorInfoButton indicatorKey="disparity" />
-                  </span>
-                </label>
-                <label className="flex items-center space-x-2 cursor-pointer py-1">
-                  <Checkbox
-                    checked={indicators.supplyDemand}
-                    onChange={(e) =>
-                      setIndicators({
-                        ...indicators,
-                        supplyDemand: e.target.checked,
-                      })
-                    }
-                    disabled={isLoading}
-                  />
-                  <span className="text-xs sm:text-sm flex items-center">
-                    수급 (기관/외인)
-                    <IndicatorInfoButton indicatorKey="supplyDemand" />
-                  </span>
-                </label>
-                <label className="flex items-center space-x-2 cursor-pointer py-1">
-                  <Checkbox
-                    checked={indicators.fearGreed}
-                    onChange={(e) =>
-                      setIndicators({
-                        ...indicators,
-                        fearGreed: e.target.checked,
-                      })
-                    }
-                    disabled={isLoading}
-                  />
-                  <span className="text-xs sm:text-sm flex items-center">
-                    공포/탐욕 지수
-                    <IndicatorInfoButton indicatorKey="fearGreed" />
-                  </span>
-                </label>
-                <label className="flex items-center space-x-2 cursor-pointer py-1">
-                  <Checkbox
-                    checked={indicators.exchangeRate}
-                    onChange={(e) =>
-                      setIndicators({
-                        ...indicators,
-                        exchangeRate: e.target.checked,
-                      })
-                    }
-                    disabled={isLoading}
-                  />
-                  <span className="text-xs sm:text-sm flex items-center">
-                    환율
-                    <IndicatorInfoButton indicatorKey="exchangeRate" />
-                  </span>
-                </label>
+                <div className="flex items-center py-1">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <Checkbox
+                      checked={indicators.rsi}
+                      onChange={(e) =>
+                        setIndicators({ ...indicators, rsi: e.target.checked })
+                      }
+                      disabled={isLoading}
+                    />
+                    <span className="text-xs sm:text-sm">RSI</span>
+                  </label>
+                  <IndicatorInfoButton indicatorKey="rsi" />
+                </div>
+                <div className="flex items-center py-1">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <Checkbox
+                      checked={indicators.movingAverages}
+                      onChange={(e) =>
+                        setIndicators({
+                          ...indicators,
+                          movingAverages: e.target.checked,
+                        })
+                      }
+                      disabled={isLoading}
+                    />
+                    <span className="text-xs sm:text-sm">이동평균선 (5/20/60/120)</span>
+                  </label>
+                  <IndicatorInfoButton indicatorKey="movingAverages" />
+                </div>
+                <div className="flex items-center py-1">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <Checkbox
+                      checked={indicators.disparity}
+                      onChange={(e) =>
+                        setIndicators({
+                          ...indicators,
+                          disparity: e.target.checked,
+                        })
+                      }
+                      disabled={isLoading}
+                    />
+                    <span className="text-xs sm:text-sm">이격도</span>
+                  </label>
+                  <IndicatorInfoButton indicatorKey="disparity" />
+                </div>
+                <div className="flex items-center py-1">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <Checkbox
+                      checked={indicators.supplyDemand}
+                      onChange={(e) =>
+                        setIndicators({
+                          ...indicators,
+                          supplyDemand: e.target.checked,
+                        })
+                      }
+                      disabled={isLoading}
+                    />
+                    <span className="text-xs sm:text-sm">수급 (기관/외인)</span>
+                  </label>
+                  <IndicatorInfoButton indicatorKey="supplyDemand" />
+                </div>
+                <div className="flex items-center py-1">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <Checkbox
+                      checked={indicators.fearGreed}
+                      onChange={(e) =>
+                        setIndicators({
+                          ...indicators,
+                          fearGreed: e.target.checked,
+                        })
+                      }
+                      disabled={isLoading}
+                    />
+                    <span className="text-xs sm:text-sm">공포/탐욕 지수</span>
+                  </label>
+                  <IndicatorInfoButton indicatorKey="fearGreed" />
+                </div>
+                <div className="flex items-center py-1">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <Checkbox
+                      checked={indicators.exchangeRate}
+                      onChange={(e) =>
+                        setIndicators({
+                          ...indicators,
+                          exchangeRate: e.target.checked,
+                        })
+                      }
+                      disabled={isLoading}
+                    />
+                    <span className="text-xs sm:text-sm">환율</span>
+                  </label>
+                  <IndicatorInfoButton indicatorKey="exchangeRate" />
+                </div>
                 {/* Phase 1 지표 */}
-                <label className="flex items-center space-x-2 cursor-pointer py-1">
-                  <Checkbox
-                    checked={indicators.etfPremium || false}
-                    onChange={(e) =>
-                      setIndicators({
-                        ...indicators,
-                        etfPremium: e.target.checked,
-                      })
-                    }
-                    disabled={isLoading}
-                  />
-                  <span className="text-xs sm:text-sm flex items-center">
-                    ETF 괴리율
-                    <IndicatorInfoButton indicatorKey="etfPremium" />
-                  </span>
-                </label>
-                <label className="flex items-center space-x-2 cursor-pointer py-1">
-                  <Checkbox
-                    checked={indicators.bollingerBands || false}
-                    onChange={(e) =>
-                      setIndicators({
-                        ...indicators,
-                        bollingerBands: e.target.checked,
-                      })
-                    }
-                    disabled={isLoading}
-                  />
-                  <span className="text-xs sm:text-sm flex items-center">
-                    볼린저 밴드
-                    <IndicatorInfoButton indicatorKey="bollingerBands" />
-                  </span>
-                </label>
-                <label className="flex items-center space-x-2 cursor-pointer py-1">
-                  <Checkbox
-                    checked={indicators.volatility || false}
-                    onChange={(e) =>
-                      setIndicators({
-                        ...indicators,
-                        volatility: e.target.checked,
-                      })
-                    }
-                    disabled={isLoading}
-                  />
-                  <span className="text-xs sm:text-sm flex items-center">
-                    변동성 지표
-                    <IndicatorInfoButton indicatorKey="volatility" />
-                  </span>
-                </label>
-                <label className="flex items-center space-x-2 cursor-pointer py-1">
-                  <Checkbox
-                    checked={indicators.volumeIndicators || false}
-                    onChange={(e) =>
-                      setIndicators({
-                        ...indicators,
-                        volumeIndicators: e.target.checked,
-                      })
-                    }
-                    disabled={isLoading}
-                  />
-                  <span className="text-xs sm:text-sm flex items-center">
-                    거래량 지표
-                    <IndicatorInfoButton indicatorKey="volumeIndicators" />
-                  </span>
-                </label>
+                <div className="flex items-center py-1">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <Checkbox
+                      checked={indicators.etfPremium || false}
+                      onChange={(e) =>
+                        setIndicators({
+                          ...indicators,
+                          etfPremium: e.target.checked,
+                        })
+                      }
+                      disabled={isLoading}
+                    />
+                    <span className="text-xs sm:text-sm">ETF 괴리율</span>
+                  </label>
+                  <IndicatorInfoButton indicatorKey="etfPremium" />
+                </div>
+                <div className="flex items-center py-1">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <Checkbox
+                      checked={indicators.bollingerBands || false}
+                      onChange={(e) =>
+                        setIndicators({
+                          ...indicators,
+                          bollingerBands: e.target.checked,
+                        })
+                      }
+                      disabled={isLoading}
+                    />
+                    <span className="text-xs sm:text-sm">볼린저 밴드</span>
+                  </label>
+                  <IndicatorInfoButton indicatorKey="bollingerBands" />
+                </div>
+                <div className="flex items-center py-1">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <Checkbox
+                      checked={indicators.volatility || false}
+                      onChange={(e) =>
+                        setIndicators({
+                          ...indicators,
+                          volatility: e.target.checked,
+                        })
+                      }
+                      disabled={isLoading}
+                    />
+                    <span className="text-xs sm:text-sm">변동성 지표</span>
+                  </label>
+                  <IndicatorInfoButton indicatorKey="volatility" />
+                </div>
+                <div className="flex items-center py-1">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <Checkbox
+                      checked={indicators.volumeIndicators || false}
+                      onChange={(e) =>
+                        setIndicators({
+                          ...indicators,
+                          volumeIndicators: e.target.checked,
+                        })
+                      }
+                      disabled={isLoading}
+                    />
+                    <span className="text-xs sm:text-sm">거래량 지표</span>
+                  </label>
+                  <IndicatorInfoButton indicatorKey="volumeIndicators" />
+                </div>
                 {/* Phase 2 지표 */}
-                <label className="flex items-center space-x-2 cursor-pointer py-1">
-                  <Checkbox
-                    checked={indicators.supportLevel || false}
-                    onChange={(e) =>
-                      setIndicators({
-                        ...indicators,
-                        supportLevel: e.target.checked,
-                      })
-                    }
-                    disabled={isLoading}
-                  />
-                  <span className="text-xs sm:text-sm flex items-center">
-                    눌림목 여부
-                    <IndicatorInfoButton indicatorKey="supportLevel" />
-                  </span>
-                </label>
-                <label className="flex items-center space-x-2 cursor-pointer py-1">
-                  <Checkbox
-                    checked={indicators.supportResistance || false}
-                    onChange={(e) =>
-                      setIndicators({
-                        ...indicators,
-                        supportResistance: e.target.checked,
-                      })
-                    }
-                    disabled={isLoading}
-                  />
-                  <span className="text-xs sm:text-sm flex items-center">
-                    저항선/지지선
-                    <IndicatorInfoButton indicatorKey="supportResistance" />
-                  </span>
-                </label>
+                <div className="flex items-center py-1">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <Checkbox
+                      checked={indicators.supportLevel || false}
+                      onChange={(e) =>
+                        setIndicators({
+                          ...indicators,
+                          supportLevel: e.target.checked,
+                        })
+                      }
+                      disabled={isLoading}
+                    />
+                    <span className="text-xs sm:text-sm">눌림목 여부</span>
+                  </label>
+                  <IndicatorInfoButton indicatorKey="supportLevel" />
+                </div>
+                <div className="flex items-center py-1">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <Checkbox
+                      checked={indicators.supportResistance || false}
+                      onChange={(e) =>
+                        setIndicators({
+                          ...indicators,
+                          supportResistance: e.target.checked,
+                        })
+                      }
+                      disabled={isLoading}
+                    />
+                    <span className="text-xs sm:text-sm">저항선/지지선</span>
+                  </label>
+                  <IndicatorInfoButton indicatorKey="supportResistance" />
+                </div>
                 {/* Phase 3 지표 */}
-                <label className="flex items-center space-x-2 cursor-pointer py-1">
-                  <Checkbox
-                    checked={indicators.macd || false}
-                    onChange={(e) =>
-                      setIndicators({
-                        ...indicators,
-                        macd: e.target.checked,
-                      })
-                    }
-                    disabled={isLoading}
-                  />
-                  <span className="text-xs sm:text-sm flex items-center">
-                    MACD
-                    <IndicatorInfoButton indicatorKey="macd" />
-                  </span>
-                </label>
-                <label className="flex items-center space-x-2 cursor-pointer py-1">
-                  <Checkbox
-                    checked={indicators.stochastic || false}
-                    onChange={(e) =>
-                      setIndicators({
-                        ...indicators,
-                        stochastic: e.target.checked,
-                      })
-                    }
-                    disabled={isLoading}
-                  />
-                  <span className="text-xs sm:text-sm flex items-center">
-                    스토캐스틱
-                    <IndicatorInfoButton indicatorKey="stochastic" />
-                  </span>
-                </label>
+                <div className="flex items-center py-1">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <Checkbox
+                      checked={indicators.macd || false}
+                      onChange={(e) =>
+                        setIndicators({
+                          ...indicators,
+                          macd: e.target.checked,
+                        })
+                      }
+                      disabled={isLoading}
+                    />
+                    <span className="text-xs sm:text-sm">MACD</span>
+                  </label>
+                  <IndicatorInfoButton indicatorKey="macd" />
+                </div>
+                <div className="flex items-center py-1">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <Checkbox
+                      checked={indicators.stochastic || false}
+                      onChange={(e) =>
+                        setIndicators({
+                          ...indicators,
+                          stochastic: e.target.checked,
+                        })
+                      }
+                      disabled={isLoading}
+                    />
+                    <span className="text-xs sm:text-sm">스토캐스틱</span>
+                  </label>
+                  <IndicatorInfoButton indicatorKey="stochastic" />
+                </div>
               </div>
             </CardContent>
           </Card>
