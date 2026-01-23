@@ -1,16 +1,20 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Docker 배포를 위한 standalone 출력 모드
+  output: 'standalone',
   experimental: {
     serverActions: {
       bodySizeLimit: '2mb',
     },
-    // Puppeteer 및 관련 패키지를 서버 외부 패키지로 설정 (webpack 번들링 제외)
+    // Puppeteer/Playwright 및 관련 패키지를 서버 외부 패키지로 설정 (webpack 번들링 제외)
     serverComponentsExternalPackages: [
       'puppeteer',
       'puppeteer-extra',
       'puppeteer-extra-plugin-stealth',
       'puppeteer-core',
       '@puppeteer/browsers',
+      'playwright',
+      'playwright-core',
     ],
   },
   webpack: (config, { isServer }) => {

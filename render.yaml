@@ -1,0 +1,23 @@
+# Render Blueprint - 자동 배포 설정
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: stock-insight
+    runtime: docker
+    plan: free
+    # GitHub 저장소 연결 시 자동 설정됨
+    # repo: https://github.com/your-username/your-repo
+    branch: main
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+      # Google Gemini API 키 (Render 대시보드에서 설정)
+      - key: GOOGLE_GENERATIVE_AI_API_KEY
+        sync: false
+      # 기타 환경 변수 (필요 시 추가)
+    healthCheckPath: /
+    autoDeploy: true
