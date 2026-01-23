@@ -16,6 +16,8 @@ import ReactMarkdown from "react-markdown";
 import { PriceChart } from "@/components/charts/price-chart";
 import { VolumeChart } from "@/components/charts/volume-chart";
 import { RSIChart } from "@/components/charts/rsi-chart";
+import { MACDChart } from "@/components/charts/macd-chart";
+import { StochasticChart } from "@/components/charts/stochastic-chart";
 import { transformToChartData } from "@/lib/chart-utils";
 import { IndicatorInfoButton } from "@/components/indicator-info-button";
 import { LegendTooltip } from "@/components/legend-tooltip";
@@ -1369,6 +1371,172 @@ export default function ReportPage() {
             </Card>
           )}
 
+          {/* MACD */}
+          {marketData.macd && (
+            <Card>
+              <CardHeader className="pb-2 sm:pb-3">
+                <CardTitle className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-1">
+                  📊 MACD
+                  <IndicatorInfoButton indicatorKey="macd" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs sm:text-sm text-gray-600">MACD Line</span>
+                    <span className={`text-sm sm:text-base font-bold ${
+                      marketData.macd.macd > 0 ? "text-red-600" : marketData.macd.macd < 0 ? "text-blue-600" : "text-gray-600"
+                    }`}>
+                      {marketData.macd.macd.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs sm:text-sm text-gray-600">Signal Line</span>
+                    <span className="text-sm sm:text-base font-medium text-gray-700">
+                      {marketData.macd.signal.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs sm:text-sm text-gray-600">Histogram</span>
+                    <span className={`text-sm sm:text-base font-bold ${
+                      marketData.macd.histogram > 0 ? "text-red-600" : marketData.macd.histogram < 0 ? "text-blue-600" : "text-gray-600"
+                    }`}>
+                      {marketData.macd.histogram.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className={`text-sm sm:text-base font-bold mt-3 pt-2 border-t border-gray-200 ${
+                    marketData.macd.crossover === "golden"
+                      ? "text-red-600"
+                      : marketData.macd.crossover === "death"
+                      ? "text-blue-600"
+                      : marketData.macd.trend === "bullish"
+                      ? "text-red-600"
+                      : marketData.macd.trend === "bearish"
+                      ? "text-blue-600"
+                      : "text-gray-600"
+                  }`}>
+                    {marketData.macd.crossover === "golden"
+                      ? "🔴 골든 크로스 (매수 신호)"
+                      : marketData.macd.crossover === "death"
+                      ? "🔵 데드 크로스 (매도 신호)"
+                      : marketData.macd.trend === "bullish"
+                      ? "🔴 상승 추세"
+                      : marketData.macd.trend === "bearish"
+                      ? "🔵 하락 추세"
+                      : "⚪ 중립"}
+                  </div>
+                </div>
+                <div className="mt-3 pt-2 border-t border-gray-100">
+                  <div className="text-xs text-gray-500 mb-2">지표 해석</div>
+                  <div className="space-y-1">
+                    <div className="flex flex-wrap gap-x-2 gap-y-1 items-center">
+                      <span className="font-medium text-gray-600">
+                        신호 범례:
+                      </span>
+                      <LegendTooltip
+                        label="골든 크로스"
+                        description="MACD Line이 Signal Line을 아래에서 위로 돌파하면 상승 추세 전환 신호입니다. 매수 타이밍으로 볼 수 있습니다."
+                      >
+                        🔴 골든 크로스
+                      </LegendTooltip>
+                      <LegendTooltip
+                        label="데드 크로스"
+                        description="MACD Line이 Signal Line을 위에서 아래로 돌파하면 하락 추세 전환 신호입니다. 매도 타이밍으로 볼 수 있습니다."
+                      >
+                        🔵 데드 크로스
+                      </LegendTooltip>
+                      <LegendTooltip
+                        label="중립"
+                        description="특별한 크로스오버 신호가 없는 상태입니다. 추세 방향을 확인하세요."
+                      >
+                        ⚪ 중립
+                      </LegendTooltip>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* 스토캐스틱 */}
+          {marketData.stochastic && (
+            <Card>
+              <CardHeader className="pb-2 sm:pb-3">
+                <CardTitle className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-1">
+                  📈 스토캐스틱
+                  <IndicatorInfoButton indicatorKey="stochastic" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs sm:text-sm text-gray-600">%K</span>
+                    <span className={`text-sm sm:text-base font-bold ${
+                      marketData.stochastic.k >= 80 ? "text-red-600" : marketData.stochastic.k <= 20 ? "text-blue-600" : "text-gray-700"
+                    }`}>
+                      {marketData.stochastic.k.toFixed(1)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs sm:text-sm text-gray-600">%D</span>
+                    <span className="text-sm sm:text-base font-medium text-gray-700">
+                      {marketData.stochastic.d.toFixed(1)}
+                    </span>
+                  </div>
+                  <div className={`text-sm sm:text-base font-bold mt-3 pt-2 border-t border-gray-200 ${
+                    marketData.stochastic.signal === "buy"
+                      ? "text-red-600"
+                      : marketData.stochastic.signal === "sell"
+                      ? "text-blue-600"
+                      : marketData.stochastic.zone === "overbought"
+                      ? "text-red-600"
+                      : marketData.stochastic.zone === "oversold"
+                      ? "text-green-600"
+                      : "text-gray-600"
+                  }`}>
+                    {marketData.stochastic.signal === "buy"
+                      ? "🔴 매수 신호 (%K↑%D 돌파)"
+                      : marketData.stochastic.signal === "sell"
+                      ? "🔵 매도 신호 (%K↓%D 돌파)"
+                      : marketData.stochastic.zone === "overbought"
+                      ? "🔴 과매수 구간 (≥80)"
+                      : marketData.stochastic.zone === "oversold"
+                      ? "🟢 과매도 구간 (≤20)"
+                      : "⚪ 중립 구간"}
+                  </div>
+                </div>
+                <div className="mt-3 pt-2 border-t border-gray-100">
+                  <div className="text-xs text-gray-500 mb-2">지표 해석</div>
+                  <div className="space-y-1">
+                    <div className="flex flex-wrap gap-x-2 gap-y-1 items-center">
+                      <span className="font-medium text-gray-600">
+                        구간 범례:
+                      </span>
+                      <LegendTooltip
+                        label="과매수 (≥80)"
+                        description="주가가 최근 범위의 상단에 위치합니다. 하락 반전 가능성이 있어 매도 타이밍을 고려해볼 수 있습니다."
+                      >
+                        🔴 과매수 (≥80)
+                      </LegendTooltip>
+                      <LegendTooltip
+                        label="중립 (20-80)"
+                        description="주가가 최근 범위의 중간에 위치합니다. 특별한 과매수/과매도 신호가 없는 상태입니다."
+                      >
+                        ⚪ 중립 (20-80)
+                      </LegendTooltip>
+                      <LegendTooltip
+                        label="과매도 (≤20)"
+                        description="주가가 최근 범위의 하단에 위치합니다. 상승 반전 가능성이 있어 매수 타이밍을 고려해볼 수 있습니다."
+                      >
+                        🟢 과매도 (≤20)
+                      </LegendTooltip>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* 거래량 */}
           <Card>
             <CardHeader className="pb-2 sm:pb-3">
@@ -1474,6 +1642,32 @@ export default function ReportPage() {
                 </CardHeader>
                 <CardContent>
                   <RSIChart data={chartData} currentRSI={marketData.rsi} />
+                </CardContent>
+              </Card>
+            )}
+
+            {/* MACD 차트 */}
+            {marketData.macd && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>MACD (이동평균수렴확산)</CardTitle>
+                  <CardDescription>추세 전환 및 매매 시점 분석 (12-26-9 기준)</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <MACDChart data={chartData} />
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Stochastic 차트 */}
+            {marketData.stochastic && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>스토캐스틱 (Stochastic)</CardTitle>
+                  <CardDescription>모멘텀 및 과매수/과매도 분석 (%K 14일, %D 3일)</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <StochasticChart data={chartData} />
                 </CardContent>
               </Card>
             )}

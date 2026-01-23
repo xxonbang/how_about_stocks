@@ -4,7 +4,7 @@
 
 import type { AnalyzeResult } from './types';
 import { calculateRSI, calculateMA } from './finance';
-import { calculateBollingerBands } from './indicators';
+import { calculateBollingerBands, calculateMACD, calculateStochastic } from './indicators';
 
 export interface ChartDataPoint {
   date: string;
@@ -21,6 +21,16 @@ export interface ChartDataPoint {
   bbMiddle?: number;
   bbLower?: number;
   rsi?: number;
+  // MACD 데이터
+  macdLine?: number;
+  signalLine?: number;
+  histogram?: number;
+  // Stochastic 데이터
+  stochasticK?: number;
+  stochasticD?: number;
+  // 주가 변동 (상승/하락 구분용)
+  priceChange?: number;
+  isUp?: boolean;
 }
 
 /**
@@ -53,6 +63,14 @@ export function transformToChartData(
     latestDate.getTime() === today.getTime() || 
     latestDate.getTime() === today.getTime() - 24 * 60 * 60 * 1000;
 
+  // MACD 전체 계산 (한 번만 계산)
+  const macdResult = closes.length >= 26 ? calculateMACD(closes) : null;
+
+  // Stochastic 전체 계산 (한 번만 계산)
+  const highs = historicalData.map((d) => d.high || d.close);
+  const lows = historicalData.map((d) => d.low || d.close);
+  const stochasticResult = closes.length >= 14 ? calculateStochastic(highs, lows, closes) : null;
+
   // 각 데이터 포인트에 지표 추가
   return historicalData.map((d, index) => {
     // 최신 데이터 포인트이고 currentVolume이 제공된 경우, 거래량 업데이트
@@ -62,13 +80,13 @@ export function transformToChartData(
       : d.volume;
     // 해당 시점(index)까지의 과거 전체 데이터를 사용하여 지표 계산
     const historicalSlice = closes.slice(0, index + 1);
-    
+
     // 지표 계산 (MA5, MA20, MA60)
     const ma5Val = calculateMA(historicalSlice, 5) ?? undefined;
     const ma20Val = calculateMA(historicalSlice, 20) ?? undefined;
     const ma60Val = calculateMA(historicalSlice, 60) ?? undefined;
     const ma120Val = calculateMA(historicalSlice, 120) ?? undefined;
-    
+
     // RSI 계산 (과거 데이터 기반, 각 시점별)
     const rsiVal = historicalSlice.length >= 15 ? calculateRSI(historicalSlice, 14) : undefined;
 
@@ -83,14 +101,42 @@ export function transformToChartData(
       bbMiddle = bb.middle;
       bbLower = bb.lower;
     }
-    
+
+    // MACD 데이터 (인덱스 매핑: macdLine은 slowPeriod(26)부터 시작)
+    const macdOffset = 26 - 1; // MACD 시작 인덱스
+    const macdIndex = index - macdOffset;
+    const macdLine = macdResult && macdIndex >= 0 && macdIndex < macdResult.macdLine.length
+      ? macdResult.macdLine[macdIndex]
+      : undefined;
+    const signalLine = macdResult && macdIndex >= 0 && macdIndex < macdResult.signalLine.length
+      ? macdResult.signalLine[macdIndex]
+      : undefined;
+    const histogram = macdResult && macdIndex >= 0 && macdIndex < macdResult.histogramLine.length
+      ? macdResult.histogramLine[macdIndex]
+      : undefined;
+
+    // Stochastic 데이터 (인덱스 매핑: kPeriod(14)부터 시작)
+    const stochasticOffset = 14 - 1;
+    const stochasticIndex = index - stochasticOffset;
+    const stochasticK = stochasticResult && stochasticIndex >= 0 && stochasticIndex < stochasticResult.kLine.length
+      ? stochasticResult.kLine[stochasticIndex]
+      : undefined;
+    const stochasticD = stochasticResult && stochasticIndex >= 0 && stochasticIndex < stochasticResult.dLine.length
+      ? stochasticResult.dLine[stochasticIndex]
+      : undefined;
+
+    // 상승/하락 계산 (전일 대비)
+    const prevClose = index > 0 ? historicalData[index - 1].close : d.open || d.close;
+    const priceChange = d.close - prevClose;
+    const isUp = priceChange >= 0;
+
     return {
       date: d.date,
       close: d.close,
       open: d.open,
       high: d.high,
       low: d.low,
-      volume: volume, // 업데이트된 거래량 사용
+      volume: volume,
       ma5: ma5Val,
       ma20: ma20Val,
       ma60: ma60Val,
@@ -99,6 +145,13 @@ export function transformToChartData(
       bbMiddle,
       bbLower,
       rsi: rsiVal,
+      macdLine,
+      signalLine,
+      histogram,
+      stochasticK,
+      stochasticD,
+      priceChange,
+      isUp,
     };
   });
 }

@@ -26,6 +26,9 @@ export interface AnalyzeRequest {
     // Phase 2 지표
     supportLevel?: boolean; // 눌림목 여부
     supportResistance?: boolean; // 저항선/지지선
+    // Phase 3 지표
+    macd?: boolean; // MACD
+    stochastic?: boolean; // 스토캐스틱
   };
 }
 
@@ -102,6 +105,20 @@ export interface AnalyzeResult {
       resistanceDates: string[];
       supportDates: string[];
       currentPosition: 'near_resistance' | 'near_support' | 'middle';
+    };
+    // Phase 3 지표
+    macd?: {
+      macd: number; // MACD Line (현재값)
+      signal: number; // Signal Line (현재값)
+      histogram: number; // Histogram (현재값)
+      trend: 'bullish' | 'bearish' | 'neutral'; // 추세 판단
+      crossover: 'golden' | 'death' | 'none'; // 크로스오버 신호
+    };
+    stochastic?: {
+      k: number; // %K (현재값)
+      d: number; // %D (현재값)
+      zone: 'overbought' | 'oversold' | 'neutral'; // 과매수/과매도 영역
+      signal: 'buy' | 'sell' | 'none'; // 매매 신호
     };
   };
   historicalData?: Array<{

@@ -78,6 +78,9 @@ function HomePageContent() {
     // Phase 2 지표
     supportLevel: true,
     supportResistance: true,
+    // Phase 3 지표
+    macd: true,
+    stochastic: true,
   });
   const [isLoading, setIsLoading] = useState(false);
   const [showLoginAlert, setShowLoginAlert] = useState(false);
@@ -802,6 +805,39 @@ function HomePageContent() {
                   <span className="text-xs sm:text-sm flex items-center">
                     저항선/지지선
                     <IndicatorInfoButton indicatorKey="supportResistance" />
+                  </span>
+                </label>
+                {/* Phase 3 지표 */}
+                <label className="flex items-center space-x-2 cursor-pointer py-1">
+                  <Checkbox
+                    checked={indicators.macd || false}
+                    onChange={(e) =>
+                      setIndicators({
+                        ...indicators,
+                        macd: e.target.checked,
+                      })
+                    }
+                    disabled={isLoading}
+                  />
+                  <span className="text-xs sm:text-sm flex items-center">
+                    MACD
+                    <IndicatorInfoButton indicatorKey="macd" />
+                  </span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer py-1">
+                  <Checkbox
+                    checked={indicators.stochastic || false}
+                    onChange={(e) =>
+                      setIndicators({
+                        ...indicators,
+                        stochastic: e.target.checked,
+                      })
+                    }
+                    disabled={isLoading}
+                  />
+                  <span className="text-xs sm:text-sm flex items-center">
+                    스토캐스틱
+                    <IndicatorInfoButton indicatorKey="stochastic" />
                   </span>
                 </label>
               </div>

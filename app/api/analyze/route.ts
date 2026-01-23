@@ -29,6 +29,8 @@ import {
   calculateVolumeIndicators,
   detectSupportLevel,
   calculateSupportResistance,
+  calculateMACD,
+  calculateStochastic,
 } from "@/lib/indicators";
 import { callGeminiWithFallback, getGeminiApiKeys } from "@/lib/gemini-client";
 import type {
@@ -542,6 +544,9 @@ export async function POST(request: NextRequest) {
       // Phase 2 지표
       supportLevel: indicators.supportLevel,
       supportResistance: indicators.supportResistance,
+      // Phase 3 지표
+      macd: indicators.macd,
+      stochastic: indicators.stochastic,
     });
 
     // period 기본값 설정
@@ -861,6 +866,49 @@ export async function POST(request: NextRequest) {
             })()
           : undefined;
 
+      // Phase 3 지표
+      const macd =
+        indicators.macd && closes.length >= 26
+          ? (() => {
+              const result = calculateMACD(closes);
+              console.log(`[Analyze API] MACD for ${symbol}:`, {
+                macd: result.macd,
+                signal: result.signal,
+                histogram: result.histogram,
+                trend: result.trend,
+                crossover: result.crossover,
+              });
+              return {
+                macd: result.macd,
+                signal: result.signal,
+                histogram: result.histogram,
+                trend: result.trend,
+                crossover: result.crossover,
+              };
+            })()
+          : undefined;
+
+      const stochastic =
+        indicators.stochastic && historicalData.length >= 14
+          ? (() => {
+              const highs = historicalData.map((d) => d.high || d.close);
+              const lows = historicalData.map((d) => d.low || d.close);
+              const result = calculateStochastic(highs, lows, closes);
+              console.log(`[Analyze API] Stochastic for ${symbol}:`, {
+                k: result.k,
+                d: result.d,
+                zone: result.zone,
+                signal: result.signal,
+              });
+              return {
+                k: result.k,
+                d: result.d,
+                zone: result.zone,
+                signal: result.signal,
+              };
+            })()
+          : undefined;
+
       // 기술적 지표 (RSI, MA, 이격도 등) 계산
       const rsiValue = calculateRSI(closes, 14);
       const ma5 = calculateMA(closes, 5);
@@ -905,6 +953,9 @@ export async function POST(request: NextRequest) {
         // Phase 2 지표
         ...(supportLevel && { supportLevel }),
         ...(supportResistance && { supportResistance }),
+        // Phase 3 지표
+        ...(macd && { macd }),
+        ...(stochastic && { stochastic }),
       };
 
       // marketData에 포함된 지표 로깅 (모든 지표 포함)
@@ -924,6 +975,9 @@ export async function POST(request: NextRequest) {
         // Phase 2 지표
         hasSupportLevel: marketData.supportLevel !== undefined,
         hasSupportResistance: marketData.supportResistance !== undefined,
+        // Phase 3 지표
+        hasMACD: marketData.macd !== undefined,
+        hasStochastic: marketData.stochastic !== undefined,
         // 디버깅 정보
         historicalDataLength: historicalData.length,
         closesLength: closes.length,
