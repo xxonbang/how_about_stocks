@@ -1091,6 +1091,7 @@ export default function ReportPage() {
                 <div className="text-xs sm:text-sm mt-1 text-gray-600">
                   지지선:{" "}
                   {marketData.supportLevel.supportLevel.toLocaleString()}
+                  <span className="text-gray-400 ml-1">(최근 20일 기준)</span>
                 </div>
                 <div className="text-xs text-gray-500 mt-1">
                   거리:{" "}
@@ -1135,7 +1136,7 @@ export default function ReportPage() {
               <CardContent className="space-y-2 text-xs sm:text-sm">
                 <div>
                   <div className="font-medium text-gray-700 mb-1">
-                    저항선 (최근 고점 기준 3개):
+                    저항선 (최근 60일 고점 기준 3개):
                   </div>
                   <div className="text-gray-600 break-words flex flex-wrap gap-x-3 gap-y-1">
                     {marketData.supportResistance?.resistanceLevels.map(
@@ -1210,7 +1211,7 @@ export default function ReportPage() {
                 </div>
                 <div>
                   <div className="font-medium text-gray-700 mb-1 mt-2">
-                    지지선 (최근 저점 기준 3개):
+                    지지선 (최근 60일 저점 기준 3개):
                   </div>
                   <div className="text-gray-600 break-words flex flex-wrap gap-x-3 gap-y-1">
                     {marketData.supportResistance?.supportLevels.map(
