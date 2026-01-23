@@ -69,7 +69,6 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/scripts ./scripts
 COPY --from=builder /app/api ./api
-COPY --from=builder /app/data ./data
 
 # Playwright 브라우저 복사 (캐시 디렉토리)
 COPY --from=builder /root/.cache/ms-playwright /root/.cache/ms-playwright
