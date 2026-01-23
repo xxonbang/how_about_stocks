@@ -30,8 +30,8 @@ function LoginForm() {
       const result = await login(username, password);
 
       if (result.success) {
-        router.push(callbackUrl);
-        router.refresh();
+        // Full page reload로 쿠키가 포함된 새 요청 전송
+        window.location.href = callbackUrl;
       } else {
         setError(result.error || '로그인에 실패했습니다.');
       }
