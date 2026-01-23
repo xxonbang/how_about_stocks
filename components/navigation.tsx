@@ -60,6 +60,11 @@ export function Navigation() {
 
   const showDualSource = username === 'xxonbang' && (pathname === '/report' || pathname === '/dual-source-validation');
 
+  // 로그인 페이지에서는 Navigation 숨김
+  if (pathname === '/login') {
+    return null;
+  }
+
   return (
     <>
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
