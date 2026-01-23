@@ -34,6 +34,9 @@ export default function ReportPage() {
       return;
     }
 
+    // 즉시 스크롤을 최상단으로 이동 (화면 전환 체감 개선)
+    window.scrollTo({ top: 0, behavior: "instant" });
+
     const stored = sessionStorage.getItem("analysisResults");
     if (!stored) {
       router.push("/");
@@ -41,36 +44,36 @@ export default function ReportPage() {
       return;
     }
 
-    try {
-      const data: AnalyzeResponse = JSON.parse(stored);
+    // 비동기로 처리하여 UI 블로킹 방지
+    requestAnimationFrame(() => {
+      try {
+        const data: AnalyzeResponse = JSON.parse(stored);
 
-      // API 오류가 있으면 표시
-      if (data.error) {
-        setResults([]);
-        setIsLoading(false);
-        return;
-      }
-
-      if (data.results && data.results.length > 0) {
-        setResults(data.results);
-        setSelectedIndex(0); // 결과가 로드되면 첫 번째 종목으로 리셋
-
-        // 분석 기간 텍스트 설정 (하이드레이션 오류 방지)
-        if (data.results[0].period) {
-          setPeriodText(`${data.results[0].period} 동안의 데이터를`);
+        // API 오류가 있으면 표시
+        if (data.error) {
+          setResults([]);
+          setIsLoading(false);
+          return;
         }
 
-        // 스크롤을 최상단으로 이동
-        window.scrollTo({ top: 0, behavior: "instant" });
-      } else {
+        if (data.results && data.results.length > 0) {
+          setResults(data.results);
+          setSelectedIndex(0); // 결과가 로드되면 첫 번째 종목으로 리셋
+
+          // 분석 기간 텍스트 설정 (하이드레이션 오류 방지)
+          if (data.results[0].period) {
+            setPeriodText(`${data.results[0].period} 동안의 데이터를`);
+          }
+        } else {
+          setResults([]);
+        }
+      } catch (error) {
+        console.error("Failed to parse results:", error);
         setResults([]);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error("Failed to parse results:", error);
-      setResults([]);
-    } finally {
-      setIsLoading(false);
-    }
+    });
   }, [router]);
 
   // selectedIndex가 유효한 범위인지 확인하고 자동 조정
@@ -332,13 +335,35 @@ export default function ReportPage() {
         </div>
 
         {/* 범례 안내 텍스트 */}
-        <div className="mb-2 sm:mb-3 px-1">
+        <div className="mb-2 sm:mb-3 px-1 space-y-1.5">
           <div className="flex items-center gap-1 text-[10px] sm:text-xs text-gray-600 bg-blue-50 border border-blue-100 rounded px-2 py-1">
             <span className="text-sm">💡</span>
             <span>
               각 지표의 범례를 클릭하면 의미 또는 시사점 확인 가능합니다
             </span>
           </div>
+          {/* 네이버 증권 링크 */}
+          {currentResult && (
+            <a
+              href={`https://stock.naver.com/domestic/stock/${currentResult.symbol.replace(/\.(KS|KQ)$/, '')}/price`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-[10px] sm:text-xs text-blue-600 hover:text-blue-800 bg-white border border-blue-200 hover:border-blue-400 hover:bg-blue-50 rounded px-2 py-1.5 transition-all group w-fit"
+            >
+              <span className="text-sm">📊</span>
+              <span className="font-medium">
+                네이버 증권에서 {currentResult.name || currentResult.symbol} 상세 정보 보기
+              </span>
+              <svg
+                className="w-3 h-3 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+          )}
         </div>
 
         {/* 대시보드 섹션 */}
@@ -1511,7 +1536,10 @@ export default function ReportPage() {
         {marketData.news && marketData.news.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>최근 뉴스</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                최근 뉴스
+                <span className="text-xs font-normal text-gray-500">(클릭하면 해당 뉴스로 이동)</span>
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
@@ -1521,16 +1549,31 @@ export default function ReportPage() {
                     href={item.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block p-3 rounded-md border hover:bg-gray-50 transition-colors"
+                    className="group block p-3 rounded-lg border border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 hover:shadow-md"
                   >
-                    <div className="font-medium text-gray-900">
-                      {item.title}
-                    </div>
-                    {item.date && (
-                      <div className="text-xs text-gray-500 mt-1">
-                        {new Date(item.date).toLocaleDateString("ko-KR")}
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-gray-900 group-hover:text-blue-700 transition-colors line-clamp-2">
+                          {item.title}
+                        </div>
+                        {item.date && (
+                          <div className="text-xs text-gray-500 mt-1.5">
+                            {new Date(item.date).toLocaleDateString("ko-KR")}
+                          </div>
+                        )}
                       </div>
-                    )}
+                      {/* 외부 링크 아이콘 */}
+                      <div className="flex-shrink-0 text-gray-400 group-hover:text-blue-500 transition-colors">
+                        <svg
+                          className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </div>
+                    </div>
                   </a>
                 ))}
               </div>

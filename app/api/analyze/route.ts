@@ -526,7 +526,7 @@ export async function POST(request: NextRequest) {
     const body: AnalyzeRequest = await request.json();
     const { stocks, period, historicalPeriod, analysisDate, indicators } = body;
 
-    // 지표 선택 상태 로깅
+    // 지표 선택 상태 로깅 (모든 지표 포함)
     console.log("[Analyze API] Selected indicators:", {
       rsi: indicators.rsi,
       movingAverages: indicators.movingAverages,
@@ -534,6 +534,14 @@ export async function POST(request: NextRequest) {
       supplyDemand: indicators.supplyDemand,
       fearGreed: indicators.fearGreed,
       exchangeRate: indicators.exchangeRate,
+      // Phase 1 지표
+      etfPremium: indicators.etfPremium,
+      bollingerBands: indicators.bollingerBands,
+      volatility: indicators.volatility,
+      volumeIndicators: indicators.volumeIndicators,
+      // Phase 2 지표
+      supportLevel: indicators.supportLevel,
+      supportResistance: indicators.supportResistance,
     });
 
     // period 기본값 설정
@@ -899,7 +907,7 @@ export async function POST(request: NextRequest) {
         ...(supportResistance && { supportResistance }),
       };
 
-      // marketData에 포함된 지표 로깅
+      // marketData에 포함된 지표 로깅 (모든 지표 포함)
       console.log(`[Analyze API] Market data for ${symbol}:`, {
         hasRSI: marketData.rsi !== undefined,
         hasMovingAverages: marketData.movingAverages !== undefined,
@@ -908,6 +916,17 @@ export async function POST(request: NextRequest) {
         hasVIX: marketData.vix !== undefined,
         hasExchangeRate: marketData.exchangeRate !== undefined,
         hasNews: marketData.news !== undefined,
+        // Phase 1 지표
+        hasETFPremium: marketData.etfPremium !== undefined,
+        hasBollingerBands: marketData.bollingerBands !== undefined,
+        hasVolatility: marketData.volatility !== undefined,
+        hasVolumeIndicators: marketData.volumeIndicators !== undefined,
+        // Phase 2 지표
+        hasSupportLevel: marketData.supportLevel !== undefined,
+        hasSupportResistance: marketData.supportResistance !== undefined,
+        // 디버깅 정보
+        historicalDataLength: historicalData.length,
+        closesLength: closes.length,
       });
 
       stocksDataForAI.push({
