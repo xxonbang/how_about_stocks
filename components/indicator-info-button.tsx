@@ -29,7 +29,13 @@ export function IndicatorInfoButton({ indicatorKey }: IndicatorInfoButtonProps) 
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
+          e.nativeEvent.stopImmediatePropagation();
           setOpen(true);
+        }}
+        onMouseDown={(e) => {
+          // label 내부에서 클릭 시 checkbox 토글 방지
+          e.preventDefault();
+          e.stopPropagation();
         }}
         className="inline-flex items-center justify-center w-4 h-4 ml-1.5 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 rounded-full"
         aria-label={`${description.name} 설명 보기`}
