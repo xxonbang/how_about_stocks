@@ -334,14 +334,8 @@ export default function ReportPage() {
           ))}
         </div>
 
-        {/* 범례 안내 텍스트 */}
+        {/* 네이버 증권 링크 + 범례 안내 */}
         <div className="mb-2 sm:mb-3 px-1 space-y-1.5">
-          <div className="flex items-center gap-1 text-[10px] sm:text-xs text-gray-600 bg-blue-50 border border-blue-100 rounded px-2 py-1">
-            <span className="text-sm">💡</span>
-            <span>
-              각 지표의 범례를 클릭하면 의미 또는 시사점 확인 가능합니다
-            </span>
-          </div>
           {/* 네이버 증권 링크 */}
           {currentResult && (
             <a
@@ -364,6 +358,13 @@ export default function ReportPage() {
               </svg>
             </a>
           )}
+          {/* 범례 안내 텍스트 */}
+          <div className="flex items-center gap-1 text-[10px] sm:text-xs text-gray-600 bg-blue-50 border border-blue-100 rounded px-2 py-1">
+            <span className="text-sm">💡</span>
+            <span>
+              각 지표의 범례를 클릭하면 의미 또는 시사점 확인 가능합니다
+            </span>
+          </div>
         </div>
 
         {/* 대시보드 섹션 */}

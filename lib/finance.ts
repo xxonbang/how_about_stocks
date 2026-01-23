@@ -185,6 +185,75 @@ async function fetchChartQuote(symbol: string): Promise<ChartQuoteData | null> {
 }
 
 /**
+ * Chart API를 사용하여 Historical Data 조회 (crumb 불필요! Rate Limit 회피)
+ * @param symbol 주식 심볼
+ * @param days 조회 일수 (기본 180일)
+ */
+async function fetchHistoricalDataChartAPI(
+  symbol: string,
+  days: number = 180
+): Promise<Array<{ date: Date; close: number; volume: number; high: number; low: number; open: number }> | null> {
+  try {
+    // 한국 주식 심볼 변환 (예: 090710.KS → 090710.KS 그대로 사용)
+    const encodedSymbol = symbol.replace('^', '%5E');
+
+    // range 파라미터 결정 (Yahoo Chart API 지원 범위: 1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, ytd, max)
+    let range = '6mo';
+    if (days > 180) range = '1y';
+    if (days > 365) range = '2y';
+    if (days <= 90) range = '3mo';
+    if (days <= 30) range = '1mo';
+
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodedSymbol}?interval=1d&range=${range}`;
+
+    const response = await axios.get(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+      },
+      timeout: 15000,
+    });
+
+    const result = response.data?.chart?.result?.[0];
+    if (!result?.timestamp || !result?.indicators?.quote?.[0]) {
+      console.warn(`[Chart API Historical] No data in response for ${symbol}`);
+      return null;
+    }
+
+    const timestamps = result.timestamp as number[];
+    const quotes = result.indicators.quote[0];
+    const closes = quotes.close as (number | null)[];
+    const volumes = quotes.volume as (number | null)[];
+    const highs = quotes.high as (number | null)[];
+    const lows = quotes.low as (number | null)[];
+    const opens = quotes.open as (number | null)[];
+
+    const historical: Array<{ date: Date; close: number; volume: number; high: number; low: number; open: number }> = [];
+
+    for (let i = 0; i < timestamps.length; i++) {
+      const close = closes[i];
+      if (close === null || close === undefined || isNaN(close) || close <= 0) {
+        continue; // 유효하지 않은 데이터 스킵
+      }
+
+      historical.push({
+        date: new Date(timestamps[i] * 1000),
+        close,
+        volume: volumes[i] || 0,
+        high: highs[i] || close,
+        low: lows[i] || close,
+        open: opens[i] || close,
+      });
+    }
+
+    console.log(`[Chart API Historical] Fetched ${historical.length} days for ${symbol} (crumb-free)`);
+    return historical;
+  } catch (error) {
+    console.error(`[Chart API Historical] Error fetching ${symbol}:`, error instanceof Error ? error.message : error);
+    return null;
+  }
+}
+
+/**
  * 여러 심볼의 Chart quote를 배치로 조회 (crumb 불필요!)
  * @param symbols 심볼 배열
  */
@@ -337,6 +406,8 @@ export async function fetchUnifiedQuotesBatch(
 /**
  * Historical 데이터 조회 (캐시 적용 - 1시간 TTL)
  * 과거 데이터는 변하지 않으므로 긴 TTL 적용
+ *
+ * Rate Limit 대응: yahoo-finance2 historical() 실패 시 Chart API (crumb 불필요) fallback 사용
  */
 export async function fetchHistoricalDataCached(
   symbol: string,
@@ -349,19 +420,44 @@ export async function fetchHistoricalDataCached(
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    const historical = await retryWithDelay(
-      () =>
-        yahooFinance.historical(symbol, {
-          period1: Math.floor(startDate.getTime() / 1000),
-          period2: Math.floor(endDate.getTime() / 1000),
-          interval: '1d',
-        }),
-      3,
-      2000
-    );
+    // 1차 시도: yahoo-finance2 historical() API
+    try {
+      const historical = await retryWithDelay(
+        () =>
+          yahooFinance.historical(symbol, {
+            period1: Math.floor(startDate.getTime() / 1000),
+            period2: Math.floor(endDate.getTime() / 1000),
+            interval: '1d',
+          }),
+        3,
+        2000
+      );
 
-    console.log(`[Yahoo Finance] Historical data fetched for ${symbol}: ${historical?.length || 0} days`);
-    return historical || [];
+      if (historical && historical.length > 0) {
+        console.log(`[Yahoo Finance] Historical data fetched for ${symbol}: ${historical.length} days`);
+        return historical;
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.warn(`[Yahoo Finance] Historical API failed for ${symbol}: ${errorMessage}`);
+
+      // Rate limit 오류인 경우 Chart API fallback 시도
+      if (errorMessage.includes('Too Many Requests') || errorMessage.includes('rate limit')) {
+        console.log(`[Yahoo Finance] Rate limit detected, trying Chart API fallback...`);
+      }
+    }
+
+    // 2차 시도 (Fallback): Chart API (crumb 불필요!)
+    console.log(`[Historical Fallback] Trying Chart API for ${symbol}...`);
+    const chartHistorical = await fetchHistoricalDataChartAPI(symbol, days);
+
+    if (chartHistorical && chartHistorical.length > 0) {
+      console.log(`[Historical Fallback] Chart API success for ${symbol}: ${chartHistorical.length} days`);
+      return chartHistorical;
+    }
+
+    console.warn(`[Historical] All methods failed for ${symbol}, returning empty array`);
+    return [];
   });
 }
 

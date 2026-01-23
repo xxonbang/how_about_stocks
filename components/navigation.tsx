@@ -73,130 +73,116 @@ export function Navigation() {
               📈 종목어때.ai
             </Link>
 
-            {/* 데스크톱 네비게이션 */}
-            <div className="hidden sm:flex items-center gap-4 lg:gap-6">
-              {isAuthenticated ? (
-                <>
-                  {navLinks.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className={`text-sm text-gray-600 hover:text-gray-900 transition-colors ${
-                        pathname === link.href ? 'font-semibold text-gray-900' : ''
-                      }`}
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                  {showDualSource && (
-                    <Link
-                      href="/dual-source-validation"
-                      className={`text-sm transition-colors font-medium ${
-                        pathname === '/dual-source-validation'
-                          ? 'text-blue-800 underline underline-offset-4'
-                          : 'text-blue-600 hover:text-blue-800'
-                      }`}
-                    >
-                      듀얼소스 검증
-                    </Link>
-                  )}
+            {/* 데스크톱 네비게이션 (로그인 상태) */}
+            {isAuthenticated && (
+              <div className="hidden sm:flex items-center gap-4 lg:gap-6">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`text-sm text-gray-600 hover:text-gray-900 transition-colors ${
+                      pathname === link.href ? 'font-semibold text-gray-900' : ''
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+                {showDualSource && (
+                  <Link
+                    href="/dual-source-validation"
+                    className={`text-sm transition-colors font-medium ${
+                      pathname === '/dual-source-validation'
+                        ? 'text-blue-800 underline underline-offset-4'
+                        : 'text-blue-600 hover:text-blue-800'
+                    }`}
+                  >
+                    듀얼소스 검증
+                  </Link>
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLogout}
+                  className="text-sm px-3"
+                >
+                  로그아웃
+                </Button>
+              </div>
+            )}
+
+            {/* 로그인 버튼 (비로그인 상태 - 모바일/데스크톱 모두 표시) */}
+            {!isAuthenticated && (
+              <Button
+                ref={loginButtonRef}
+                variant="default"
+                size="sm"
+                onClick={() => setLoginDialogOpen(true)}
+                className={`text-sm px-3 ${highlightLogin ? 'animate-bounce ring-4 ring-blue-500 ring-offset-2' : ''}`}
+              >
+                로그인
+              </Button>
+            )}
+
+            {/* 모바일 햄버거 메뉴 버튼 (로그인 상태에서만 표시) */}
+            {isAuthenticated && (
+              <button
+                className="sm:hidden p-2 rounded-md hover:bg-gray-100 transition-colors"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-label="메뉴 열기"
+              >
+                {mobileMenuOpen ? (
+                  <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ) : (
+                  <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                )}
+              </button>
+            )}
+          </div>
+
+          {/* 모바일 메뉴 (로그인 상태에서만) */}
+          {isAuthenticated && mobileMenuOpen && (
+            <div className="sm:hidden mt-3 pb-2 border-t border-gray-100 pt-3">
+              <div className="flex flex-col gap-2">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`px-3 py-2 rounded-md text-sm transition-colors ${
+                      pathname === link.href
+                        ? 'bg-gray-100 font-semibold text-gray-900'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+                {showDualSource && (
+                  <Link
+                    href="/dual-source-validation"
+                    className={`px-3 py-2 rounded-md text-sm transition-colors font-medium ${
+                      pathname === '/dual-source-validation'
+                        ? 'bg-blue-50 text-blue-800'
+                        : 'text-blue-600 hover:bg-blue-50'
+                    }`}
+                  >
+                    듀얼소스 검증
+                  </Link>
+                )}
+                <div className="border-t border-gray-100 mt-2 pt-2">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={handleLogout}
-                    className="text-sm px-3"
+                    className="w-full text-sm"
                   >
                     로그아웃
                   </Button>
-                </>
-              ) : (
-                <Button
-                  ref={loginButtonRef}
-                  variant="default"
-                  size="sm"
-                  onClick={() => setLoginDialogOpen(true)}
-                  className={`text-sm px-3 ${highlightLogin ? 'animate-bounce ring-4 ring-blue-500 ring-offset-2' : ''}`}
-                >
-                  로그인
-                </Button>
-              )}
-            </div>
-
-            {/* 모바일 햄버거 메뉴 버튼 */}
-            <button
-              className="sm:hidden p-2 rounded-md hover:bg-gray-100 transition-colors"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="메뉴 열기"
-            >
-              {mobileMenuOpen ? (
-                <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              ) : (
-                <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              )}
-            </button>
-          </div>
-
-          {/* 모바일 메뉴 */}
-          {mobileMenuOpen && (
-            <div className="sm:hidden mt-3 pb-2 border-t border-gray-100 pt-3">
-              {isAuthenticated ? (
-                <div className="flex flex-col gap-2">
-                  {navLinks.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className={`px-3 py-2 rounded-md text-sm transition-colors ${
-                        pathname === link.href
-                          ? 'bg-gray-100 font-semibold text-gray-900'
-                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                      }`}
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                  {showDualSource && (
-                    <Link
-                      href="/dual-source-validation"
-                      className={`px-3 py-2 rounded-md text-sm transition-colors font-medium ${
-                        pathname === '/dual-source-validation'
-                          ? 'bg-blue-50 text-blue-800'
-                          : 'text-blue-600 hover:bg-blue-50'
-                      }`}
-                    >
-                      듀얼소스 검증
-                    </Link>
-                  )}
-                  <div className="border-t border-gray-100 mt-2 pt-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleLogout}
-                      className="w-full text-sm"
-                    >
-                      로그아웃
-                    </Button>
-                  </div>
                 </div>
-              ) : (
-                <div className="px-3 py-2">
-                  <Button
-                    ref={loginButtonRef}
-                    variant="default"
-                    size="sm"
-                    onClick={() => {
-                      setLoginDialogOpen(true);
-                      setMobileMenuOpen(false);
-                    }}
-                    className={`w-full text-sm ${highlightLogin ? 'animate-bounce ring-4 ring-blue-500 ring-offset-2' : ''}`}
-                  >
-                    로그인
-                  </Button>
-                </div>
-              )}
+              </div>
             </div>
           )}
         </div>
