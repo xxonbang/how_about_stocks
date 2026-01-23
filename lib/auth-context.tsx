@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import {
   Dialog,
   DialogContent,
@@ -14,47 +14,60 @@ import { INACTIVITY_TIMEOUT_MS, ONE_MINUTE_MS } from './constants';
 interface AuthContextType {
   isAuthenticated: boolean;
   username: string | null;
-  login: (username: string, password: string) => boolean;
-  logout: () => void;
-  updateLastActivity: () => void; // 활동 시간 업데이트
+  isLoading: boolean;
+  login: (username: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  logout: () => Promise<void>;
+  updateLastActivity: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// 하드코딩된 로그인 정보
-const HARDCODED_CREDENTIALS = {
-  username: 'xxonbang',
-  password: '11223344',
-};
-
-// 상수
-const INACTIVITY_TIMEOUT = INACTIVITY_TIMEOUT_MS; // 10분 (밀리초)
-const CHECK_INTERVAL = ONE_MINUTE_MS; // 1분마다 체크 (밀리초)
+const INACTIVITY_TIMEOUT = INACTIVITY_TIMEOUT_MS;
+const CHECK_INTERVAL = ONE_MINUTE_MS;
 const LAST_ACTIVITY_KEY = 'lastActivityTime';
 const USERNAME_KEY = 'authenticatedUsername';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [showTimeoutDialog, setShowTimeoutDialog] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
   const checkIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const activityListenersRef = useRef<boolean>(false);
 
-  // 마지막 활동 시간 업데이트
   const updateLastActivity = useCallback(() => {
     if (typeof window !== 'undefined' && isAuthenticated) {
       localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
     }
   }, [isAuthenticated]);
 
-  // 활동 시간 체크 및 자동 로그아웃
+  const handleAutoLogout = useCallback(async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+
+    setIsAuthenticated(false);
+    setUsername(null);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(USERNAME_KEY);
+      localStorage.removeItem(LAST_ACTIVITY_KEY);
+    }
+
+    if (pathname !== '/login') {
+      router.push('/login');
+    }
+    setShowTimeoutDialog(true);
+  }, [router, pathname]);
+
   const checkInactivity = useCallback(() => {
     if (!isAuthenticated || typeof window === 'undefined') return;
 
     const lastActivity = localStorage.getItem(LAST_ACTIVITY_KEY);
     if (!lastActivity) {
-      // 활동 시간이 없으면 현재 시간으로 설정
       updateLastActivity();
       return;
     }
@@ -64,35 +77,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const timeSinceLastActivity = now - lastActivityTime;
 
     if (timeSinceLastActivity >= INACTIVITY_TIMEOUT) {
-      // 10분 경과 시 자동 로그아웃
-      console.log('[Auth] 10분간 활동 없음, 자동 로그아웃 처리');
+      console.log('[Auth] 비활성 시간 초과, 자동 로그아웃 처리');
       handleAutoLogout();
     }
-  }, [isAuthenticated, updateLastActivity]);
+  }, [isAuthenticated, updateLastActivity, handleAutoLogout]);
 
-  // 자동 로그아웃 처리
-  const handleAutoLogout = useCallback(() => {
-    setIsAuthenticated(false);
-    setUsername(null);
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('isAuthenticated');
-      localStorage.removeItem(USERNAME_KEY);
-      localStorage.removeItem(LAST_ACTIVITY_KEY);
-    }
+  // 초기 인증 상태 확인 (서버에서 쿠키 검증)
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        const response = await fetch('/api/auth/status');
+        const data = await response.json();
 
-    // 홈으로 이동
-    router.push('/');
+        if (data.authenticated) {
+          setIsAuthenticated(true);
+          setUsername(data.username || localStorage.getItem(USERNAME_KEY));
+          updateLastActivity();
+        } else {
+          setIsAuthenticated(false);
+          setUsername(null);
+        }
+      } catch (error) {
+        console.error('Auth status check error:', error);
+        setIsAuthenticated(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    // 안내 팝업 표시
-    setShowTimeoutDialog(true);
-  }, [router]);
+    checkAuthStatus();
+  }, [updateLastActivity]);
 
-  // 사용자 활동 감지 이벤트 리스너 등록
+  // 사용자 활동 감지 이벤트 리스너
   useEffect(() => {
     if (!isAuthenticated || activityListenersRef.current) return;
 
     const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
-    
+
     const handleActivity = () => {
       updateLastActivity();
     };
@@ -121,10 +142,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // 초기 체크
     checkInactivity();
 
-    // 주기적 체크 (1분마다)
     checkIntervalRef.current = setInterval(() => {
       checkInactivity();
     }, CHECK_INTERVAL);
@@ -137,89 +156,71 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [isAuthenticated, checkInactivity]);
 
-  // 페이지 로드 시 로컬 스토리지에서 로그인 상태 확인
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('isAuthenticated');
-      const storedUsername = localStorage.getItem(USERNAME_KEY);
-      if (stored === 'true') {
-        setIsAuthenticated(true);
-        // username이 없으면 기본 사용자로 설정 (기존 로그인 세션 호환)
-        const effectiveUsername = storedUsername || HARDCODED_CREDENTIALS.username;
-        setUsername(effectiveUsername);
-        // localStorage에 username이 없으면 저장
-        if (!storedUsername) {
-          localStorage.setItem(USERNAME_KEY, effectiveUsername);
-        }
-        // 로그인 상태 복원 시 마지막 활동 시간 확인
-        const lastActivity = localStorage.getItem(LAST_ACTIVITY_KEY);
-        if (lastActivity) {
-          const lastActivityTime = parseInt(lastActivity, 10);
-          const now = Date.now();
-          const timeSinceLastActivity = now - lastActivityTime;
+  const login = async (inputUsername: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username: inputUsername, password }),
+      });
 
-          // 10분 경과했으면 자동 로그아웃
-          if (timeSinceLastActivity >= INACTIVITY_TIMEOUT) {
-            handleAutoLogout();
-          } else {
-            // 활동 시간 업데이트
-            updateLastActivity();
-          }
-        } else {
-          // 활동 시간이 없으면 현재 시간으로 설정
+      const data = await response.json();
+
+      if (response.ok) {
+        setIsAuthenticated(true);
+        setUsername(inputUsername);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(USERNAME_KEY, inputUsername);
           updateLastActivity();
         }
+        return { success: true };
+      } else {
+        return { success: false, error: data.error || '로그인에 실패했습니다.' };
       }
+    } catch (error) {
+      console.error('Login error:', error);
+      return { success: false, error: '서버 오류가 발생했습니다.' };
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const login = (inputUsername: string, password: string): boolean => {
-    if (inputUsername === HARDCODED_CREDENTIALS.username && password === HARDCODED_CREDENTIALS.password) {
-      setIsAuthenticated(true);
-      setUsername(inputUsername);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem(USERNAME_KEY, inputUsername);
-        // 로그인 시 현재 시간을 활동 시간으로 설정
-        updateLastActivity();
-      }
-      return true;
-    }
-    return false;
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+
     setIsAuthenticated(false);
     setUsername(null);
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('isAuthenticated');
       localStorage.removeItem(USERNAME_KEY);
       localStorage.removeItem(LAST_ACTIVITY_KEY);
     }
+    router.push('/login');
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, username, login, logout, updateLastActivity }}>
+    <AuthContext.Provider value={{ isAuthenticated, username, isLoading, login, logout, updateLastActivity }}>
       {children}
-      {/* 자동 로그아웃 안내 팝업 */}
       {showTimeoutDialog && (
-        <AutoLogoutDialog 
-          open={showTimeoutDialog} 
-          onClose={() => setShowTimeoutDialog(false)} 
+        <AutoLogoutDialog
+          open={showTimeoutDialog}
+          onClose={() => setShowTimeoutDialog(false)}
         />
       )}
     </AuthContext.Provider>
   );
 }
 
-// 자동 로그아웃 안내 팝업 컴포넌트
 function AutoLogoutDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="w-[calc(100%-2rem)] sm:w-full sm:max-w-md mx-4 sm:mx-0">
         <DialogHeader>
           <div className="flex items-center gap-3 mb-2">
-            <span 
+            <span
               className="flex-shrink-0"
               style={{ fontSize: '2rem', lineHeight: '1' }}
             >
