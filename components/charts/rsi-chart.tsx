@@ -56,6 +56,15 @@ export function RSIChart({ data, currentRSI }: RSIChartProps) {
   // 최신 60일 데이터만 표시
   const displayData = rsiData.slice(-60);
 
+  // displayData가 빈 배열이면 메시지 표시
+  if (displayData.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-64 text-gray-500">
+        RSI 데이터가 없습니다.
+      </div>
+    );
+  }
+
   // 현재 RSI 값 (가장 최신)
   const latestRSI = displayData.length > 0 ? displayData[displayData.length - 1].rsi : currentRSI;
   const rsiZone = latestRSI ? getRSIZone(latestRSI) : null;

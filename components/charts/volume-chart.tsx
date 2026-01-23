@@ -81,8 +81,8 @@ export function VolumeChart({ data, averageVolume, supplyDemand }: VolumeChartPr
             )}
             <div className="flex justify-between gap-4">
               <span className="text-gray-600">주가</span>
-              <span className={`font-medium ${d.isUp ? 'text-red-600' : 'text-blue-600'}`}>
-                {d.isUp ? '▲ 상승' : '▼ 하락'}
+              <span className={`font-medium ${(d.isUp ?? true) ? 'text-red-600' : 'text-blue-600'}`}>
+                {(d.isUp ?? true) ? '▲ 상승' : '▼ 하락'}
               </span>
             </div>
           </div>
@@ -95,8 +95,9 @@ export function VolumeChart({ data, averageVolume, supplyDemand }: VolumeChartPr
   // 바 색상 결정 함수
   const getBarColor = (entry: ChartDataPoint): string => {
     const isHighVolume = averageVolume && entry.volume > highVolumeThreshold;
+    const isUp = entry.isUp ?? true; // undefined일 경우 기본값 true
 
-    if (entry.isUp) {
+    if (isUp) {
       // 상승일: 빨간색 계열
       return isHighVolume ? '#dc2626' : '#ef4444'; // 고거래량이면 더 진한 빨강
     } else {
