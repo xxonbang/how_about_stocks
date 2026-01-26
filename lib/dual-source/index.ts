@@ -40,6 +40,12 @@ export {
   koreaStockDaumCollector,
 } from './korea-stock-daum';
 
+export {
+  KoreaStockKISCollector,
+  koreaStockKISCollector,
+  isKISConfigured,
+} from './korea-stock-kis';
+
 // 개별 수집기들 - 미국 주식
 export {
   USStockYahooCollector,
@@ -50,6 +56,12 @@ export {
   USStockFinnhubCollector,
   usStockFinnhubCollector,
 } from './us-stock-finnhub';
+
+export {
+  USStockFMPCollector,
+  usStockFMPCollector,
+  isFMPConfigured,
+} from './us-stock-fmp';
 
 // Puppeteer 크롤러는 동적 import로만 사용 (서버리스 호환성)
 // import { usStockCrawler } from './us-stock-crawler'로 직접 사용 가능

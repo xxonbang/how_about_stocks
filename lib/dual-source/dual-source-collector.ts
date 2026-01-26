@@ -25,8 +25,10 @@ import type {
 } from './types';
 import { KoreaStockCrawler, koreaStockCrawler } from './korea-stock-crawler';
 import { KoreaStockDaumCollector, koreaStockDaumCollector } from './korea-stock-daum';
+import { KoreaStockKISCollector, koreaStockKISCollector, isKISConfigured } from './korea-stock-kis';
 import { USStockYahooCollector, usStockYahooCollector } from './us-stock-yahoo';
 import { USStockFinnhubCollector, usStockFinnhubCollector } from './us-stock-finnhub';
+import { USStockFMPCollector, usStockFMPCollector, isFMPConfigured } from './us-stock-fmp';
 import { validateAndMerge, logValidationSummary } from './validation-engine';
 
 // Agentic Screenshot 크롤러 동적 import (서버리스 환경에서는 사용 불가)
@@ -102,12 +104,14 @@ function normalizeKoreaSymbol(symbol: string): string {
 // 소스 설명 상수
 const SOURCE_DESCRIPTIONS = {
   KR: {
+    A_KIS: '한국투자증권 Open API (KIS)',
     A_AGENTIC: '네이버금융 Screenshot + Gemini Vision AI',
     A_CRAWLING: '네이버금융 HTML 크롤링',
     B: '다음금융 REST API',
   },
   US: {
     A_AGENTIC: 'Yahoo Finance Screenshot + Gemini Vision AI',
+    A_FMP: 'Financial Modeling Prep (FMP) REST API',
     A_FINNHUB: 'Finnhub REST API',
     B: 'Yahoo Finance API (yahoo-finance2)',
   },
@@ -116,10 +120,13 @@ const SOURCE_DESCRIPTIONS = {
 /**
  * 한국 주식 듀얼 소스 수집
  *
- * Source A: Agentic Screenshot (네이버 금융) - Vision AI 기반
- * Source B: 다음 금융 REST API - 전통적 API 방식
+ * 우선순위 (KIS 설정 시):
+ * - Source A: 한국투자증권 Open API (KIS) - 공식 증권사 API
+ * - Source B: 다음 금융 REST API
  *
- * Agentic 방식 실패 시 전통적 크롤링으로 폴백
+ * KIS 미설정 시:
+ * - Source A: Agentic Screenshot (Vision AI) 또는 네이버 크롤링
+ * - Source B: 다음 금융 REST API
  */
 async function collectKoreaStockDualSource(
   symbol: string,
@@ -127,8 +134,11 @@ async function collectKoreaStockDualSource(
 ): Promise<DualSourceResult<ComprehensiveStockData>> {
   const normalizedSymbol = normalizeKoreaSymbol(symbol);
 
-  // Agentic 크롤러 초기화
-  const agentic = await initAgenticCrawler();
+  // KIS API 설정 여부 확인
+  const kisConfigured = isKISConfigured();
+
+  // Agentic 크롤러 초기화 (KIS 미설정 시에만 필요)
+  const agentic = kisConfigured ? null : await initAgenticCrawler();
 
   // 타임아웃 설정 (Agentic은 더 긴 타임아웃 필요)
   const agenticTimeout = agentic ? Math.max(options.timeout || 30000, 60000) : (options.timeout || 30000);
@@ -136,11 +146,26 @@ async function collectKoreaStockDualSource(
     setTimeout(() => reject(new Error('수집 타임아웃')), agenticTimeout);
   });
 
-  // Source A: Agentic Screenshot (Vision AI) 또는 전통적 크롤링 (폴백)
+  // Source A: KIS API (최우선) 또는 Agentic Screenshot 또는 네이버 크롤링 (폴백)
   let sourceAPromise: Promise<CollectionResult<ComprehensiveStockData>>;
   let sourceADescription: string;
 
-  if (agentic) {
+  if (kisConfigured) {
+    // KIS API 사용 (공식 증권사 API)
+    sourceADescription = SOURCE_DESCRIPTIONS.KR.A_KIS;
+    console.log(`[DualSource KR] Source A 시작: ${sourceADescription} (Primary)`);
+    sourceAPromise = koreaStockKISCollector
+      .collectAll(normalizedSymbol)
+      .catch((error): CollectionResult<ComprehensiveStockData> => ({
+        data: null,
+        source: 'api',
+        timestamp: Date.now(),
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+        latency: 0,
+      }));
+  } else if (agentic) {
+    // Agentic Screenshot 사용 (Vision AI)
     sourceADescription = SOURCE_DESCRIPTIONS.KR.A_AGENTIC;
     console.log(`[DualSource KR] Source A 시작: ${sourceADescription}`);
     sourceAPromise = agentic
@@ -156,7 +181,7 @@ async function collectKoreaStockDualSource(
   } else {
     // Agentic 사용 불가 시 전통적 크롤링으로 폴백
     sourceADescription = SOURCE_DESCRIPTIONS.KR.A_CRAWLING;
-    console.log(`[DualSource KR] Source A 시작: ${sourceADescription} (Agentic 불가)`);
+    console.log(`[DualSource KR] Source A 시작: ${sourceADescription} (KIS/Agentic 불가)`);
     sourceAPromise = koreaStockCrawler
       .collectAll(normalizedSymbol)
       .catch((error): CollectionResult<ComprehensiveStockData> => ({
@@ -199,17 +224,23 @@ async function collectKoreaStockDualSource(
 /**
  * 미국 주식 듀얼 소스 수집
  *
- * Source A: Agentic Screenshot (Yahoo Finance) - Vision AI 기반
- * Source B: Yahoo Finance API (yahoo-finance2 라이브러리) - 전통적 API 방식
+ * 우선순위 (FMP 설정 시):
+ * - Source A: FMP REST API (NASDAQ 공식 라이선스)
+ * - Source B: Yahoo Finance API (yahoo-finance2 라이브러리)
  *
- * Agentic 방식 실패 시 Finnhub API로 폴백 (서버리스 환경)
+ * FMP 미설정 시:
+ * - Source A: Agentic Screenshot (Vision AI) 또는 Finnhub API
+ * - Source B: Yahoo Finance API (yahoo-finance2 라이브러리)
  */
 async function collectUSStockDualSource(
   symbol: string,
   options: CollectionOptions
 ): Promise<DualSourceResult<ComprehensiveStockData>> {
-  // Agentic 크롤러 초기화
-  const agentic = await initAgenticCrawler();
+  // FMP API 설정 여부 확인
+  const fmpConfigured = isFMPConfigured();
+
+  // Agentic 크롤러 초기화 (FMP 미설정 시에만 필요)
+  const agentic = fmpConfigured ? null : await initAgenticCrawler();
 
   // 타임아웃 설정 (Agentic은 더 긴 타임아웃 필요)
   const agenticTimeout = agentic ? Math.max(options.timeout || 30000, 60000) : (options.timeout || 30000);
@@ -217,11 +248,26 @@ async function collectUSStockDualSource(
     setTimeout(() => reject(new Error('수집 타임아웃')), agenticTimeout);
   });
 
-  // Source A: Agentic Screenshot (Vision AI) 또는 Finnhub API (폴백)
+  // Source A: FMP API (최우선) 또는 Agentic Screenshot 또는 Finnhub API (폴백)
   let sourceAPromise: Promise<CollectionResult<ComprehensiveStockData>>;
   let sourceADescription: string;
 
-  if (agentic) {
+  if (fmpConfigured) {
+    // FMP API 사용 (NASDAQ 공식 라이선스)
+    sourceADescription = SOURCE_DESCRIPTIONS.US.A_FMP;
+    console.log(`[DualSource US] Source A 시작: ${sourceADescription} (Primary)`);
+    sourceAPromise = usStockFMPCollector
+      .collectAll(symbol)
+      .catch((error): CollectionResult<ComprehensiveStockData> => ({
+        data: null,
+        source: 'api',
+        timestamp: Date.now(),
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+        latency: 0,
+      }));
+  } else if (agentic) {
+    // Agentic Screenshot 사용 (Vision AI)
     sourceADescription = SOURCE_DESCRIPTIONS.US.A_AGENTIC;
     console.log(`[DualSource US] Source A 시작: ${sourceADescription}`);
     sourceAPromise = agentic
@@ -237,7 +283,7 @@ async function collectUSStockDualSource(
   } else {
     // Agentic 사용 불가 시 Finnhub API로 폴백
     sourceADescription = SOURCE_DESCRIPTIONS.US.A_FINNHUB;
-    console.log(`[DualSource US] Source A 시작: ${sourceADescription} (Agentic 불가)`);
+    console.log(`[DualSource US] Source A 시작: ${sourceADescription} (FMP/Agentic 불가)`);
     sourceAPromise = usStockFinnhubCollector
       .collectAll(symbol)
       .catch((error): CollectionResult<ComprehensiveStockData> => ({
@@ -378,20 +424,34 @@ export async function collectStockDataSingleSource(
   const marketType = detectMarketType(symbol);
   const normalizedSymbol = marketType === 'KR' ? normalizeKoreaSymbol(symbol) : symbol;
 
-  // Agentic 크롤러 초기화 시도
-  const agentic = await initAgenticCrawler();
+  // API 설정 여부 확인
+  const kisConfigured = isKISConfigured();
+  const fmpConfigured = isFMPConfigured();
+
+  // Agentic 크롤러 초기화 시도 (공식 API 미설정 시)
+  const agentic = (marketType === 'KR' && kisConfigured) || (marketType === 'US' && fmpConfigured)
+    ? null
+    : await initAgenticCrawler();
 
   if (preferredSource === 'A') {
-    // Source A: Agentic Screenshot (Vision AI) 또는 폴백
-    if (agentic) {
-      return marketType === 'KR'
-        ? agentic.collectKoreaStock(normalizedSymbol)
-        : agentic.collectUSStock(symbol);
+    if (marketType === 'KR') {
+      // 한국 주식: KIS (최우선) > Agentic > 크롤링
+      if (kisConfigured) {
+        return koreaStockKISCollector.collectAll(normalizedSymbol);
+      } else if (agentic) {
+        return agentic.collectKoreaStock(normalizedSymbol);
+      } else {
+        return koreaStockCrawler.collectAll(normalizedSymbol);
+      }
     } else {
-      // Agentic 사용 불가 시 폴백
-      return marketType === 'KR'
-        ? koreaStockCrawler.collectAll(normalizedSymbol)
-        : usStockFinnhubCollector.collectAll(symbol);
+      // 미국 주식: FMP (최우선) > Agentic > Finnhub
+      if (fmpConfigured) {
+        return usStockFMPCollector.collectAll(symbol);
+      } else if (agentic) {
+        return agentic.collectUSStock(symbol);
+      } else {
+        return usStockFinnhubCollector.collectAll(symbol);
+      }
     }
   } else {
     // Source B: 전통적 API 방식
@@ -414,12 +474,18 @@ export async function closeBrowsers(): Promise<void> {
 export {
   KoreaStockCrawler,
   KoreaStockDaumCollector,
+  KoreaStockKISCollector,
   USStockYahooCollector,
   USStockFinnhubCollector,
+  USStockFMPCollector,
   koreaStockCrawler,
   koreaStockDaumCollector,
+  koreaStockKISCollector,
   usStockYahooCollector,
   usStockFinnhubCollector,
+  usStockFMPCollector,
+  isKISConfigured,
+  isFMPConfigured,
 };
 
 export * from './types';
