@@ -5,6 +5,13 @@
 
 이 스크립트는 주기적으로 실행하여 최신 종목 리스트를 유지합니다.
 생성된 JSON 파일은 public/data/symbols.json에 저장됩니다.
+
+[2026-01-27 개선사항]
+- ETF 별도 수집 로직 추가 (네이버 금융 ETF API)
+- pykrx ALL 옵션으로 KONEX 포함
+- FMP Company Symbols List 활용 (미국 주식 보완)
+- GitHub US-Stock-Symbols 활용 (무료 백업 소스)
+- 상세 로깅 강화
 """
 
 import sys
@@ -159,6 +166,103 @@ def get_stock_listing_from_naver_all_stocks():
 
     return all_stocks
 
+def get_korea_etf_from_naver():
+    """네이버 금융 ETF 목록 가져오기
+
+    네이버 금융 ETF 페이지에서 전체 ETF 목록을 크롤링합니다.
+    주식 목록과 별개로 ETF를 수집하여 누락을 방지합니다.
+    """
+    etf_stocks = []
+    existing_codes = set()
+
+    try:
+        # 네이버 ETF 시세 페이지 (국내 ETF)
+        print("[ETF] 네이버 금융 ETF 목록 가져오는 중...", file=sys.stderr)
+
+        page = 1
+        max_pages = 20
+
+        while page <= max_pages:
+            try:
+                url = f'https://finance.naver.com/sise/etf.naver?page={page}'
+                response = requests.get(url, timeout=15, headers={
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                    'Referer': 'https://finance.naver.com/'
+                })
+                response.encoding = 'euc-kr'
+
+                soup = BeautifulSoup(response.text, 'html.parser')
+                table = soup.find('table', {'class': 'type_1'}) or soup.find('table', {'class': 'type_2'})
+
+                if not table:
+                    # ETF 전용 테이블 구조가 다를 수 있음
+                    rows = soup.find_all('tr')
+                else:
+                    rows = table.find_all('tr')
+
+                found_etfs = 0
+
+                for row in rows:
+                    # ETF 링크 찾기
+                    links = row.find_all('a')
+                    for link in links:
+                        href = link.get('href', '')
+                        if 'code=' in href and '/item/' in href:
+                            code = href.split('code=')[-1].split('&')[0]
+                            name = link.get_text(strip=True)
+
+                            if code and code.isdigit() and len(code) == 6 and name:
+                                if code not in existing_codes:
+                                    etf_stocks.append({
+                                        'code': code,
+                                        'name': name,
+                                        'market': 'ETF',
+                                        'country': 'KR'
+                                    })
+                                    existing_codes.add(code)
+                                    found_etfs += 1
+
+                if found_etfs == 0:
+                    break
+
+                page += 1
+
+            except Exception as e:
+                print(f"[ETF] 페이지 {page} 크롤링 실패: {str(e)}", file=sys.stderr)
+                break
+
+        print(f"[ETF] 네이버 금융에서 {len(etf_stocks)}개 ETF 가져옴", file=sys.stderr)
+
+    except Exception as e:
+        print(f"[ETF] 네이버 금융 ETF 크롤링 실패: {str(e)}", file=sys.stderr)
+
+    # 추가: KRX ETF 목록도 시도 (FinanceDataReader)
+    try:
+        etf_list = fdr.StockListing('ETF/KR')
+        if etf_list is not None and not etf_list.empty:
+            added_count = 0
+            for _, row in etf_list.iterrows():
+                symbol = str(row.get('Symbol', '')).strip()
+                name = str(row.get('Name', '')).strip()
+
+                if symbol and name and len(symbol) == 6 and symbol.isdigit():
+                    if symbol not in existing_codes:
+                        etf_stocks.append({
+                            'code': symbol,
+                            'name': name,
+                            'market': 'ETF',
+                            'country': 'KR'
+                        })
+                        existing_codes.add(symbol)
+                        added_count += 1
+
+            print(f"[ETF] FinanceDataReader에서 {added_count}개 ETF 추가", file=sys.stderr)
+    except Exception as e:
+        print(f"[ETF] FinanceDataReader ETF 실패 (무시): {str(e)}", file=sys.stderr)
+
+    return etf_stocks
+
+
 def get_stock_by_ticker(ticker_code):
     """Ticker 기반 역추적: 종목코드로 직접 종목 정보 조회"""
     if not ticker_code or not ticker_code.isdigit() or len(ticker_code) != 6:
@@ -264,6 +368,7 @@ def get_korea_stocks():
         print(f"GitHub CSV 실패: {str(e)}", file=sys.stderr)
     
     # 3. pykrx 시도 (KRX 공식 데이터 기반, 신규 상장주 포함)
+    # [개선] ALL 옵션으로 KOSPI, KOSDAQ, KONEX 모두 조회
     try:
         from pykrx import stock
         from datetime import datetime, timedelta
@@ -273,37 +378,46 @@ def get_korea_stocks():
         for days_back in range(7):
             try:
                 check_date = (datetime.now() - timedelta(days=days_back)).strftime("%Y%m%d")
-                kospi_tickers = stock.get_market_ticker_list(check_date, market="KOSPI")
-                kosdaq_tickers = stock.get_market_ticker_list(check_date, market="KOSDAQ")
 
-                if kospi_tickers or kosdaq_tickers:
+                # [개선] ALL 옵션으로 모든 시장 조회 (KOSPI + KOSDAQ + KONEX)
+                all_tickers = stock.get_market_ticker_list(check_date, market="ALL")
+
+                if all_tickers:
                     added_count = 0
+                    kospi_count = 0
+                    kosdaq_count = 0
+                    konex_count = 0
 
-                    for ticker in kospi_tickers:
+                    for ticker in all_tickers:
                         if ticker not in existing_codes:
                             try:
                                 name = stock.get_market_ticker_name(ticker)
                                 if name:
-                                    all_stocks.append({
-                                        'code': ticker,
-                                        'name': name,
-                                        'market': 'KOSPI',
-                                        'country': 'KR'
-                                    })
-                                    existing_codes.add(ticker)
-                                    added_count += 1
-                            except Exception:
-                                pass
+                                    # 시장 구분 확인
+                                    try:
+                                        # pykrx에서 개별 종목의 시장 확인
+                                        market_info = 'KRX'
+                                        # KOSPI 확인
+                                        kospi_check = stock.get_market_ticker_list(check_date, market="KOSPI")
+                                        kosdaq_check = stock.get_market_ticker_list(check_date, market="KOSDAQ")
+                                        konex_check = stock.get_market_ticker_list(check_date, market="KONEX")
 
-                    for ticker in kosdaq_tickers:
-                        if ticker not in existing_codes:
-                            try:
-                                name = stock.get_market_ticker_name(ticker)
-                                if name:
+                                        if ticker in kospi_check:
+                                            market_info = 'KOSPI'
+                                            kospi_count += 1
+                                        elif ticker in kosdaq_check:
+                                            market_info = 'KOSDAQ'
+                                            kosdaq_count += 1
+                                        elif ticker in konex_check:
+                                            market_info = 'KONEX'
+                                            konex_count += 1
+                                    except Exception:
+                                        market_info = 'KRX'
+
                                     all_stocks.append({
                                         'code': ticker,
                                         'name': name,
-                                        'market': 'KOSDAQ',
+                                        'market': market_info,
                                         'country': 'KR'
                                     })
                                     existing_codes.add(ticker)
@@ -312,6 +426,7 @@ def get_korea_stocks():
                                 pass
 
                     print(f"pykrx에서 {added_count}개 종목 추가 (기준일: {check_date})", file=sys.stderr)
+                    print(f"  - KOSPI: {kospi_count}, KOSDAQ: {kosdaq_count}, KONEX: {konex_count}", file=sys.stderr)
                     break
             except Exception as e:
                 continue
@@ -345,10 +460,25 @@ def get_korea_stocks():
     except Exception as e:
         print(f"FinanceDataReader 실패 (무시): {str(e)}", file=sys.stderr)
 
-    # 5. 주요 누락 종목 수동 보강 (Manual Overlay)
+    # 5. ETF 별도 수집 [신규 추가]
+    # 주식 목록과 별개로 ETF를 수집하여 누락 방지
+    try:
+        etf_stocks = get_korea_etf_from_naver()
+        etf_added = 0
+        for etf in etf_stocks:
+            code = etf['code']
+            if code not in existing_codes:
+                all_stocks.append(etf)
+                existing_codes.add(code)
+                etf_added += 1
+        print(f"ETF 수집에서 {etf_added}개 종목 추가 (기존 중복 제외)", file=sys.stderr)
+    except Exception as e:
+        print(f"ETF 수집 실패 (무시): {str(e)}", file=sys.stderr)
+
+    # 6. 주요 누락 종목 수동 보강 (Manual Overlay)
     # FinanceDataReader에서 누락되는 주요 종목들을 Ticker 기반 역추적으로 추가
     manual_tickers = ['064400']  # LG씨엔에스 등
-    
+
     for ticker in manual_tickers:
         if ticker not in existing_codes:
             ticker_info = get_stock_by_ticker(ticker)
@@ -356,70 +486,167 @@ def get_korea_stocks():
                 all_stocks.append(ticker_info)
                 existing_codes.add(ticker)
                 print(f"수동 보강 (Ticker 역추적): {ticker_info['name']} ({ticker}) 추가", file=sys.stderr)
-    
+
+    # 최종 통계 출력
+    market_stats = {}
+    for stock in all_stocks:
+        market = stock.get('market', 'OTHER')
+        market_stats[market] = market_stats.get(market, 0) + 1
+    print(f"[한국 주식 최종] 총 {len(all_stocks)}개 종목 수집", file=sys.stderr)
+    for market, count in sorted(market_stats.items()):
+        print(f"  - {market}: {count}개", file=sys.stderr)
+
     return all_stocks
 
 def get_us_stocks():
-    """미국 주식 리스트 가져오기 (Finnhub API 사용)"""
+    """미국 주식 리스트 가져오기 (다중 소스)
+
+    [2026-01-27 개선]
+    1. Finnhub API (기존)
+    2. FMP Company Symbols List (신규 추가)
+    3. GitHub US-Stock-Symbols (무료 백업 소스)
+    """
     all_stocks = []
-    
-    # 환경 변수에서 API 키 확인 (.env.local에서 로드됨)
+    existing_symbols = set()
+
+    # 1. Finnhub API (기존 소스)
     finnhub_key = os.environ.get('FINNHUB_API_KEY') or os.environ.get('NEXT_PUBLIC_FINNHUB_API_KEY')
-    
-    if not finnhub_key:
-        print("FINNHUB_API_KEY가 없어 미국 주식 리스트를 가져올 수 없습니다.", file=sys.stderr)
-        print("힌트: .env.local 파일에 FINNHUB_API_KEY를 설정하세요.", file=sys.stderr)
-        return all_stocks
-    
-    print(f"Finnhub API 키 확인됨 (길이: {len(finnhub_key)})", file=sys.stderr)
-    
-    try:
-        import requests
-        
-        # US 거래소 전체 종목
-        url = f'https://finnhub.io/api/v1/stock/symbol?exchange=US&token={finnhub_key}'
-        response = requests.get(url, timeout=30)
-        
-        if response.status_code == 200:
-            data = response.json()
-            if isinstance(data, list):
-                for item in data:
-                    symbol = item.get('symbol', '').strip()
-                    name = item.get('description', '').strip()
-                    stock_type = item.get('type', '').strip()
-                    
-                    if symbol and name:
+
+    if finnhub_key:
+        print(f"[US] Finnhub API 키 확인됨 (길이: {len(finnhub_key)})", file=sys.stderr)
+        try:
+            url = f'https://finnhub.io/api/v1/stock/symbol?exchange=US&token={finnhub_key}'
+            response = requests.get(url, timeout=30)
+
+            if response.status_code == 200:
+                data = response.json()
+                if isinstance(data, list):
+                    for item in data:
+                        symbol = item.get('symbol', '').strip()
+                        name = item.get('description', '').strip()
+                        stock_type = item.get('type', '').strip()
+
+                        if symbol and name and symbol not in existing_symbols:
+                            all_stocks.append({
+                                'code': symbol,
+                                'name': name,
+                                'market': 'US',
+                                'country': 'US',
+                                'type': stock_type
+                            })
+                            existing_symbols.add(symbol)
+
+                    print(f"[US] Finnhub에서 {len(all_stocks)}개 종목 가져옴", file=sys.stderr)
+            else:
+                print(f"[US] Finnhub API 오류: {response.status_code}", file=sys.stderr)
+        except Exception as e:
+            print(f"[US] Finnhub API 실패: {str(e)}", file=sys.stderr)
+    else:
+        print("[US] FINNHUB_API_KEY 미설정, Finnhub 스킵", file=sys.stderr)
+
+    # 2. FMP Company Symbols List (신규 추가)
+    fmp_key = os.environ.get('FMP_API_KEY')
+
+    if fmp_key:
+        print(f"[US] FMP API 키 확인됨 (길이: {len(fmp_key)})", file=sys.stderr)
+        try:
+            # FMP stable API 사용
+            url = f'https://financialmodelingprep.com/stable/stock-list?apikey={fmp_key}'
+            response = requests.get(url, timeout=60)
+
+            if response.status_code == 200:
+                data = response.json()
+                added_count = 0
+                if isinstance(data, list):
+                    for item in data:
+                        symbol = item.get('symbol', '').strip()
+                        name = item.get('name', '').strip()
+                        exchange = item.get('exchange', '').strip()
+                        stock_type = item.get('type', '').strip()
+
+                        # 미국 거래소만 필터링
+                        us_exchanges = ['NYSE', 'NASDAQ', 'AMEX', 'NYSE ARCA', 'NYSE MKT', 'BATS', 'OTC']
+                        if symbol and name and symbol not in existing_symbols:
+                            if exchange in us_exchanges or any(ex in exchange for ex in us_exchanges):
+                                all_stocks.append({
+                                    'code': symbol,
+                                    'name': name,
+                                    'market': exchange or 'US',
+                                    'country': 'US',
+                                    'type': stock_type
+                                })
+                                existing_symbols.add(symbol)
+                                added_count += 1
+
+                    print(f"[US] FMP에서 {added_count}개 종목 추가 (기존 중복 제외)", file=sys.stderr)
+            else:
+                print(f"[US] FMP API 오류: {response.status_code}", file=sys.stderr)
+        except Exception as e:
+            print(f"[US] FMP API 실패 (무시): {str(e)}", file=sys.stderr)
+    else:
+        print("[US] FMP_API_KEY 미설정, FMP 스킵", file=sys.stderr)
+
+    # 3. GitHub US-Stock-Symbols (무료 백업 소스)
+    github_sources = [
+        ('NASDAQ', 'https://raw.githubusercontent.com/rreichel3/US-Stock-Symbols/main/nasdaq/nasdaq_tickers.txt'),
+        ('NYSE', 'https://raw.githubusercontent.com/rreichel3/US-Stock-Symbols/main/nyse/nyse_tickers.txt'),
+        ('AMEX', 'https://raw.githubusercontent.com/rreichel3/US-Stock-Symbols/main/amex/amex_tickers.txt'),
+    ]
+
+    for exchange_name, url in github_sources:
+        try:
+            response = requests.get(url, timeout=15)
+            if response.status_code == 200:
+                tickers = response.text.strip().split('\n')
+                added_count = 0
+                for ticker in tickers:
+                    ticker = ticker.strip()
+                    if ticker and ticker not in existing_symbols:
+                        # GitHub 소스는 이름이 없으므로 심볼만 추가
                         all_stocks.append({
-                            'code': symbol,
-                            'name': name,
-                            'market': 'US',
+                            'code': ticker,
+                            'name': ticker,  # 이름 없음, 심볼로 대체
+                            'market': exchange_name,
                             'country': 'US',
-                            'type': stock_type
+                            'type': 'Common Stock'
                         })
-                
-                print(f"Finnhub에서 {len(all_stocks)}개 미국 종목 가져옴", file=sys.stderr)
-        else:
-            print(f"Finnhub API 오류: {response.status_code}", file=sys.stderr)
-    except Exception as e:
-        print(f"Finnhub API 실패: {str(e)}", file=sys.stderr)
-    
+                        existing_symbols.add(ticker)
+                        added_count += 1
+                print(f"[US] GitHub {exchange_name}에서 {added_count}개 종목 추가", file=sys.stderr)
+        except Exception as e:
+            print(f"[US] GitHub {exchange_name} 실패 (무시): {str(e)}", file=sys.stderr)
+
+    # 최종 통계
+    market_stats = {}
+    for stock in all_stocks:
+        market = stock.get('market', 'OTHER')
+        market_stats[market] = market_stats.get(market, 0) + 1
+    print(f"[미국 주식 최종] 총 {len(all_stocks)}개 종목 수집", file=sys.stderr)
+    for market, count in sorted(market_stats.items(), key=lambda x: -x[1])[:10]:
+        print(f"  - {market}: {count}개", file=sys.stderr)
+
     return all_stocks
 
 def main():
     """메인 함수: symbols.json 생성"""
-    print("종목 리스트 생성 시작...", file=sys.stderr)
-    
+    from datetime import datetime
+
+    print("=" * 60, file=sys.stderr)
+    print("종목 리스트 생성 시작", file=sys.stderr)
+    print(f"실행 시간: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", file=sys.stderr)
+    print("=" * 60, file=sys.stderr)
+
     # 한국 주식 가져오기
+    print("\n[1/2] 한국 주식 수집 중...", file=sys.stderr)
     korea_stocks = get_korea_stocks()
-    print(f"한국 주식: {len(korea_stocks)}개", file=sys.stderr)
-    
+
     # 미국 주식 가져오기
+    print("\n[2/2] 미국 주식 수집 중...", file=sys.stderr)
     us_stocks = get_us_stocks()
-    print(f"미국 주식: {len(us_stocks)}개", file=sys.stderr)
-    
+
     # 통합
     all_symbols = {
-        'version': '1.0',
+        'version': '2.0',  # 버전 업데이트 (ETF, FMP, GitHub 추가)
         'generated_at': pd.Timestamp.now().isoformat(),
         'korea': {
             'count': len(korea_stocks),

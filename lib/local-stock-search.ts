@@ -1,12 +1,19 @@
 /**
  * 로컬 종목 검색 (정적 symbols.json 활용)
- * 
+ *
  * 안정성과 성능을 위해 정적 JSON 파일을 사용한 로컬 검색을 제공합니다.
  * 실시간 API 호출 없이 클라이언트에서 즉시 검색이 가능합니다.
+ *
+ * 환경 감지:
+ * - 브라우저: fetch('/data/symbols.json') 사용
+ * - Node.js/CLI: fs.readFile 사용 (로컬 테스트 지원)
  */
 
 import Fuse from 'fuse.js';
 import type { StockSuggestion } from './stock-search';
+
+// 환경 감지: 브라우저인지 Node.js인지
+const isBrowser = typeof window !== 'undefined' && typeof window.fetch === 'function';
 
 interface SymbolData {
   code: string;
@@ -37,7 +44,35 @@ let fuseUS: Fuse<SymbolData> | null = null;
 let loadPromise: Promise<SymbolsJSON> | null = null;
 
 /**
- * symbols.json 파일 로드 (캐싱)
+ * Node.js 환경에서 파일 시스템으로 symbols.json 로드
+ */
+async function loadSymbolsFromFileSystem(): Promise<SymbolsJSON> {
+  // Node.js fs 모듈 동적 import (브라우저에서는 실행되지 않음)
+  const { readFile } = await import('fs/promises');
+  const { join } = await import('path');
+
+  const symbolsPath = join(process.cwd(), 'public', 'data', 'symbols.json');
+  const fileContent = await readFile(symbolsPath, 'utf-8');
+  return JSON.parse(fileContent);
+}
+
+/**
+ * 브라우저 환경에서 fetch로 symbols.json 로드
+ */
+async function loadSymbolsFromFetch(): Promise<SymbolsJSON> {
+  const response = await fetch('/data/symbols.json', {
+    cache: 'force-cache', // 브라우저 캐시 활용
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to load symbols.json: ${response.status} ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * symbols.json 파일 로드 (캐싱, 환경 감지)
  */
 async function loadSymbols(): Promise<SymbolsJSON> {
   // 이미 로드된 경우 캐시 반환
@@ -53,28 +88,28 @@ async function loadSymbols(): Promise<SymbolsJSON> {
   // 새로 로드
   loadPromise = (async () => {
     try {
-      const response = await fetch('/data/symbols.json', {
-        cache: 'force-cache', // 브라우저 캐시 활용
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to load symbols.json: ${response.status} ${response.statusText}`);
+      // 환경에 따라 적절한 로드 방식 선택
+      let data: SymbolsJSON;
+      if (isBrowser) {
+        console.log('[Local Stock Search] 브라우저 환경 - fetch 사용');
+        data = await loadSymbolsFromFetch();
+      } else {
+        console.log('[Local Stock Search] Node.js/CLI 환경 - 파일시스템 사용');
+        data = await loadSymbolsFromFileSystem();
       }
 
-      const data: SymbolsJSON = await response.json();
-      
       // 데이터 유효성 검사
       if (!data.korea || !data.us || !Array.isArray(data.korea.stocks) || !Array.isArray(data.us.stocks)) {
         throw new Error('Invalid symbols.json format');
       }
-      
+
       cachedSymbols = data;
 
       // Fuse.js 인덱스 생성
       const fuseOptions = {
         keys: [
           { name: 'name', weight: 0.8 }, // 종목명 우선
-          { name: 'code', weight: 0.2 },  // 종목코드 보조
+          { name: 'code', weight: 0.2 }, // 종목코드 보조
         ],
         threshold: 0.2, // 유사도 임계값 (낮을수록 정확한 매칭, 0.2로 하향하여 정확도 향상)
         includeScore: true,

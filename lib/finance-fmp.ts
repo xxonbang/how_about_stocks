@@ -17,14 +17,16 @@ import type { StockData } from './finance';
 import { calculateRSI, calculateMA, calculateDisparity } from './finance';
 
 const FMP_API_KEY = process.env.FMP_API_KEY || '';
-const FMP_BASE_URL = 'https://financialmodelingprep.com/api/v3';
+// 2025년 8월 31일부로 레거시 /api/v3 엔드포인트 지원 종료됨
+// 새로운 /stable/ 엔드포인트 사용
+const FMP_BASE_URL = 'https://financialmodelingprep.com/stable';
 
-// FMP Quote 응답 타입
+// FMP Quote 응답 타입 (새 /stable API 기준)
 interface FMPQuote {
   symbol: string;
   name: string;
   price: number;
-  changesPercentage: number;
+  changePercentage: number; // 새 API: changePercentage (단수)
   change: number;
   dayLow: number;
   dayHigh: number;
@@ -35,13 +37,13 @@ interface FMPQuote {
   priceAvg200: number;
   exchange: string;
   volume: number;
-  avgVolume: number;
+  avgVolume?: number; // 새 API에서는 없을 수 있음
   open: number;
   previousClose: number;
-  eps: number;
-  pe: number;
-  earningsAnnouncement: string | null;
-  sharesOutstanding: number;
+  eps?: number; // 새 API에서는 없을 수 있음
+  pe?: number; // 새 API에서는 없을 수 있음
+  earningsAnnouncement?: string | null;
+  sharesOutstanding?: number;
   timestamp: number;
 }
 
@@ -181,10 +183,11 @@ async function fmpRequest<T>(
 
 /**
  * FMP를 사용하여 주식 Quote 데이터 수집
+ * 새 API: /stable/quote?symbol={symbol}
  */
 export async function fetchQuoteFMP(symbol: string): Promise<FMPQuote | null> {
   try {
-    const data = await fmpRequest<FMPQuote[]>(`/quote/${symbol}`);
+    const data = await fmpRequest<FMPQuote[]>(`/quote`, { symbol });
     return data && data.length > 0 ? data[0] : null;
   } catch (error) {
     console.error(`[FMP] Quote 조회 실패 (${symbol}):`, error);
@@ -192,25 +195,58 @@ export async function fetchQuoteFMP(symbol: string): Promise<FMPQuote | null> {
   }
 }
 
+// 새 API 히스토리컬 응답 타입 (배열 형태로 직접 반환)
+interface FMPHistoricalPriceNew {
+  symbol: string;
+  date: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+  change: number;
+  changePercent: number;
+  vwap: number;
+}
+
 /**
  * FMP를 사용하여 히스토리컬 가격 데이터 수집
+ * 새 API: /stable/historical-price-eod/full?symbol={symbol}
  */
 export async function fetchHistoricalPricesFMP(
   symbol: string,
   days: number = 180
 ): Promise<FMPHistoricalPrice[]> {
   try {
-    const data = await fmpRequest<FMPHistoricalResponse>(
-      `/historical-price-full/${symbol}`,
-      { serietype: 'line' }
+    // 새 API는 배열 형태로 직접 반환
+    const data = await fmpRequest<FMPHistoricalPriceNew[]>(
+      `/historical-price-eod/full`,
+      { symbol }
     );
 
-    if (!data || !data.historical) {
+    if (!data || !Array.isArray(data) || data.length === 0) {
       return [];
     }
 
-    // 최근 N일치만 반환 (API는 최신→과거 순으로 반환)
-    return data.historical.slice(0, days).reverse(); // 과거→최신 순으로 변환
+    // 새 API 응답을 기존 형태로 변환 (최신→과거 순으로 반환됨)
+    const converted: FMPHistoricalPrice[] = data.slice(0, days).map(item => ({
+      date: item.date,
+      open: item.open,
+      high: item.high,
+      low: item.low,
+      close: item.close,
+      adjClose: item.close, // 새 API에는 adjClose가 없음
+      volume: item.volume,
+      unadjustedVolume: item.volume,
+      change: item.change,
+      changePercent: item.changePercent,
+      vwap: item.vwap,
+      label: item.date,
+      changeOverTime: 0,
+    }));
+
+    // 과거→최신 순으로 변환
+    return converted.reverse();
   } catch (error) {
     console.error(`[FMP] 히스토리컬 데이터 조회 실패 (${symbol}):`, error);
     return [];
@@ -219,12 +255,13 @@ export async function fetchHistoricalPricesFMP(
 
 /**
  * FMP를 사용하여 회사 프로필 조회
+ * 새 API: /stable/profile?symbol={symbol}
  */
 export async function fetchCompanyProfileFMP(
   symbol: string
 ): Promise<FMPCompanyProfile | null> {
   try {
-    const data = await fmpRequest<FMPCompanyProfile[]>(`/profile/${symbol}`);
+    const data = await fmpRequest<FMPCompanyProfile[]>(`/profile`, { symbol });
     return data && data.length > 0 ? data[0] : null;
   } catch (error) {
     console.error(`[FMP] 회사 프로필 조회 실패 (${symbol}):`, error);
@@ -234,13 +271,15 @@ export async function fetchCompanyProfileFMP(
 
 /**
  * FMP를 사용하여 재무 지표 조회
+ * 새 API: /stable/key-metrics-ttm?symbol={symbol}
  */
 export async function fetchKeyMetricsFMP(
   symbol: string
 ): Promise<FMPKeyMetrics | null> {
   try {
     const data = await fmpRequest<FMPKeyMetrics[]>(
-      `/key-metrics-ttm/${symbol}`
+      `/key-metrics-ttm`,
+      { symbol }
     );
     return data && data.length > 0 ? data[0] : null;
   } catch (error) {
@@ -276,7 +315,7 @@ export async function fetchStockDataFMP(symbol: string): Promise<StockData> {
     }
 
     const change = quote.change || 0;
-    const changePercent = quote.changesPercentage || 0;
+    const changePercent = quote.changePercentage || 0;
 
     // 2. 히스토리컬 데이터 조회 (기술적 지표 계산용)
     const historicalPrices = await fetchHistoricalPricesFMP(symbol, 180);
@@ -347,7 +386,7 @@ export async function fetchStockDataFMP(symbol: string): Promise<StockData> {
 
 /**
  * 여러 종목의 Quote를 배치로 수집
- * FMP는 콤마로 구분된 심볼 리스트를 지원
+ * 새 API: /stable/batch-quote?symbols={symbol1},{symbol2}
  */
 export async function fetchQuotesBatchFMP(
   symbols: string[]
@@ -357,9 +396,9 @@ export async function fetchQuotesBatchFMP(
   if (symbols.length === 0) return quoteMap;
 
   try {
-    // FMP는 콤마로 구분된 심볼 리스트 지원 (최대 제한 있음)
+    // 새 API: batch-quote 엔드포인트 사용
     const symbolList = symbols.join(',');
-    const data = await fmpRequest<FMPQuote[]>(`/quote/${symbolList}`);
+    const data = await fmpRequest<FMPQuote[]>(`/batch-quote`, { symbols: symbolList });
 
     if (data && Array.isArray(data)) {
       data.forEach((quote) => {
@@ -388,11 +427,13 @@ export async function fetchQuotesBatchFMP(
 
 /**
  * VIX 지수 조회
+ * 새 API: /stable/quote?symbol=^VIX
  */
 export async function fetchVIXFMP(): Promise<number | null> {
   try {
-    const quote = await fetchQuoteFMP('^VIX');
-    return quote?.price || null;
+    // VIX 심볼은 ^VIX 형태로 그대로 사용
+    const data = await fmpRequest<FMPQuote[]>(`/quote`, { symbol: '^VIX' });
+    return data && data.length > 0 ? data[0].price : null;
   } catch (error) {
     console.error('[FMP] VIX 조회 실패:', error);
     return null;
@@ -401,24 +442,35 @@ export async function fetchVIXFMP(): Promise<number | null> {
 
 /**
  * 환율 조회 (USD/KRW)
+ * 참고: 새 API에서 USDKRW는 프리미엄 엔드포인트로 변경됨
+ * 무료 플랜에서는 사용 불가
  */
 export async function fetchExchangeRateFMP(): Promise<number | null> {
   try {
-    const data = await fmpRequest<Array<{ bid: number; ask: number }>>(
-      '/fx/USDKRW'
+    // 새 API: forex 엔드포인트 시도 (프리미엄 기능)
+    const data = await fmpRequest<Array<{ symbol: string; price: number; bid: number; ask: number }>>(
+      '/forex',
+      { symbol: 'USDKRW' }
     );
     if (data && data.length > 0) {
-      return (data[0].bid + data[0].ask) / 2;
+      const rate = data[0];
+      if (rate.bid && rate.ask) {
+        return (rate.bid + rate.ask) / 2;
+      }
+      return rate.price || null;
     }
     return null;
   } catch (error) {
-    console.error('[FMP] 환율 조회 실패:', error);
+    // 프리미엄 엔드포인트 에러는 조용히 처리 (무료 플랜에서는 사용 불가)
+    console.log('[FMP] 환율 조회 스킵 (프리미엄 기능)');
     return null;
   }
 }
 
 /**
  * 최신 뉴스 조회
+ * 새 API: /stable/stock-news?symbols={symbol}&limit={limit}
+ * 참고: 일부 뉴스 엔드포인트는 프리미엄 기능일 수 있음
  */
 export async function fetchNewsFMP(
   symbol: string,
@@ -435,8 +487,8 @@ export async function fetchNewsFMP(
         text: string;
         url: string;
       }>
-    >(`/stock_news`, {
-      tickers: symbol,
+    >(`/stock-news`, {
+      symbols: symbol,
       limit: limit.toString(),
     });
 
@@ -451,7 +503,8 @@ export async function fetchNewsFMP(
       source: item.site,
     }));
   } catch (error) {
-    console.error(`[FMP] 뉴스 조회 실패 (${symbol}):`, error);
+    // 뉴스 조회 실패는 조용히 처리 (프리미엄 기능일 수 있음)
+    console.log(`[FMP] 뉴스 조회 스킵 (${symbol})`);
     return [];
   }
 }
