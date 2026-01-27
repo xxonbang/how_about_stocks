@@ -13,7 +13,7 @@
 import type { StockData } from './finance';
 import { spawn } from 'child_process';
 import { join } from 'path';
-import { normalizeStockSymbol, normalizeStockSymbolHybrid } from './korea-stock-mapper';
+import { normalizeStockSymbolHybrid } from './korea-stock-mapper';
 import { validateStockData } from './data-validator';
 import { metrics } from './data-metrics';
 import { logger, toAppError } from './utils';
