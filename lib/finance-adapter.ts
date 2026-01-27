@@ -65,6 +65,26 @@ import {
   type ComprehensiveStockData,
 } from './dual-source';
 
+// Fear & Greed 및 FRED 클라이언트
+import {
+  fetchFearGreedIndex,
+  getFearGreedValue,
+  type FearGreedData,
+} from './fear-greed-client';
+
+import {
+  fetchFredMacroData,
+  summarizeFredData,
+  generateMacroInsights,
+  type FredMacroData,
+} from './fred-client';
+
+// RSS 뉴스 클라이언트
+import {
+  fetchGlobalRssNews,
+  fetchRssNewsForSymbol,
+} from './rss-client';
+
 export type DataSource = 'dual-source' | 'finnhub' | 'yahoo' | 'vercel' | 'auto';
 
 const DEFAULT_DATA_SOURCE: DataSource =
@@ -512,9 +532,67 @@ export async function fetchVIX(): Promise<number | null> {
 }
 
 /**
+ * Fear & Greed Index 조회 (통합)
+ * 1순위: CNN Fear & Greed API
+ * 2순위: 자체 계산 (VIX + RSI 기반)
+ */
+export async function fetchFearGreed(
+  vix?: number | null,
+  sp500Rsi?: number
+): Promise<FearGreedData | null> {
+  console.log('[FearGreed] Fear & Greed Index 조회 시작');
+
+  try {
+    const result = await fetchFearGreedIndex(
+      vix ?? undefined,
+      sp500Rsi
+    );
+
+    if (result) {
+      console.log(`[FearGreed] 성공: ${result.value} (${result.interpretation}) - 소스: ${result.source}`);
+    }
+
+    return result;
+  } catch (error) {
+    console.error('[FearGreed] 조회 실패:', error instanceof Error ? error.message : error);
+    return null;
+  }
+}
+
+/**
+ * FRED 매크로 경제 지표 조회
+ * - 10년물 국채 금리 (DGS10)
+ * - 수익률 곡선 (T10Y2Y)
+ * - 하이일드 스프레드 (BAMLH0A0HYM2)
+ * - 기대 인플레이션 (T10YIE)
+ */
+export async function fetchMacroIndicators(): Promise<FredMacroData | null> {
+  console.log('[FRED] 매크로 경제 지표 조회 시작');
+
+  try {
+    const result = await fetchFredMacroData();
+
+    if (result._meta.apiKeyConfigured) {
+      console.log(`[FRED] 매크로 지표 수집 완료: ${summarizeFredData(result)}`);
+    } else {
+      console.warn('[FRED] API 키 미설정 (FRED_API_KEY)');
+    }
+
+    return result;
+  } catch (error) {
+    console.error('[FRED] 조회 실패:', error instanceof Error ? error.message : error);
+    return null;
+  }
+}
+
+// Re-export for external use
+export { summarizeFredData, generateMacroInsights };
+export type { FearGreedData, FredMacroData };
+
+/**
  * 통합 뉴스 조회 (Fallback 체인)
- * 한국 주식: 네이버 금융 → Yahoo Finance
- * 미국 주식: Yahoo Finance → Finnhub
+ * 한국 주식: 네이버 금융 → Yahoo Finance → RSS
+ * 미국 주식: Yahoo Finance → Finnhub → RSS
  */
 export async function fetchNews(
   symbol: string,
@@ -522,7 +600,7 @@ export async function fetchNews(
 ): Promise<Array<{ title: string; link: string; date: string }>> {
   console.log(`[News] Fetching news for ${symbol}`);
 
-  // 한국 주식인 경우: 네이버 → Yahoo 순으로 시도
+  // 한국 주식인 경우: 네이버 → Yahoo → RSS 순으로 시도
   if (isKoreanStock(symbol)) {
     // 6자리 코드 추출 (064350.KS → 064350)
     const koreanSymbol = symbol.replace(/\.(KS|KQ)$/, '');
@@ -553,7 +631,7 @@ export async function fetchNews(
     return [];
   }
 
-  // 미국/기타 주식인 경우: Yahoo → Finnhub 순으로 시도
+  // 미국/기타 주식인 경우: Yahoo → Finnhub → RSS 순으로 시도
   // 1차: Yahoo Finance
   try {
     const yahooNews = await fetchYahooNews(symbol, count);
@@ -578,7 +656,43 @@ export async function fetchNews(
     }
   }
 
+  // 3차: 글로벌 RSS 피드 (Fallback)
+  try {
+    const rssNews = await fetchRssNewsForSymbol(symbol, count);
+    if (rssNews.length > 0) {
+      console.log(`[News] RSS 피드 성공: ${rssNews.length} articles`);
+      return rssNews;
+    }
+  } catch (rssError) {
+    console.warn('[News] RSS 피드 실패:', rssError instanceof Error ? rssError.message : rssError);
+  }
+
   console.warn(`[News] 모든 뉴스 소스 실패: ${symbol}`);
+  return [];
+}
+
+/**
+ * 시장 전반 뉴스 조회 (특정 종목과 무관한 글로벌 뉴스)
+ */
+export async function fetchMarketOverviewNews(
+  count: number = 10
+): Promise<Array<{ title: string; link: string; date: string; source?: string }>> {
+  console.log('[News] 시장 전반 뉴스 조회 시작');
+
+  try {
+    const rssNews = await fetchGlobalRssNews({
+      minRelevanceScore: 1,
+      maxItems: count,
+    });
+
+    if (rssNews.length > 0) {
+      console.log(`[News] 글로벌 RSS 성공: ${rssNews.length} articles`);
+      return rssNews;
+    }
+  } catch (error) {
+    console.warn('[News] 글로벌 RSS 실패:', error instanceof Error ? error.message : error);
+  }
+
   return [];
 }
 

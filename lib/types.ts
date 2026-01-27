@@ -61,8 +61,21 @@ export interface AnalyzeResult {
       individual: number;
     };
     fearGreedIndex?: number;
+    fearGreedDetail?: {
+      value: number;
+      interpretation: 'extreme_fear' | 'fear' | 'neutral' | 'greed' | 'extreme_greed';
+      source: 'cnn' | 'calculated';
+    };
     vix?: number;
     exchangeRate?: number;
+    // 매크로 경제 지표 (FRED API)
+    macroIndicators?: {
+      treasuryYield10Y?: number;      // 10년물 국채 금리
+      yieldCurve?: number;            // 수익률 곡선 (10Y-2Y)
+      yieldCurveInverted?: boolean;   // 수익률 곡선 역전 여부
+      highYieldSpread?: number;       // 하이일드 스프레드
+      expectedInflation?: number;     // 기대 인플레이션
+    };
     news?: Array<{
       title: string;
       link: string;
