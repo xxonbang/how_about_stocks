@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { AnalyzeResponse, AnalyzeResult } from "@/lib/types";
+import type { AnalyzeResponse, AnalyzeResult, DataSourceInfo } from "@/lib/types";
 import ReactMarkdown from "react-markdown";
 import { PriceChart } from "@/components/charts/price-chart";
 import { VolumeChart } from "@/components/charts/volume-chart";
@@ -53,6 +53,7 @@ export default function ReportPage() {
   const [periodText, setPeriodText] = useState("데이터를");
   const [isAdmin, setIsAdmin] = useState(false);
   const [metadata, setMetadata] = useState<AnalysisMetadata | null>(null);
+  const [dataSource, setDataSource] = useState<DataSourceInfo | null>(null);
 
   // Admin 상태 확인
   useEffect(() => {
@@ -101,6 +102,11 @@ export default function ReportPage() {
         // 메타데이터 저장 (토큰 사용량 포함)
         if (data._metadata) {
           setMetadata(data._metadata as AnalysisMetadata);
+        }
+
+        // 데이터 소스 정보 저장
+        if (data.dataSource) {
+          setDataSource(data.dataSource);
         }
 
         if (data.results && data.results.length > 0) {
@@ -1758,6 +1764,54 @@ export default function ReportPage() {
                 </CardContent>
               </Card>
             )}
+          </div>
+        )}
+
+        {/* 데이터 소스 정보 배지 */}
+        {dataSource && (
+          <div className="mb-4 p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg border border-slate-200">
+            <div className="flex items-center gap-2 mb-3">
+              <div className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                dataSource.mode === 'dual-source'
+                  ? 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                  : 'bg-blue-100 text-blue-700 border border-blue-200'
+              }`}>
+                {dataSource.mode === 'dual-source' ? '듀얼 소스 교차검증' : '단일 소스'}
+              </div>
+              <span className="text-xs text-slate-500">
+                데이터 수집 방식
+              </span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+              {dataSource.korean && (
+                <div className="flex items-start gap-2">
+                  <span className="text-lg">🇰🇷</span>
+                  <div>
+                    <div className="font-medium text-slate-700">한국 주식</div>
+                    <div className="text-xs text-slate-500">
+                      {dataSource.korean.primary}
+                      {dataSource.korean.validation === 'cross-validated' && (
+                        <span className="text-emerald-600"> + {dataSource.korean.secondary}</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+              {dataSource.us && (
+                <div className="flex items-start gap-2">
+                  <span className="text-lg">🇺🇸</span>
+                  <div>
+                    <div className="font-medium text-slate-700">미국 주식</div>
+                    <div className="text-xs text-slate-500">
+                      {dataSource.us.primary}
+                      {dataSource.us.validation === 'cross-validated' && (
+                        <span className="text-emerald-600"> + {dataSource.us.secondary}</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
 

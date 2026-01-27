@@ -70,8 +70,8 @@ export type DataSource = 'dual-source' | 'finnhub' | 'yahoo' | 'vercel' | 'auto'
 const DEFAULT_DATA_SOURCE: DataSource =
   (process.env.DATA_SOURCE as DataSource) || 'auto';
 
-// 듀얼 소스 활성화 여부
-const USE_DUAL_SOURCE = process.env.USE_DUAL_SOURCE === 'true';
+// 듀얼 소스 기본 활성화 (환경 변수로 비활성화 가능)
+const USE_DUAL_SOURCE = process.env.USE_DUAL_SOURCE !== 'false';
 
 /**
  * 심볼이 한국 주식인지 판별
@@ -580,4 +580,71 @@ export async function fetchNews(
 
   console.warn(`[News] 모든 뉴스 소스 실패: ${symbol}`);
   return [];
+}
+
+/**
+ * 현재 데이터 소스 구성 정보 반환 (UI 표시용)
+ */
+export function getDataSourceInfo(symbols: string[]): {
+  mode: 'dual-source' | 'single-source' | 'fallback';
+  korean?: {
+    primary: string;
+    secondary: string;
+    validation: 'cross-validated' | 'single-source' | 'fallback';
+  };
+  us?: {
+    primary: string;
+    secondary: string;
+    validation: 'cross-validated' | 'single-source' | 'fallback';
+  };
+  timestamp: number;
+} {
+  const { us, kr } = categorizeSymbols(symbols);
+  const kisConfigured = !!process.env.KIS_APP_KEY && !!process.env.KIS_APP_SECRET;
+  const fmpConfigured = !!process.env.FMP_API_KEY;
+
+  const result: ReturnType<typeof getDataSourceInfo> = {
+    mode: USE_DUAL_SOURCE ? 'dual-source' : 'single-source',
+    timestamp: Date.now(),
+  };
+
+  // 한국 주식 데이터 소스
+  if (kr.length > 0) {
+    if (USE_DUAL_SOURCE) {
+      result.korean = {
+        primary: kisConfigured
+          ? '한국투자증권 Open API (KIS)'
+          : 'Agentic Screenshot + Gemini Vision',
+        secondary: '다음금융 REST API',
+        validation: 'cross-validated',
+      };
+    } else {
+      result.korean = {
+        primary: 'Yahoo Finance',
+        secondary: '공공데이터포털 (Fallback)',
+        validation: 'single-source',
+      };
+    }
+  }
+
+  // 미국 주식 데이터 소스
+  if (us.length > 0) {
+    if (USE_DUAL_SOURCE) {
+      result.us = {
+        primary: fmpConfigured
+          ? 'Financial Modeling Prep (FMP)'
+          : 'Agentic Screenshot + Gemini Vision',
+        secondary: 'Yahoo Finance API',
+        validation: 'cross-validated',
+      };
+    } else {
+      result.us = {
+        primary: 'Yahoo Finance',
+        secondary: 'Finnhub (Fallback)',
+        validation: 'single-source',
+      };
+    }
+  }
+
+  return result;
 }

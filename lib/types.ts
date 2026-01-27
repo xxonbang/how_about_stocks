@@ -132,10 +132,30 @@ export interface AnalyzeResult {
   aiReport: string;
 }
 
+/**
+ * 데이터 소스 정보
+ */
+export interface DataSourceInfo {
+  mode: 'dual-source' | 'single-source' | 'fallback';
+  korean?: {
+    primary: string;      // 예: "한국투자증권 API (KIS)"
+    secondary: string;    // 예: "다음금융 REST API"
+    validation: 'cross-validated' | 'single-source' | 'fallback';
+  };
+  us?: {
+    primary: string;      // 예: "Financial Modeling Prep (FMP)"
+    secondary: string;    // 예: "Yahoo Finance API"
+    validation: 'cross-validated' | 'single-source' | 'fallback';
+  };
+  timestamp: number;
+}
+
 export interface AnalyzeResponse {
   results: AnalyzeResult[];
   error?: string;
   invalidStocks?: string[];
+  // 데이터 소스 정보 (UI 표시용)
+  dataSource?: DataSourceInfo;
   _metadata?: {
     dataCollection: number;
     indicatorCalculation: number;

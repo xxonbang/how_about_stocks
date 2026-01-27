@@ -14,6 +14,7 @@ import {
   fetchVIX,
   fetchNews,
   fetchUnifiedQuotesBatch,
+  getDataSourceInfo,
 } from "@/lib/finance-adapter";
 import {
   fetchKoreaSupplyDemand,
@@ -1221,8 +1222,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 데이터 소스 정보 생성
+    const dataSourceInfo = getDataSourceInfo(stocks);
+
     const response: AnalyzeResponse = {
       results,
+      // 데이터 소스 정보 (UI 표시용)
+      dataSource: dataSourceInfo,
       // 메타데이터를 응답 헤더에 포함 (클라이언트에서 활용 가능)
       _metadata: stepDurations,
     };
