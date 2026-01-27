@@ -123,7 +123,14 @@ async function generateAIReportsBatch(
   genAI: GoogleGenerativeAI,
   modelName: string = "gemini-2.5-flash",
   savetickerPDF?: SavetickerPDFData | null,
-): Promise<Map<string, string>> {
+): Promise<{
+  reports: Map<string, string>;
+  tokenUsage?: {
+    promptTokenCount: number;
+    candidatesTokenCount: number;
+    totalTokenCount: number;
+  };
+}> {
   // Gemini 모델명: 파라미터로 받은 모델 사용 (기본값: gemini-2.5-flash)
   const model = genAI.getGenerativeModel({ model: modelName });
 
@@ -413,6 +420,20 @@ ${formatExample}
     const response = await result.response;
     const fullReport = response.text();
 
+    // 토큰 사용량 추출
+    const usageMetadata = response.usageMetadata;
+    const tokenUsage = usageMetadata
+      ? {
+          promptTokenCount: usageMetadata.promptTokenCount || 0,
+          candidatesTokenCount: usageMetadata.candidatesTokenCount || 0,
+          totalTokenCount: usageMetadata.totalTokenCount || 0,
+        }
+      : undefined;
+
+    if (tokenUsage) {
+      console.log('[Gemini] Token Usage:', tokenUsage);
+    }
+
     // 응답을 종목별로 파싱
     const reportsMap = new Map<string, string>();
 
@@ -514,7 +535,7 @@ ${formatExample}
       }
     }
 
-    return reportsMap;
+    return { reports: reportsMap, tokenUsage };
   } catch (error: any) {
     console.error("Error generating AI reports:", error);
     console.error("Error details:", {
@@ -1059,6 +1080,11 @@ export async function POST(request: NextRequest) {
     // 모든 종목의 데이터를 모아서 한 번에 AI 리포트 생성 (단 1회 Gemini API 호출, fallback 지원)
     // Saveticker PDF가 있으면 함께 전달하여 종합 분석
     let aiReportsMap = new Map<string, string>();
+    let tokenUsage: {
+      promptTokenCount: number;
+      candidatesTokenCount: number;
+      totalTokenCount: number;
+    } | undefined;
 
     if (stocksDataForAI.length > 0) {
       try {
@@ -1072,7 +1098,7 @@ export async function POST(request: NextRequest) {
         // Fallback 지원으로 Gemini API 호출 (PDF 포함 시 멀티모달)
         const analysisDateStr =
           analysisDate || new Date().toISOString().split("T")[0];
-        aiReportsMap = await callGeminiWithFallback(
+        const result = await callGeminiWithFallback(
           async (genAI: GoogleGenerativeAI, modelName?: string) => {
             return await generateAIReportsBatch(
               stocksDataForAI,
@@ -1088,6 +1114,8 @@ export async function POST(request: NextRequest) {
             model: "gemini-2.5-flash",
           },
         );
+        aiReportsMap = result.reports;
+        tokenUsage = result.tokenUsage;
       } catch (error) {
         console.error("Failed to generate AI reports:", error);
 
@@ -1182,6 +1210,8 @@ export async function POST(request: NextRequest) {
             date: savetickerPDF.report.created_at.split('T')[0],
           }
         : null,
+      // 토큰 사용량 (admin 전용)
+      tokenUsage: tokenUsage || null,
     };
 
     console.log("[Analyze API] Step timings:", stepDurations);

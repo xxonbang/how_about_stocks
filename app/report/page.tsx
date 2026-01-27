@@ -22,12 +22,52 @@ import { transformToChartData } from "@/lib/chart-utils";
 import { IndicatorInfoButton } from "@/components/indicator-info-button";
 import { LegendTooltip } from "@/components/legend-tooltip";
 
+// 토큰 사용량 타입
+interface TokenUsage {
+  promptTokenCount: number;
+  candidatesTokenCount: number;
+  totalTokenCount: number;
+}
+
+// 메타데이터 타입 (Saveticker 포함)
+interface AnalysisMetadata {
+  dataCollection: number;
+  indicatorCalculation: number;
+  aiAnalysis: number;
+  reportGeneration: number;
+  total: number;
+  stockCount: number;
+  savetickerIncluded?: boolean;
+  savetickerReport?: {
+    title: string;
+    date: string;
+  } | null;
+  tokenUsage?: TokenUsage | null;
+}
+
 export default function ReportPage() {
   const router = useRouter();
   const [results, setResults] = useState<AnalyzeResult[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [periodText, setPeriodText] = useState("데이터를");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [metadata, setMetadata] = useState<AnalysisMetadata | null>(null);
+
+  // Admin 상태 확인
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      try {
+        const response = await fetch('/api/auth/status');
+        const data = await response.json();
+        setIsAdmin(data.authenticated && data.role === 'admin');
+      } catch (error) {
+        console.error('Failed to check admin status:', error);
+        setIsAdmin(false);
+      }
+    };
+    checkAdminStatus();
+  }, []);
 
   useEffect(() => {
     // sessionStorage는 클라이언트 사이드에서만 사용 가능
@@ -56,6 +96,11 @@ export default function ReportPage() {
           setResults([]);
           setIsLoading(false);
           return;
+        }
+
+        // 메타데이터 저장 (토큰 사용량 포함)
+        if (data._metadata) {
+          setMetadata(data._metadata as AnalysisMetadata);
         }
 
         if (data.results && data.results.length > 0) {
@@ -308,6 +353,47 @@ export default function ReportPage() {
             새 분석
           </Button>
         </div>
+
+        {/* Admin 전용: 토큰 사용량 정보 */}
+        {isAdmin && metadata?.tokenUsage && (
+          <div className="mb-4 p-3 bg-gradient-to-r from-slate-800 to-slate-700 rounded-lg border border-slate-600 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium text-slate-300">🔐 Admin</span>
+                <span className="text-xs text-slate-400">|</span>
+                <span className="text-xs font-semibold text-emerald-400">Gemini API Token Usage</span>
+              </div>
+              <div className="flex items-center gap-4 text-xs">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-slate-400">Input:</span>
+                  <span className="font-mono font-semibold text-blue-400">
+                    {metadata.tokenUsage.promptTokenCount.toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-slate-400">Output:</span>
+                  <span className="font-mono font-semibold text-amber-400">
+                    {metadata.tokenUsage.candidatesTokenCount.toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 pl-2 border-l border-slate-500">
+                  <span className="text-slate-400">Total:</span>
+                  <span className="font-mono font-bold text-white">
+                    {metadata.tokenUsage.totalTokenCount.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            </div>
+            {/* Saveticker PDF 포함 여부 */}
+            {metadata.savetickerIncluded && metadata.savetickerReport && (
+              <div className="mt-2 pt-2 border-t border-slate-600 flex items-center gap-2 text-xs">
+                <span className="text-purple-400">📄 Saveticker PDF 포함:</span>
+                <span className="text-slate-300">{metadata.savetickerReport.title}</span>
+                <span className="text-slate-500">({metadata.savetickerReport.date})</span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* 종목 탭 - 항상 표시 (1개일 때도 표시하여 일관성 유지) */}
         <div className="flex gap-2 mb-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">

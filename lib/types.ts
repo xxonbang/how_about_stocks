@@ -135,6 +135,7 @@ export interface AnalyzeResult {
 export interface AnalyzeResponse {
   results: AnalyzeResult[];
   error?: string;
+  invalidStocks?: string[];
   _metadata?: {
     dataCollection: number;
     indicatorCalculation: number;
@@ -142,5 +143,17 @@ export interface AnalyzeResponse {
     reportGeneration: number;
     total: number;
     stockCount: number;
+    // Saveticker 정보
+    savetickerIncluded?: boolean;
+    savetickerReport?: {
+      title: string;
+      date: string;
+    } | null;
+    // 토큰 사용량 (admin 전용)
+    tokenUsage?: {
+      promptTokenCount: number;
+      candidatesTokenCount: number;
+      totalTokenCount: number;
+    } | null;
   };
 }
