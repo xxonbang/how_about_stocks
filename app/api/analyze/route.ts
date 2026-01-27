@@ -1235,7 +1235,19 @@ export async function POST(request: NextRequest) {
 
     const responseObj = NextResponse.json(response);
     // 클라이언트에서 활용할 수 있도록 헤더에도 포함
-    responseObj.headers.set("X-Analysis-Timing", JSON.stringify(stepDurations));
+    // 주의: HTTP 헤더는 ASCII만 허용하므로 한국어 텍스트가 포함된 필드 제외
+    const headerSafeTimings = {
+      dataCollection: stepDurations.dataCollection,
+      indicatorCalculation: stepDurations.indicatorCalculation,
+      aiAnalysis: stepDurations.aiAnalysis,
+      reportGeneration: stepDurations.reportGeneration,
+      total: stepDurations.total,
+      stockCount: stepDurations.stockCount,
+      savetickerIncluded: stepDurations.savetickerIncluded,
+      // savetickerReport 제외 (한국어 제목 포함 가능)
+      // tokenUsage 제외 (민감 정보)
+    };
+    responseObj.headers.set("X-Analysis-Timing", JSON.stringify(headerSafeTimings));
 
     return responseObj;
   } catch (error) {
