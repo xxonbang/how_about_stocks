@@ -17,14 +17,74 @@
  */
 
 import axios from 'axios';
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
+import { join } from 'path';
 
 // 환경변수
 const KIS_APP_KEY = process.env.KIS_APP_KEY || '';
 const KIS_APP_SECRET = process.env.KIS_APP_SECRET || '';
 const KIS_BASE_URL = 'https://openapi.koreainvestment.com:9443'; // 실전 투자
 
-// 토큰 캐시 (24시간 유효, 6시간마다 갱신 가능)
+// 토큰 캐시 파일 경로 (서버 재시작 시에도 유지)
+const TOKEN_CACHE_DIR = join(process.cwd(), '.cache');
+const TOKEN_CACHE_FILE = join(TOKEN_CACHE_DIR, 'kis-token.json');
+
+// 메모리 캐시 (파일 읽기 최소화)
 let cachedToken: { token: string; expiresAt: number } | null = null;
+
+/**
+ * 파일에서 토큰 로드 (서버 재시작 시 복원)
+ */
+function loadTokenFromFile(): { token: string; expiresAt: number } | null {
+  try {
+    if (existsSync(TOKEN_CACHE_FILE)) {
+      const data = JSON.parse(readFileSync(TOKEN_CACHE_FILE, 'utf-8'));
+      // 만료 여부 확인 (10분 여유)
+      if (data.expiresAt > Date.now() + 10 * 60 * 1000) {
+        console.log('[KIS] 파일에서 토큰 복원 성공 (만료까지 ' +
+          Math.round((data.expiresAt - Date.now()) / 1000 / 60) + '분)');
+        return data;
+      } else {
+        console.log('[KIS] 저장된 토큰이 만료됨');
+      }
+    }
+  } catch (error) {
+    console.warn('[KIS] 토큰 파일 로드 실패:', error instanceof Error ? error.message : error);
+  }
+  return null;
+}
+
+/**
+ * 토큰을 파일에 저장 (서버 재시작 대비)
+ */
+function saveTokenToFile(token: string, expiresAt: number): void {
+  try {
+    // 캐시 디렉토리 생성
+    if (!existsSync(TOKEN_CACHE_DIR)) {
+      mkdirSync(TOKEN_CACHE_DIR, { recursive: true });
+    }
+    writeFileSync(TOKEN_CACHE_FILE, JSON.stringify({ token, expiresAt }), 'utf-8');
+    console.log('[KIS] 토큰 파일 저장 완료');
+  } catch (error) {
+    console.warn('[KIS] 토큰 파일 저장 실패:', error instanceof Error ? error.message : error);
+  }
+}
+
+/**
+ * 토큰 캐시 무효화 (401 에러 발생 시)
+ */
+function invalidateTokenCache(): void {
+  cachedToken = null;
+  try {
+    if (existsSync(TOKEN_CACHE_FILE)) {
+      const { unlinkSync } = require('fs');
+      unlinkSync(TOKEN_CACHE_FILE);
+      console.log('[KIS] 만료된 토큰 파일 삭제');
+    }
+  } catch (error) {
+    console.warn('[KIS] 토큰 파일 삭제 실패:', error instanceof Error ? error.message : error);
+  }
+}
 
 // ========== 타입 정의 ==========
 
@@ -149,16 +209,31 @@ interface KISDailyPriceResponse {
 
 /**
  * OAuth 접근 토큰 발급
+ *
+ * 캐시 우선순위:
+ * 1. 메모리 캐시 (가장 빠름)
+ * 2. 파일 캐시 (서버 재시작 후 복원)
+ * 3. API 호출 (마지막 수단, 1일 1회 권장)
  */
 async function getAccessToken(): Promise<string> {
-  // 캐시된 토큰이 유효한지 확인 (만료 10분 전까지 사용)
+  // 1. 메모리 캐시 확인 (만료 10분 전까지 사용)
   if (cachedToken && cachedToken.expiresAt > Date.now() + 10 * 60 * 1000) {
     return cachedToken.token;
   }
 
+  // 2. 파일 캐시에서 복원 시도 (서버 재시작 후)
+  const fileToken = loadTokenFromFile();
+  if (fileToken) {
+    cachedToken = fileToken;
+    return fileToken.token;
+  }
+
+  // 3. 새 토큰 발급 (캐시에 없는 경우에만)
   if (!KIS_APP_KEY || !KIS_APP_SECRET) {
     throw new Error('KIS_APP_KEY와 KIS_APP_SECRET이 설정되지 않았습니다.');
   }
+
+  console.log('[KIS] 캐시된 토큰 없음, 새 토큰 발급 요청...');
 
   try {
     const response = await axios.post<KISTokenResponse>(
@@ -177,14 +252,19 @@ async function getAccessToken(): Promise<string> {
     );
 
     const { access_token, expires_in } = response.data;
+    const expiresAt = Date.now() + expires_in * 1000;
 
-    // 토큰 캐시 (expires_in은 초 단위)
+    // 메모리 캐시 저장
     cachedToken = {
       token: access_token,
-      expiresAt: Date.now() + expires_in * 1000,
+      expiresAt,
     };
 
-    console.log('[KIS] 접근 토큰 발급 완료');
+    // 파일 캐시 저장 (서버 재시작 대비)
+    saveTokenToFile(access_token, expiresAt);
+
+    const expiresInHours = Math.round(expires_in / 3600);
+    console.log(`[KIS] 새 접근 토큰 발급 완료 (유효기간: ${expiresInHours}시간)`);
     return access_token;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -221,8 +301,9 @@ async function kisRequest<T>(
   } catch (error) {
     if (axios.isAxiosError(error)) {
       if (error.response?.status === 401) {
-        // 토큰 만료 시 재발급 시도
-        cachedToken = null;
+        // 토큰 만료 시 캐시 무효화 후 재발급 시도
+        console.log('[KIS] 401 오류 - 토큰 만료, 재발급 시도');
+        invalidateTokenCache();
         const newToken = await getAccessToken();
         const retryResponse = await axios.get<T>(`${KIS_BASE_URL}${endpoint}`, {
           params,
