@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyCredentials, createToken, AUTH_COOKIE_NAME } from '@/lib/auth';
 
+// 쿠키 사용으로 인한 동적 렌더링 필수
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
