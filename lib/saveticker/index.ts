@@ -42,3 +42,12 @@ export {
   closeBrowserClient,
   type SavetickerReport,
 } from './client';
+
+// 분석 (Gemini 통합)
+export {
+  fetchLatestSavetickerPDF,
+  clearPDFCache,
+  getPDFCacheStatus,
+  generateSavetickerPromptSection,
+  type SavetickerPDFData,
+} from './analyzer';
