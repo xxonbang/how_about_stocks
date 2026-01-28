@@ -56,6 +56,7 @@ import {
 import {
   isPublicDataAvailable,
   fetchStocksDataBatchPublicData,
+  fetchHistoricalDataPublicData,
 } from './finance-publicdata';
 
 import {
@@ -142,25 +143,52 @@ function selectDataSource(symbols: string[]): DataSource {
 }
 
 /**
- * 듀얼 소스에서 historicalData 수집을 위한 Yahoo Finance 호출 (캐시 적용)
+ * 히스토리컬 데이터 수집 (Yahoo Finance 우선, 공공데이터포털 Fallback)
+ *
+ * 한국 주식:
+ *   1순위: Yahoo Finance (실시간에 가까운 데이터)
+ *   2순위: 공공데이터포털 (D+1 데이터, 안정적)
+ *
+ * 미국 주식:
+ *   Yahoo Finance만 사용
  */
-async function fetchHistoricalDataYahoo(
+async function fetchHistoricalDataWithFallback(
   symbol: string
 ): Promise<Array<{ date: string; close: number; volume: number; high?: number; low?: number; open?: number }>> {
+  // 1차: Yahoo Finance 시도
   try {
     const historicalData = await fetchHistoricalDataCached(symbol, 180);
-    return historicalData.map((d) => ({
-      date: d.date instanceof Date ? d.date.toISOString().split('T')[0] : String(d.date),
-      close: d.close,
-      volume: d.volume,
-      high: d.high,
-      low: d.low,
-      open: d.open,
-    }));
+    if (historicalData.length > 0) {
+      console.log(`[Historical] Yahoo Finance 성공: ${symbol} (${historicalData.length} days)`);
+      return historicalData.map((d) => ({
+        date: d.date instanceof Date ? d.date.toISOString().split('T')[0] : String(d.date),
+        close: d.close,
+        volume: d.volume,
+        high: d.high,
+        low: d.low,
+        open: d.open,
+      }));
+    }
   } catch (error) {
-    console.warn(`[DualSource] Historical data fetch failed for ${symbol}:`, error);
-    return [];
+    console.warn(`[Historical] Yahoo Finance 실패 for ${symbol}:`, error instanceof Error ? error.message : error);
   }
+
+  // 2차: 한국 주식인 경우 공공데이터포털 Fallback
+  if (isKoreanStock(symbol) && isPublicDataAvailable()) {
+    try {
+      console.log(`[Historical] 2차 시도: 공공데이터포털 for ${symbol}`);
+      const publicDataHistorical = await fetchHistoricalDataPublicData(symbol, 180);
+      if (publicDataHistorical.length > 0) {
+        console.log(`[Historical] 공공데이터포털 성공: ${symbol} (${publicDataHistorical.length} days)`);
+        return publicDataHistorical;
+      }
+    } catch (publicDataError) {
+      console.warn(`[Historical] 공공데이터포털 실패 for ${symbol}:`, publicDataError instanceof Error ? publicDataError.message : publicDataError);
+    }
+  }
+
+  console.warn(`[Historical] 모든 소스 실패: ${symbol}`);
+  return [];
 }
 
 /**
@@ -226,7 +254,7 @@ async function fetchStocksDataDualSource(
         timeout: 60000,
         logResults: false,
       });
-      const historicalData = await fetchHistoricalDataYahoo(symbol);
+      const historicalData = await fetchHistoricalDataWithFallback(symbol);
       const stockData = convertToStockData(validated, historicalData);
       results.set(symbol, stockData);
     } catch (error) {
@@ -724,18 +752,23 @@ export function getDataSourceInfo(symbols: string[]): {
 
   // 한국 주식 데이터 소스
   if (kr.length > 0) {
+    const publicDataConfigured = isPublicDataAvailable();
     if (USE_DUAL_SOURCE) {
       result.korean = {
         primary: kisConfigured
           ? '한국투자증권 Open API (KIS)'
           : 'Agentic Screenshot + Gemini Vision',
-        secondary: '다음금융 REST API',
+        secondary: publicDataConfigured
+          ? '다음금융 + 공공데이터포털 (히스토리컬)'
+          : '다음금융 REST API',
         validation: 'cross-validated',
       };
     } else {
       result.korean = {
         primary: 'Yahoo Finance',
-        secondary: '공공데이터포털 (Fallback)',
+        secondary: publicDataConfigured
+          ? '공공데이터포털 (시세/히스토리컬 Fallback)'
+          : 'Twelve Data (Fallback)',
         validation: 'single-source',
       };
     }

@@ -319,6 +319,48 @@ export async function fetchStocksDataBatchPublicData(
   return results;
 }
 
+// ========== 히스토리컬 데이터 Fallback (외부 export) ==========
+
+/**
+ * 히스토리컬 데이터 조회 (외부 사용용)
+ * finance-adapter.ts에서 Fallback으로 활용
+ *
+ * @param symbol 종목 심볼 (예: 005930.KS)
+ * @param days 조회 일수 (기본 180일)
+ * @returns 히스토리컬 데이터 배열
+ */
+export async function fetchHistoricalDataPublicData(
+  symbol: string,
+  days: number = 180
+): Promise<Array<{ date: string; close: number; volume: number; high?: number; low?: number; open?: number }>> {
+  if (!isPublicDataAvailable()) {
+    console.warn('[PublicData] API key not configured for historical data');
+    return [];
+  }
+
+  const stockCode = extractStockCode(symbol);
+  const historicalRaw = await fetchStockHistorical(stockCode, days);
+
+  if (historicalRaw.length === 0) {
+    return [];
+  }
+
+  // 날짜 내림차순 → 오름차순으로 변환하여 반환
+  const result = historicalRaw
+    .map((item) => ({
+      date: `${item.basDt.slice(0, 4)}-${item.basDt.slice(4, 6)}-${item.basDt.slice(6, 8)}`,
+      open: parseInt(item.mkp, 10),
+      high: parseInt(item.hipr, 10),
+      low: parseInt(item.lopr, 10),
+      close: parseInt(item.clpr, 10),
+      volume: parseInt(item.trqu, 10),
+    }))
+    .reverse();
+
+  console.log(`[PublicData] Historical data exported for ${symbol}: ${result.length} days`);
+  return result;
+}
+
 // ========== KRX 상장종목정보 API ==========
 
 interface KRXListedStock {
