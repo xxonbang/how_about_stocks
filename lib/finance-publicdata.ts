@@ -319,6 +319,130 @@ export async function fetchStocksDataBatchPublicData(
   return results;
 }
 
+// ========== KRX 상장종목정보 API ==========
+
+interface KRXListedStock {
+  basDt: string;      // 기준일자
+  srtnCd: string;     // 단축코드 (종목코드)
+  isinCd: string;     // ISIN코드
+  mrktCtg: string;    // 시장구분 (KOSPI/KOSDAQ/KONEX)
+  itmsNm: string;     // 종목명
+  crno: string;       // 법인등록번호
+  corpNm: string;     // 법인명
+}
+
+/**
+ * KRX 상장종목 리스트 조회 (공공데이터포털)
+ *
+ * @param market 시장 구분 (KOSPI/KOSDAQ/KONEX, 미지정 시 전체)
+ * @returns 상장종목 배열
+ */
+export async function fetchKRXListedStocks(
+  market?: 'KOSPI' | 'KOSDAQ' | 'KONEX'
+): Promise<Array<{ code: string; name: string; market: string }>> {
+  if (!isPublicDataAvailable()) {
+    console.warn('[PublicData] API key not configured for KRX listing');
+    return [];
+  }
+
+  const cacheKey = `publicdata:krx-listing:${market || 'ALL'}`;
+  const cached = cache.get<Array<{ code: string; name: string; market: string }>>(cacheKey);
+  if (cached) {
+    console.log(`[PublicData] Cache HIT for KRX listing (${market || 'ALL'})`);
+    return cached;
+  }
+
+  try {
+    // 페이지네이션으로 전체 데이터 수집
+    const allStocks: Array<{ code: string; name: string; market: string }> = [];
+    let pageNo = 1;
+    const numOfRows = 1000; // 한 페이지당 최대 1000개
+    let totalCount = 0;
+
+    do {
+      const url = new URL(`${PUBLIC_DATA_BASE_URL}/GetKrxListedInfoService/getItemInfo`);
+      url.searchParams.append('serviceKey', PUBLIC_DATA_API_KEY);
+      url.searchParams.append('numOfRows', String(numOfRows));
+      url.searchParams.append('pageNo', String(pageNo));
+      url.searchParams.append('resultType', 'json');
+
+      if (market) {
+        url.searchParams.append('mrktCtg', market);
+      }
+
+      console.log(`[PublicData] Fetching KRX listing page ${pageNo}...`);
+      const response = await fetch(url.toString());
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data: PublicDataResponse<KRXListedStock> = await response.json();
+
+      if (data.response.header.resultCode !== '00') {
+        throw new Error(`API Error: ${data.response.header.resultMsg}`);
+      }
+
+      totalCount = data.response.body.totalCount;
+      const items = data.response.body.items.item;
+
+      if (!items) {
+        break;
+      }
+
+      const stockItems = Array.isArray(items) ? items : [items];
+
+      for (const stock of stockItems) {
+        // 종목코드가 6자리 숫자인 경우만 (유효한 주식)
+        if (stock.srtnCd && /^\d{6}$/.test(stock.srtnCd)) {
+          allStocks.push({
+            code: stock.srtnCd,
+            name: stock.itmsNm,
+            market: stock.mrktCtg || 'KRX',
+          });
+        }
+      }
+
+      // 다음 페이지로
+      pageNo++;
+
+      // API 호출 간 딜레이 (Rate limit 방지)
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+    } while (allStocks.length < totalCount && pageNo <= 10); // 최대 10페이지 (10,000개)
+
+    // 중복 제거
+    const uniqueStocks = Array.from(
+      new Map(allStocks.map((s) => [s.code, s])).values()
+    );
+
+    // 캐시에 저장 (24시간)
+    cache.set(cacheKey, uniqueStocks, 24 * 60 * 60 * 1000);
+    console.log(`[PublicData] KRX listing fetched: ${uniqueStocks.length} stocks (${market || 'ALL'})`);
+
+    return uniqueStocks;
+  } catch (error) {
+    console.error('[PublicData] Failed to fetch KRX listing:', error);
+    return [];
+  }
+}
+
+/**
+ * KRX 상장종목 리스트를 StockListingItem 형식으로 변환
+ * (korea-stock-mapper-dynamic.ts와 호환)
+ */
+export async function fetchKRXListedStocksForMapper(): Promise<
+  Array<{ Symbol: string; Name: string; Market: string }>
+> {
+  const stocks = await fetchKRXListedStocks();
+
+  return stocks.map((stock) => ({
+    Symbol: stock.code,
+    Name: stock.name,
+    Market: stock.market,
+  }));
+}
+
 /**
  * KOSPI/KOSDAQ 지수 조회
  */

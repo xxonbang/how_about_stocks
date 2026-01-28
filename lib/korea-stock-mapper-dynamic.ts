@@ -223,6 +223,32 @@ async function saveCachedStockListing(data: StockListingItem[]): Promise<void> {
 }
 
 /**
+ * 공공데이터포털에서 KRX 상장종목 가져오기 (Python 없이도 동작)
+ */
+async function fetchStockListingFromPublicData(): Promise<StockListingItem[]> {
+  try {
+    const { fetchKRXListedStocksForMapper, isPublicDataAvailable } = await import('./finance-publicdata');
+
+    if (!isPublicDataAvailable()) {
+      console.log('[Dynamic Mapping] 공공데이터포털 API 키 미설정');
+      return [];
+    }
+
+    console.log('[Dynamic Mapping] 공공데이터포털에서 KRX 상장종목 조회 중...');
+    const stocks = await fetchKRXListedStocksForMapper();
+
+    if (stocks.length > 0) {
+      console.log(`[Dynamic Mapping] 공공데이터포털에서 ${stocks.length}개 종목 로드 완료`);
+    }
+
+    return stocks;
+  } catch (error) {
+    console.warn('[Dynamic Mapping] 공공데이터포털 조회 실패:', error instanceof Error ? error.message : error);
+    return [];
+  }
+}
+
+/**
  * symbols.json에서 종목 데이터 읽기 (정적 파일, 항상 사용 가능)
  */
 async function readSymbolsJson(): Promise<StockListingItem[]> {
@@ -259,6 +285,44 @@ async function readSymbolsJson(): Promise<StockListingItem[]> {
     console.warn('[Dynamic Mapping] Failed to read symbols.json:', error);
     return [];
   }
+}
+
+/**
+ * 백그라운드에서 종목 리스트 갱신 (공공데이터포털 우선, Python fallback)
+ */
+async function refreshStockListingInBackground(): Promise<void> {
+  // 공공데이터포털 우선 시도
+  fetchStockListingFromPublicData()
+    .then(async (publicData) => {
+      if (publicData && publicData.length >= MIN_VALID_STOCK_COUNT) {
+        await saveCachedStockListing(publicData);
+        console.log(`[Dynamic Mapping] Cache refreshed from PublicData Portal (${publicData.length} stocks)`);
+        return;
+      }
+
+      // 공공데이터포털 실패 시 Python 시도
+      console.log('[Dynamic Mapping] PublicData insufficient, trying Python in background...');
+      const pythonData = await fetchStockListingFromPython();
+      if (pythonData && pythonData.length > 0) {
+        await saveCachedStockListing(pythonData);
+        console.log(`[Dynamic Mapping] Cache refreshed from Python (${pythonData.length} stocks)`);
+      }
+    })
+    .catch((err) => {
+      console.warn('[Dynamic Mapping] Background refresh (PublicData) failed, trying Python:', err);
+
+      // PublicData 예외 발생 시 Python 시도
+      fetchStockListingFromPython()
+        .then((data) => {
+          if (data && data.length > 0) {
+            saveCachedStockListing(data).catch(() => {});
+            console.log(`[Dynamic Mapping] Cache refreshed from Python fallback (${data.length} stocks)`);
+          }
+        })
+        .catch((pythonErr) => {
+          console.warn('[Dynamic Mapping] Background refresh (Python) also failed:', pythonErr);
+        });
+    });
 }
 
 /**
@@ -299,22 +363,8 @@ export async function getStockListing(): Promise<StockListingItem[]> {
 
   // 2. 백그라운드에서 갱신 시도 (만료된 캐시가 있으면)
   if (cachedData && isExpired) {
-    // 비동기로 백그라운드 갱신 (블로킹하지 않음)
-    fetchStockListingFromPython()
-      .then((data) => {
-        if (data && data.length > 0) {
-          saveCachedStockListing(data)
-            .then(() => {
-              console.log(`[Dynamic Mapping] Cache refreshed in background (${data.length} stocks)`);
-            })
-            .catch((cacheError) => {
-              console.warn('[Dynamic Mapping] Failed to save refreshed cache:', cacheError);
-            });
-        }
-      })
-      .catch((err) => {
-        console.warn('[Dynamic Mapping] Background refresh failed:', err);
-      });
+    // 비동기로 백그라운드 갱신 (공공데이터포털 우선, Python fallback)
+    refreshStockListingInBackground();
 
     // 만료된 캐시 + symbols.json 병합하여 반환
     const merged = mergeStockLists(cachedData, symbolsJsonData);
@@ -326,18 +376,27 @@ export async function getStockListing(): Promise<StockListingItem[]> {
     console.log(`[Dynamic Mapping] No cache available, using symbols.json (${symbolsJsonData.length} stocks)`);
 
     // 백그라운드에서 캐시 생성 시도
-    fetchStockListingFromPython()
-      .then((data) => {
-        if (data && data.length > 0) {
-          saveCachedStockListing(data).catch(() => {});
-        }
-      })
-      .catch(() => {});
+    refreshStockListingInBackground();
 
     return symbolsJsonData;
   }
 
-  // 4. symbols.json도 없으면 Python에서 동기적으로 가져오기
+  // 4. symbols.json도 없으면 공공데이터포털 → Python 순서로 시도
+  // 4-1. 공공데이터포털 시도 (Python 없이도 동작)
+  console.log('[Dynamic Mapping] Fetching stock listing from PublicData Portal...');
+  try {
+    const publicData = await fetchStockListingFromPublicData();
+    if (publicData && publicData.length >= MIN_VALID_STOCK_COUNT) {
+      await saveCachedStockListing(publicData);
+      console.log(`[Dynamic Mapping] Fetched from PublicData Portal: ${publicData.length} stocks`);
+      return publicData;
+    }
+    console.log(`[Dynamic Mapping] PublicData returned ${publicData.length} stocks, trying Python...`);
+  } catch (publicDataError) {
+    console.warn('[Dynamic Mapping] PublicData failed, trying Python:', publicDataError instanceof Error ? publicDataError.message : publicDataError);
+  }
+
+  // 4-2. Python 스크립트 시도
   console.log('[Dynamic Mapping] Fetching stock listing from Python...');
   try {
     const data = await fetchStockListingFromPython();
