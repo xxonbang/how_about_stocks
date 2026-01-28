@@ -25,31 +25,59 @@ const KIS_APP_KEY = process.env.KIS_APP_KEY || '';
 const KIS_APP_SECRET = process.env.KIS_APP_SECRET || '';
 const KIS_BASE_URL = 'https://openapi.koreainvestment.com:9443'; // 실전 투자
 
-// 토큰 캐시 파일 경로 (서버 재시작 시에도 유지)
-const TOKEN_CACHE_DIR = join(process.cwd(), '.cache');
-const TOKEN_CACHE_FILE = join(TOKEN_CACHE_DIR, 'kis-token.json');
+// 토큰 캐시 파일 경로 결정
+// - 로컬 개발: .cache 디렉토리 (영구 보존)
+// - 프로덕션 (Render/Docker): /tmp 디렉토리 (컨테이너 내 쓰기 가능)
+// - 서버리스 (Vercel): /tmp 디렉토리 (유일하게 쓰기 가능한 경로)
+function getTokenCachePath(): { dir: string; file: string } {
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isVercel = !!process.env.VERCEL;
+  const isRender = !!process.env.RENDER;
 
-// 메모리 캐시 (파일 읽기 최소화)
+  // 프로덕션 또는 클라우드 환경에서는 /tmp 사용
+  if (isProduction || isVercel || isRender) {
+    const dir = '/tmp/kis-cache';
+    return { dir, file: join(dir, 'kis-token.json') };
+  }
+
+  // 로컬 개발 환경에서는 .cache 사용 (git에서 제외됨)
+  const dir = join(process.cwd(), '.cache');
+  return { dir, file: join(dir, 'kis-token.json') };
+}
+
+const { dir: TOKEN_CACHE_DIR, file: TOKEN_CACHE_FILE } = getTokenCachePath();
+
+// 메모리 캐시 (파일 읽기 최소화, 가장 빠른 캐시)
 let cachedToken: { token: string; expiresAt: number } | null = null;
+
+// 파일 캐시 사용 가능 여부 (한 번 실패하면 비활성화)
+let fileCacheEnabled = true;
 
 /**
  * 파일에서 토큰 로드 (서버 재시작 시 복원)
  */
 function loadTokenFromFile(): { token: string; expiresAt: number } | null {
+  if (!fileCacheEnabled) return null;
+
   try {
     if (existsSync(TOKEN_CACHE_FILE)) {
       const data = JSON.parse(readFileSync(TOKEN_CACHE_FILE, 'utf-8'));
       // 만료 여부 확인 (10분 여유)
       if (data.expiresAt > Date.now() + 10 * 60 * 1000) {
-        console.log('[KIS] 파일에서 토큰 복원 성공 (만료까지 ' +
-          Math.round((data.expiresAt - Date.now()) / 1000 / 60) + '분)');
+        const remainingMinutes = Math.round((data.expiresAt - Date.now()) / 1000 / 60);
+        console.log(`[KIS] 파일에서 토큰 복원 성공 (만료까지 ${remainingMinutes}분, 경로: ${TOKEN_CACHE_FILE})`);
         return data;
       } else {
         console.log('[KIS] 저장된 토큰이 만료됨');
       }
     }
   } catch (error) {
-    console.warn('[KIS] 토큰 파일 로드 실패:', error instanceof Error ? error.message : error);
+    const message = error instanceof Error ? error.message : String(error);
+    // 읽기 전용 파일시스템 등의 오류 시 파일 캐시 비활성화
+    if (message.includes('ENOENT') === false) {
+      console.warn(`[KIS] 토큰 파일 로드 실패 (파일 캐시 비활성화): ${message}`);
+      fileCacheEnabled = false;
+    }
   }
   return null;
 }
@@ -58,15 +86,23 @@ function loadTokenFromFile(): { token: string; expiresAt: number } | null {
  * 토큰을 파일에 저장 (서버 재시작 대비)
  */
 function saveTokenToFile(token: string, expiresAt: number): void {
+  if (!fileCacheEnabled) {
+    console.log('[KIS] 파일 캐시 비활성화 상태 - 메모리 캐시만 사용');
+    return;
+  }
+
   try {
     // 캐시 디렉토리 생성
     if (!existsSync(TOKEN_CACHE_DIR)) {
       mkdirSync(TOKEN_CACHE_DIR, { recursive: true });
     }
     writeFileSync(TOKEN_CACHE_FILE, JSON.stringify({ token, expiresAt }), 'utf-8');
-    console.log('[KIS] 토큰 파일 저장 완료');
+    console.log(`[KIS] 토큰 파일 저장 완료 (경로: ${TOKEN_CACHE_FILE})`);
   } catch (error) {
-    console.warn('[KIS] 토큰 파일 저장 실패:', error instanceof Error ? error.message : error);
+    const message = error instanceof Error ? error.message : String(error);
+    console.warn(`[KIS] 토큰 파일 저장 실패 (파일 캐시 비활성화): ${message}`);
+    // 쓰기 실패 시 파일 캐시 비활성화 (읽기 전용 파일시스템 등)
+    fileCacheEnabled = false;
   }
 }
 
@@ -75,6 +111,9 @@ function saveTokenToFile(token: string, expiresAt: number): void {
  */
 function invalidateTokenCache(): void {
   cachedToken = null;
+
+  if (!fileCacheEnabled) return;
+
   try {
     if (existsSync(TOKEN_CACHE_FILE)) {
       const { unlinkSync } = require('fs');
@@ -82,6 +121,7 @@ function invalidateTokenCache(): void {
       console.log('[KIS] 만료된 토큰 파일 삭제');
     }
   } catch (error) {
+    // 삭제 실패해도 무시 (다음 로드 시 만료 체크됨)
     console.warn('[KIS] 토큰 파일 삭제 실패:', error instanceof Error ? error.message : error);
   }
 }
@@ -211,9 +251,13 @@ interface KISDailyPriceResponse {
  * OAuth 접근 토큰 발급
  *
  * 캐시 우선순위:
- * 1. 메모리 캐시 (가장 빠름)
- * 2. 파일 캐시 (서버 재시작 후 복원)
+ * 1. 메모리 캐시 (가장 빠름, 프로세스 내 유지)
+ * 2. 파일 캐시 (서버 재시작 후 복원, /tmp 또는 .cache)
  * 3. API 호출 (마지막 수단, 1일 1회 권장)
+ *
+ * 환경별 동작:
+ * - 로컬: .cache/kis-token.json (영구 보존)
+ * - Render/Vercel: /tmp/kis-cache/kis-token.json (컨테이너 수명 동안 유지)
  */
 async function getAccessToken(): Promise<string> {
   // 1. 메모리 캐시 확인 (만료 10분 전까지 사용)
@@ -233,7 +277,9 @@ async function getAccessToken(): Promise<string> {
     throw new Error('KIS_APP_KEY와 KIS_APP_SECRET이 설정되지 않았습니다.');
   }
 
-  console.log('[KIS] 캐시된 토큰 없음, 새 토큰 발급 요청...');
+  const env = process.env.NODE_ENV || 'development';
+  const cacheMode = fileCacheEnabled ? `파일(${TOKEN_CACHE_FILE})` : '메모리만';
+  console.log(`[KIS] 캐시된 토큰 없음, 새 토큰 발급 요청... (환경: ${env}, 캐시: ${cacheMode})`);
 
   try {
     const response = await axios.post<KISTokenResponse>(
