@@ -1,6 +1,47 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { startAlertMonitoring } from "@/lib/alert-system";
+import type { AnalysisHistoryInsert } from "@/lib/supabase/types";
+
+/**
+ * Supabase에 분석 히스토리 저장 (비동기, 비블로킹)
+ */
+async function saveAnalysisHistoryToSupabase(
+  history: AnalysisHistoryInsert
+): Promise<void> {
+  try {
+    const { db, isDrizzleEnabled, analysisHistory } = await import(
+      "@/lib/supabase/db"
+    );
+
+    if (!isDrizzleEnabled() || !db) {
+      return; // DB 미설정 시 건너뜀
+    }
+
+    // Drizzle ORM을 사용하여 insert
+    await db.insert(analysisHistory).values({
+      requestId: history.request_id,
+      stocks: history.stocks,
+      period: history.period,
+      historicalPeriod: history.historical_period,
+      analysisDate: history.analysis_date,
+      indicators: history.indicators,
+      results: history.results,
+      dataSource: history.data_source,
+      metadata: history.metadata || {},
+    });
+
+    console.log("[AnalysisHistory] Saved to Supabase:", history.request_id);
+  } catch (err) {
+    // 중복 request_id인 경우 무시 (unique constraint)
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    if (errorMessage.includes("duplicate") || errorMessage.includes("23505")) {
+      console.log("[AnalysisHistory] Duplicate request_id, skipping save");
+      return;
+    }
+    console.error("[AnalysisHistory] Supabase save error:", errorMessage);
+  }
+}
 
 // 알림 모니터링 시작 (서버 시작 시 한 번만)
 let monitoringStarted = false;
@@ -1224,6 +1265,28 @@ export async function POST(request: NextRequest) {
 
     // 데이터 소스 정보 생성
     const dataSourceInfo = getDataSourceInfo(stocks);
+
+    // 분석 히스토리 Supabase 저장 (비동기, 비블로킹)
+    const requestId = `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+    const analysisDateStr = analysisDate || new Date().toISOString().split("T")[0];
+
+    saveAnalysisHistoryToSupabase({
+      request_id: requestId,
+      stocks,
+      period: analysisPeriod,
+      historical_period: historicalAnalysisPeriod,
+      analysis_date: analysisDateStr,
+      indicators: indicators as Record<string, boolean>,
+      results: results as unknown as Record<string, unknown>,
+      data_source: dataSourceInfo as Record<string, unknown>,
+      metadata: {
+        stepDurations,
+        savetickerIncluded: !!savetickerPDF,
+        tokenUsage: tokenUsage || null,
+      },
+    }).catch(() => {
+      // 이미 함수 내부에서 에러 로깅하므로 여기서는 무시
+    });
 
     const response: AnalyzeResponse = {
       results,

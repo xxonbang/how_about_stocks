@@ -1,11 +1,84 @@
 /**
  * 알림 시스템
- * 
+ *
  * 데이터 품질 문제 발생 시 알림을 생성하고 관리
+ * Supabase 연동으로 알림 영속화 지원
  */
 
 import { metricsCollector, type DataSourceMetrics } from './data-metrics';
 import { sendExternalNotifications } from './alert-notifiers';
+import type { AlertInsert, AlertType, AlertSeverity } from './supabase/types';
+
+/**
+ * Supabase에 알림 저장 (비동기, 비블로킹)
+ */
+async function saveAlertToSupabase(alert: Alert): Promise<void> {
+  try {
+    // 동적 import로 서버 전용 모듈 로드
+    const { supabaseServer, isSupabaseServerEnabled } = await import('./supabase/server');
+
+    if (!isSupabaseServerEnabled() || !supabaseServer) {
+      return; // Supabase 미설정 시 건너뜀
+    }
+
+    const alertInsert: AlertInsert = {
+      type: alert.type as AlertType,
+      severity: alert.severity as AlertSeverity,
+      title: alert.title,
+      message: alert.message,
+      data_source: alert.dataSource,
+      symbol: alert.symbol || null,
+      resolved: alert.resolved,
+      metadata: alert.metadata || {},
+    };
+
+    const { error } = await supabaseServer.from('alerts').insert(alertInsert);
+
+    if (error) {
+      console.error('[AlertSystem] Supabase save failed:', error.message);
+    }
+  } catch (err) {
+    // Supabase 저장 실패해도 인메모리 로직은 계속 진행
+    console.error('[AlertSystem] Supabase save error:', err instanceof Error ? err.message : err);
+  }
+}
+
+/**
+ * Supabase에서 알림 해결 상태 업데이트 (비동기, 비블로킹)
+ */
+async function updateAlertResolvedInSupabase(alertId: string, resolvedAt: number): Promise<void> {
+  try {
+    const { supabaseServer, isSupabaseServerEnabled } = await import('./supabase/server');
+
+    if (!isSupabaseServerEnabled() || !supabaseServer) {
+      return;
+    }
+
+    // alertId에서 timestamp 추출하여 매칭 (id 형식: alert-{timestamp}-{random})
+    const timestampMatch = alertId.match(/^alert-(\d+)-/);
+    if (!timestampMatch) {
+      return;
+    }
+
+    const timestamp = parseInt(timestampMatch[1], 10);
+    const timestampStr = new Date(timestamp).toISOString();
+
+    // timestamp로 알림 찾아서 업데이트
+    const { error } = await supabaseServer
+      .from('alerts')
+      .update({
+        resolved: true,
+        resolved_at: new Date(resolvedAt).toISOString(),
+      })
+      .eq('timestamp', timestampStr);
+
+    if (error) {
+      console.error('[AlertSystem] Supabase update failed:', error.message);
+    }
+  } catch (err) {
+    console.error('[AlertSystem] Supabase update error:', err instanceof Error ? err.message : err);
+  }
+}
 
 export interface Alert {
   id: string;
@@ -84,6 +157,13 @@ class AlertSystem {
     sendExternalNotifications(newAlert).catch((error) => {
       console.error('[Alert] Failed to send external notifications:', error);
     });
+
+    // Supabase 비동기 저장 (비블로킹)
+    if (typeof window === 'undefined') {
+      saveAlertToSupabase(newAlert).catch(() => {
+        // 이미 함수 내부에서 에러 로깅하므로 여기서는 무시
+      });
+    }
   }
 
   /**
@@ -94,6 +174,13 @@ class AlertSystem {
     if (alert && !alert.resolved) {
       alert.resolved = true;
       alert.resolvedAt = Date.now();
+
+      // Supabase 비동기 업데이트 (비블로킹)
+      if (typeof window === 'undefined') {
+        updateAlertResolvedInSupabase(alertId, alert.resolvedAt).catch(() => {
+          // 이미 함수 내부에서 에러 로깅하므로 여기서는 무시
+        });
+      }
     }
   }
 

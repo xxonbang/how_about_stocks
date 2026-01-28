@@ -1,8 +1,11 @@
 /**
  * 데이터 품질 메트릭 수집 시스템
- * 
+ *
  * 데이터 수집 과정에서 발생하는 메트릭을 수집하고 분석
+ * Supabase 연동으로 메트릭 영속화 지원
  */
+
+import type { MetricInsert, MetricType } from './supabase/types';
 
 interface DataQualityMetric {
   timestamp: number;
@@ -10,7 +13,39 @@ interface DataQualityMetric {
   dataSource: string;
   metricType: 'success' | 'error' | 'warning' | 'validation_failure' | 'consistency_check';
   message: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata?: Record<string, any>;
+}
+
+/**
+ * Supabase에 메트릭 저장 (비동기, 비블로킹)
+ */
+async function saveMetricToSupabase(metric: DataQualityMetric): Promise<void> {
+  try {
+    // 동적 import로 서버 전용 모듈 로드
+    const { supabaseServer, isSupabaseServerEnabled } = await import('./supabase/server');
+
+    if (!isSupabaseServerEnabled() || !supabaseServer) {
+      return; // Supabase 미설정 시 건너뜀
+    }
+
+    const metricInsert: MetricInsert = {
+      symbol: metric.symbol,
+      data_source: metric.dataSource,
+      metric_type: metric.metricType as MetricType,
+      message: metric.message,
+      metadata: metric.metadata || {},
+    };
+
+    const { error } = await supabaseServer.from('metrics').insert(metricInsert);
+
+    if (error) {
+      console.error('[Metrics] Supabase save failed:', error.message);
+    }
+  } catch (err) {
+    // Supabase 저장 실패해도 인메모리 로직은 계속 진행
+    console.error('[Metrics] Supabase save error:', err instanceof Error ? err.message : err);
+  }
 }
 
 export interface DataSourceMetrics {
@@ -48,6 +83,13 @@ class MetricsCollector {
     if (process.env.NODE_ENV === 'development') {
       const logLevel = metric.metricType === 'error' ? 'error' : metric.metricType === 'warning' ? 'warn' : 'log';
       console[logLevel](`[Metrics] ${metric.metricType}: ${metric.symbol} (${metric.dataSource}) - ${metric.message}`);
+    }
+
+    // Supabase 비동기 저장 (비블로킹)
+    if (typeof window === 'undefined') {
+      saveMetricToSupabase(fullMetric).catch(() => {
+        // 이미 함수 내부에서 에러 로깅하므로 여기서는 무시
+      });
     }
   }
 
