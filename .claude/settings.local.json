@@ -36,7 +36,17 @@
       "Bash(git restore:*)",
       "Bash(npm run lint:*)",
       "Bash(node -e:*)",
-      "Bash(perl:*)"
+      "Bash(perl:*)",
+      "Bash(ls:*)",
+      "WebFetch(domain:www.saveticker.com)",
+      "Bash(npx playwright install:*)",
+      "WebFetch(domain:site.financialmodelingprep.com)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)",
+      "Bash(wc:*)",
+      "Bash(done)",
+      "Bash(tree:*)",
+      "WebFetch(domain:supabase.com)"
     ]
   }
 }
