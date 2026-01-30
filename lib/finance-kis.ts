@@ -321,12 +321,45 @@ async function getAccessToken(): Promise<string> {
 }
 
 /**
- * KIS API 호출 헬퍼
+ * KIS API 응답 기본 타입 (토큰 만료 감지용)
  */
-async function kisRequest<T>(
+interface KISBaseResponse {
+  rt_cd: string;
+  msg_cd?: string;
+  msg1?: string;
+}
+
+/**
+ * 토큰 만료 응답인지 확인
+ * KIS API는 토큰 만료 시에도 HTTP 200을 반환하고, 응답 본문에서 만료를 알림
+ * - rt_cd: "1" (실패)
+ * - msg1: "기간이 만료된 token 입니다" 또는 유사 메시지
+ */
+function isTokenExpiredResponse(data: KISBaseResponse): boolean {
+  if (data.rt_cd !== '0') {
+    const msg = data.msg1?.toLowerCase() || '';
+    // 토큰 만료 관련 메시지 패턴
+    if (
+      msg.includes('만료') ||
+      msg.includes('token') ||
+      msg.includes('expired') ||
+      data.msg_cd === 'EGW00123' // KIS 토큰 만료 에러 코드
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * KIS API 호출 헬퍼
+ * - HTTP 401과 응답 본문의 토큰 만료 메시지 모두 처리
+ */
+async function kisRequest<T extends KISBaseResponse>(
   endpoint: string,
   trId: string,
-  params: Record<string, string>
+  params: Record<string, string>,
+  isRetry = false
 ): Promise<T> {
   const token = await getAccessToken();
 
@@ -343,26 +376,30 @@ async function kisRequest<T>(
       timeout: 15000,
     });
 
-    return response.data;
+    const data = response.data;
+
+    // HTTP 200이지만 토큰 만료 응답인 경우 처리
+    if (isTokenExpiredResponse(data)) {
+      if (isRetry) {
+        // 재시도에서도 실패하면 에러 throw
+        throw new Error(`KIS 토큰 재발급 후에도 실패: ${data.msg1}`);
+      }
+
+      console.log(`[KIS] 토큰 만료 감지 (rt_cd: ${data.rt_cd}, msg: ${data.msg1}) - 재발급 시도`);
+      invalidateTokenCache();
+
+      // 재귀 호출로 재시도 (isRetry=true로 무한 루프 방지)
+      return kisRequest<T>(endpoint, trId, params, true);
+    }
+
+    return data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      if (error.response?.status === 401) {
-        // 토큰 만료 시 캐시 무효화 후 재발급 시도
-        console.log('[KIS] 401 오류 - 토큰 만료, 재발급 시도');
+      // HTTP 401 에러도 여전히 처리 (다른 인증 문제 대비)
+      if (error.response?.status === 401 && !isRetry) {
+        console.log('[KIS] HTTP 401 오류 - 토큰 만료, 재발급 시도');
         invalidateTokenCache();
-        const newToken = await getAccessToken();
-        const retryResponse = await axios.get<T>(`${KIS_BASE_URL}${endpoint}`, {
-          params,
-          headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-            authorization: `Bearer ${newToken}`,
-            appkey: KIS_APP_KEY,
-            appsecret: KIS_APP_SECRET,
-            tr_id: trId,
-          },
-          timeout: 15000,
-        });
-        return retryResponse.data;
+        return kisRequest<T>(endpoint, trId, params, true);
       }
       throw new Error(`KIS API 오류: ${error.response?.data?.msg1 || error.message}`);
     }
