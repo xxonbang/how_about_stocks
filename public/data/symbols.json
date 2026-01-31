@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-01-30T17:34:40.953108",
+  "generated_at": "2026-01-31T01:27:17.993900",
   "korea": {
     "count": 4375,
     "stocks": [
@@ -26257,7 +26257,7 @@
     ]
   },
   "us": {
-    "count": 29946,
+    "count": 29943,
     "stocks": [
       {
         "code": "QUAD",
@@ -235693,20 +235693,6 @@
         "type": "REIT"
       },
       {
-        "code": "LANDM",
-        "name": "LANDM",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "NEWTZ",
-        "name": "NEWTZ",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "I",
         "name": "I",
         "market": "NYSE",
@@ -235786,13 +235772,6 @@
       {
         "code": "CRD",
         "name": "CRD",
-        "market": "NYSE",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "ECCF",
-        "name": "ECCF",
         "market": "NYSE",
         "country": "US",
         "type": "Common Stock"
@@ -235883,5 +235862,5 @@
       }
     ]
   },
-  "total": 34321
+  "total": 34318
 }
