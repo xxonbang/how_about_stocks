@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import type { StockSuggestion } from '@/lib/stock-search';
 import type { FinnhubStockSymbol } from '@/lib/finnhub-symbols';
 import { findPythonCommand } from '@/lib/python-utils';
+import { translateKoreanToEnglishUS, containsKorean } from '@/lib/stock-name-mapper';
 
 // 동적 라우트로 설정 (searchParams 사용)
 export const dynamic = 'force-dynamic';
@@ -10,68 +11,6 @@ export const dynamic = 'force-dynamic';
  * 미국 주식 검색 API Route
  * Finnhub Stock Symbols API를 활용한 동적 검색
  */
-
-// 주요 한글-영문 종목명 매핑 (확장)
-const KOREAN_TO_ENGLISH_MAP: Record<string, string[]> = {
-  // 기술주
-  '애플': ['apple', 'aapl'],
-  '알파벳': ['alphabet', 'google', 'googl', 'goog'],
-  '구글': ['google', 'alphabet', 'googl', 'goog'],
-  '마이크로소프트': ['microsoft', 'msft'],
-  '아마존': ['amazon', 'amzn'],
-  '테슬라': ['tesla', 'tsla'],
-  '메타': ['meta', 'facebook', 'fb'],
-  '페이스북': ['facebook', 'meta', 'fb'],
-  '엔비디아': ['nvidia', 'nvda'],
-  '인텔': ['intel', 'intc'],
-  'amd': ['amd', 'advanced micro devices'],
-  '넷플릭스': ['netflix', 'nflx'],
-  '페이팔': ['paypal', 'pypl'],
-  '비자': ['visa', 'v'],
-  '마스터카드': ['mastercard', 'ma'],
-  
-  // 금융주
-  '뱅크오브아메리카': ['bank of america', 'bac'],
-  '모건스탠리': ['morgan stanley', 'ms'],
-  '골드만삭스': ['goldman sachs', 'gs'],
-  'jp모건': ['jpmorgan', 'jpm', 'jp morgan'],
-  
-  // 지수/ETF
-  '나스닥': ['nasdaq', 'ndaq'],
-  '나스닥100': ['nasdaq 100', 'qqq'],
-  's&p500': ['s&p 500', 'spy', 'sp500'],
-  '다우존스': ['dow jones', 'dji', 'dow'],
-  '다우': ['dow', 'dow jones', 'dji'],
-  
-  // 기타 주요 종목
-  '코카콜라': ['coca cola', 'ko'],
-  '펩시': ['pepsi', 'pep'],
-  '월마트': ['walmart', 'wmt'],
-  '존슨앤존슨': ['johnson & johnson', 'jnj'],
-  '프록터앤갬블': ['procter & gamble', 'pg'],
-  '버크셔해서웨이': ['berkshire hathaway', 'brk'],
-};
-
-/**
- * 한글 검색어를 영문 검색어로 변환
- */
-function translateKoreanToEnglish(query: string): string[] {
-  const lowerQuery = query.toLowerCase().trim();
-  const translations = KOREAN_TO_ENGLISH_MAP[lowerQuery];
-  
-  if (translations) {
-    return translations;
-  }
-  
-  // 부분 매칭 시도
-  for (const [korean, english] of Object.entries(KOREAN_TO_ENGLISH_MAP)) {
-    if (korean.includes(lowerQuery) || lowerQuery.includes(korean)) {
-      return english;
-    }
-  }
-  
-  return [];
-}
 
 export async function GET(request: NextRequest) {
   try {
@@ -87,15 +26,15 @@ export async function GET(request: NextRequest) {
 
     const results: StockSuggestion[] = [];
     const trimmedQuery = query.trim();
-    const isKorean = /[가-힣]/.test(trimmedQuery);
-    
+    const isKorean = containsKorean(trimmedQuery);
+
     // 검색어 정규화
     const normalizedQuery = trimmedQuery.toLowerCase().replace(/\s+/g, '');
-    
+
     // 한글 검색어인 경우 영문 변환
     const englishQueries: string[] = [];
     if (isKorean) {
-      const translations = translateKoreanToEnglish(trimmedQuery);
+      const translations = translateKoreanToEnglishUS(trimmedQuery);
       englishQueries.push(...translations);
     }
     englishQueries.push(normalizedQuery); // 원본도 포함

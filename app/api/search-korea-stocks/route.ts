@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import type { StockSuggestion } from '@/lib/stock-search';
+import { translateKoreanToEnglishKR, normalizeSearchQuery, containsKorean } from '@/lib/stock-name-mapper';
 
 // 동적 라우트로 설정 (searchParams 사용)
 export const dynamic = 'force-dynamic';
-import type { StockSuggestion } from '@/lib/stock-search';
 
 /**
  * 한국 주식 검색 API Route
@@ -22,16 +23,12 @@ export async function GET(request: NextRequest) {
 
     const results: StockSuggestion[] = [];
     const trimmedQuery = query.trim();
-    
+
     // 검색어 정규화
-    let normalizedQuery = trimmedQuery
-      .toLowerCase()
-      .replace(/\s+/g, '')
-      .replace(/엘지/g, 'lg')
-      .replace(/엘/g, 'lg');
-    
+    const normalizedQuery = normalizeSearchQuery(trimmedQuery);
+
     // 한글 검색어는 원본도 유지 (부분 매칭을 위해)
-    const koreanQuery = /[가-힣]/.test(trimmedQuery) ? trimmedQuery.replace(/\s+/g, '') : null;
+    const koreanQuery = containsKorean(trimmedQuery) ? trimmedQuery.replace(/\s+/g, '') : null;
     
     // 0. Ticker 기반 역추적 (검색어가 6자리 숫자인 경우)
     // 우회 상장, 합병 등으로 인한 사명 불일치 문제를 해결
@@ -433,13 +430,8 @@ else:
             }
             
             // 4. 한글-영문 매핑 확인 (특수 케이스만)
-            const koreanToEnglishMap: Record<string, string[]> = {
-              '나스닥': ['nasdaq', 'ndaq'],
-              '나스닥100': ['nasdaq 100', 'nasdaq100', 'nasdaq-100', 'nasdaq100'],
-            };
-            
-            const englishNames = koreanToEnglishMap[koreanQuery.toLowerCase()];
-            if (englishNames) {
+            const englishNames = translateKoreanToEnglishKR(koreanQuery);
+            if (englishNames.length > 0) {
               for (const engName of englishNames) {
                 if (stockNameLower.includes(engName)) {
                   return true;

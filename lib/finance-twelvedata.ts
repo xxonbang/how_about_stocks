@@ -14,6 +14,7 @@
 
 import type { StockData } from './finance';
 import { cache, CacheKey, CACHE_TTL } from './cache';
+import { normalizeSymbolForTwelveData, denormalizeSymbol } from './constants';
 
 const TWELVE_DATA_API_KEY = process.env.TWELVE_DATA_API_KEY || '';
 const TWELVE_DATA_BASE_URL = 'https://api.twelvedata.com';
@@ -41,32 +42,6 @@ async function rateLimitedFetch(url: string): Promise<Response> {
  */
 export function isTwelveDataAvailable(): boolean {
   return !!TWELVE_DATA_API_KEY;
-}
-
-/**
- * 심볼 정규화 (Twelve Data 형식)
- * - 한국 주식: 005930.KS → 005930:KRX
- * - 미국 주식: AAPL (그대로)
- */
-function normalizeSymbolForTwelveData(symbol: string): string {
-  if (symbol.endsWith('.KS')) {
-    return symbol.replace('.KS', ':KRX');
-  }
-  if (symbol.endsWith('.KQ')) {
-    return symbol.replace('.KQ', ':KRX');
-  }
-  return symbol;
-}
-
-/**
- * Twelve Data 심볼을 원래 형식으로 복원
- */
-function denormalizeSymbol(symbol: string): string {
-  if (symbol.includes(':KRX')) {
-    // KOSPI 종목은 .KS로 복원
-    return symbol.replace(':KRX', '.KS');
-  }
-  return symbol;
 }
 
 interface TwelveDataQuote {

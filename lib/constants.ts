@@ -129,3 +129,46 @@ export const SEARCH_MAX_RESULTS = 10;
 
 /** 유사도 임계값 */
 export const SIMILARITY_THRESHOLD = 0.6;
+
+// ============================================================================
+// 심볼 정규화 함수
+// ============================================================================
+
+/**
+ * 한국 주식 심볼 정규화
+ * @description .KS, .KQ 접미사를 제거하고 6자리 숫자로 패딩
+ * @param symbol 심볼 문자열
+ * @returns 정규화된 6자리 심볼
+ * @example cleanKoreanSymbol("005930.KS") → "005930"
+ * @example cleanKoreanSymbol("123") → "000123"
+ */
+export function cleanKoreanSymbol(symbol: string): string {
+  return symbol.replace(/\.(KS|KQ)$/i, '').padStart(6, '0');
+}
+
+/**
+ * Twelve Data 형식으로 심볼 정규화
+ * @description .KS/.KQ → :KRX 변환
+ * @param symbol 심볼 문자열
+ * @returns Twelve Data 형식 심볼
+ * @example normalizeSymbolForTwelveData("005930.KS") → "005930:KRX"
+ */
+export function normalizeSymbolForTwelveData(symbol: string): string {
+  if (symbol.endsWith('.KS') || symbol.endsWith('.KQ')) {
+    return symbol.replace(/\.(KS|KQ)$/, ':KRX');
+  }
+  return symbol;
+}
+
+/**
+ * Twelve Data 심볼을 원래 형식으로 복원
+ * @param symbol Twelve Data 형식 심볼
+ * @returns 원래 형식 심볼
+ * @example denormalizeSymbol("005930:KRX") → "005930.KS"
+ */
+export function denormalizeSymbol(symbol: string): string {
+  if (symbol.includes(':KRX')) {
+    return symbol.replace(':KRX', '.KS');
+  }
+  return symbol;
+}

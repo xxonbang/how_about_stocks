@@ -19,6 +19,7 @@
 import axios from 'axios';
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
+import { cleanKoreanSymbol } from './constants';
 
 // 환경변수
 const KIS_APP_KEY = process.env.KIS_APP_KEY || '';
@@ -416,7 +417,7 @@ async function kisRequest<T extends KISBaseResponse>(
 export async function fetchQuoteKIS(symbol: string): Promise<KISQuoteResponse['output'] | null> {
   try {
     // 종목코드 정규화 (6자리 숫자만 추출)
-    const cleanSymbol = symbol.replace(/\.(KS|KQ)$/, '').padStart(6, '0');
+    const cleanSymbol = cleanKoreanSymbol(symbol);
 
     const response = await kisRequest<KISQuoteResponse>(
       '/uapi/domestic-stock/v1/quotations/inquire-price',
@@ -449,7 +450,7 @@ export async function fetchDailyPricesKIS(
   period: 'D' | 'W' | 'M' | 'Y' = 'D'
 ): Promise<KISDailyPriceResponse['output']> {
   try {
-    const cleanSymbol = symbol.replace(/\.(KS|KQ)$/, '').padStart(6, '0');
+    const cleanSymbol = cleanKoreanSymbol(symbol);
 
     const response = await kisRequest<KISDailyPriceResponse>(
       '/uapi/domestic-stock/v1/quotations/inquire-daily-price',
