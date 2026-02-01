@@ -56,6 +56,24 @@ export const analysisHistory = pgTable('analysis_history', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
 });
 
+/**
+ * api_credentials 테이블
+ * 여러 프로젝트에서 공유하는 API 키 저장
+ */
+export const apiCredentials = pgTable('api_credentials', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  serviceName: varchar('service_name', { length: 50 }).notNull(),
+  credentialType: varchar('credential_type', { length: 50 }).notNull(),
+  credentialValue: text('credential_value').notNull(),
+  environment: varchar('environment', { length: 20 }).default('production'),
+  description: text('description'),
+  isActive: boolean('is_active').default(true),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
+  expiresAt: timestamp('expires_at', { withTimezone: true }),
+  metadata: jsonb('metadata').default({}),
+});
+
 // 타입 추론
 export type Metric = typeof metrics.$inferSelect;
 export type NewMetric = typeof metrics.$inferInsert;
@@ -65,3 +83,6 @@ export type NewAlert = typeof alerts.$inferInsert;
 
 export type AnalysisHistory = typeof analysisHistory.$inferSelect;
 export type NewAnalysisHistory = typeof analysisHistory.$inferInsert;
+
+export type ApiCredential = typeof apiCredentials.$inferSelect;
+export type NewApiCredential = typeof apiCredentials.$inferInsert;
