@@ -10,10 +10,11 @@
  * API 문서: https://apiportal.koreainvestment.com
  * GitHub: https://github.com/koreainvestment/open-trading-api
  *
- * 필요 환경변수:
- * - KIS_APP_KEY: 앱 키
- * - KIS_APP_SECRET: 앱 시크릿
- * - KIS_ACCOUNT_NO: 계좌번호 (선택, 매매 기능 사용 시 필요)
+ * 키 관리 우선순위:
+ * 1. Supabase api_credentials 테이블 (여러 프로젝트에서 공유)
+ * 2. 환경변수 (KIS_APP_KEY, KIS_APP_SECRET) - Fallback
+ *
+ * Supabase 키가 유효하지 않으면 환경변수로 대체 후 Supabase 업데이트
  */
 
 import axios from 'axios';
@@ -21,10 +22,199 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import { cleanKoreanSymbol } from './constants';
 
-// 환경변수
-const KIS_APP_KEY = process.env.KIS_APP_KEY || '';
-const KIS_APP_SECRET = process.env.KIS_APP_SECRET || '';
+// 환경변수 (Fallback용)
+const ENV_KIS_APP_KEY = process.env.KIS_APP_KEY || '';
+const ENV_KIS_APP_SECRET = process.env.KIS_APP_SECRET || '';
 const KIS_BASE_URL = 'https://openapi.koreainvestment.com:9443'; // 실전 투자
+
+// ========== KIS 키 관리 (Supabase 우선) ==========
+
+interface KISCredentials {
+  appKey: string;
+  appSecret: string;
+  source: 'supabase' | 'env';
+}
+
+// 메모리 캐시 (키 조회 최소화)
+let cachedCredentials: KISCredentials | null = null;
+let credentialsValidated = false;
+
+/**
+ * Supabase에서 KIS 키 조회
+ */
+async function getKISCredentialsFromSupabase(): Promise<KISCredentials | null> {
+  try {
+    // 동적 import로 순환 참조 방지
+    const { getKISCredentials } = await import('./supabase/api-credentials');
+    const credentials = await getKISCredentials();
+
+    if (credentials?.appKey && credentials?.appSecret) {
+      console.log('[KIS] Supabase에서 키 조회 성공');
+      return {
+        appKey: credentials.appKey,
+        appSecret: credentials.appSecret,
+        source: 'supabase',
+      };
+    }
+
+    console.log('[KIS] Supabase에 키 없음');
+    return null;
+  } catch (error) {
+    console.warn('[KIS] Supabase 키 조회 실패:', error instanceof Error ? error.message : error);
+    return null;
+  }
+}
+
+/**
+ * 환경변수에서 KIS 키 조회
+ */
+function getKISCredentialsFromEnv(): KISCredentials | null {
+  if (ENV_KIS_APP_KEY && ENV_KIS_APP_SECRET) {
+    console.log('[KIS] 환경변수에서 키 조회 성공');
+    return {
+      appKey: ENV_KIS_APP_KEY,
+      appSecret: ENV_KIS_APP_SECRET,
+      source: 'env',
+    };
+  }
+
+  console.warn('[KIS] 환경변수에 키 없음');
+  return null;
+}
+
+/**
+ * Supabase에 KIS 키 저장/업데이트
+ */
+async function saveKISCredentialsToSupabase(appKey: string, appSecret: string): Promise<boolean> {
+  try {
+    const { setApiCredential } = await import('./supabase/api-credentials');
+
+    const [keyResult, secretResult] = await Promise.all([
+      setApiCredential('kis', 'app_key', appKey, '한국투자증권 앱 키 (자동 갱신)'),
+      setApiCredential('kis', 'app_secret', appSecret, '한국투자증권 앱 시크릿 (자동 갱신)'),
+    ]);
+
+    if (keyResult && secretResult) {
+      console.log('[KIS] Supabase에 키 저장/갱신 완료');
+      return true;
+    }
+
+    console.warn('[KIS] Supabase 키 저장 부분 실패');
+    return false;
+  } catch (error) {
+    console.error('[KIS] Supabase 키 저장 실패:', error instanceof Error ? error.message : error);
+    return false;
+  }
+}
+
+/**
+ * KIS API 키로 토큰 발급 테스트 (키 유효성 검증)
+ */
+async function validateKISCredentialsWithToken(appKey: string, appSecret: string): Promise<boolean> {
+  try {
+    const response = await axios.post<KISTokenResponse>(
+      `${KIS_BASE_URL}/oauth2/tokenP`,
+      {
+        grant_type: 'client_credentials',
+        appkey: appKey,
+        appsecret: appSecret,
+      },
+      {
+        headers: { 'Content-Type': 'application/json' },
+        timeout: 10000,
+      }
+    );
+
+    if (response.data?.access_token) {
+      return true;
+    }
+
+    return false;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.warn('[KIS] 키 검증 실패:', error.response?.data?.error_description || error.message);
+    }
+    return false;
+  }
+}
+
+/**
+ * KIS 키 조회 (Supabase 우선, 환경변수 Fallback, 자동 갱신)
+ *
+ * 로직:
+ * 1. Supabase에서 키 조회
+ * 2. Supabase 키로 토큰 발급 테스트
+ * 3. 실패 시 환경변수로 Fallback
+ * 4. 환경변수 키가 유효하면 Supabase 업데이트
+ */
+async function getKISCredentials(): Promise<KISCredentials> {
+  // 이미 검증된 캐시가 있으면 사용
+  if (cachedCredentials && credentialsValidated) {
+    return cachedCredentials;
+  }
+
+  // 1. Supabase에서 조회
+  const supabaseCredentials = await getKISCredentialsFromSupabase();
+
+  if (supabaseCredentials) {
+    // 2. Supabase 키 유효성 검증
+    console.log('[KIS] Supabase 키 유효성 검증 중...');
+    const isValid = await validateKISCredentialsWithToken(
+      supabaseCredentials.appKey,
+      supabaseCredentials.appSecret
+    );
+
+    if (isValid) {
+      console.log('[KIS] Supabase 키 유효 - 사용');
+      cachedCredentials = supabaseCredentials;
+      credentialsValidated = true;
+      return supabaseCredentials;
+    }
+
+    console.warn('[KIS] Supabase 키 유효하지 않음 - 환경변수로 Fallback');
+  }
+
+  // 3. 환경변수로 Fallback
+  const envCredentials = getKISCredentialsFromEnv();
+
+  if (!envCredentials) {
+    throw new Error('KIS API 키가 설정되지 않았습니다. (Supabase 및 환경변수 모두 없음)');
+  }
+
+  // 4. 환경변수 키 유효성 검증
+  console.log('[KIS] 환경변수 키 유효성 검증 중...');
+  const isEnvValid = await validateKISCredentialsWithToken(
+    envCredentials.appKey,
+    envCredentials.appSecret
+  );
+
+  if (!isEnvValid) {
+    throw new Error('KIS API 키가 유효하지 않습니다. (환경변수 키도 무효)');
+  }
+
+  console.log('[KIS] 환경변수 키 유효 - 사용');
+  cachedCredentials = envCredentials;
+  credentialsValidated = true;
+
+  // 5. Supabase에 유효한 키 저장/갱신 (비동기, 실패해도 무시)
+  if (!supabaseCredentials || supabaseCredentials.appKey !== envCredentials.appKey) {
+    console.log('[KIS] Supabase에 유효한 키 동기화 시작...');
+    saveKISCredentialsToSupabase(envCredentials.appKey, envCredentials.appSecret).catch(() => {
+      // 저장 실패해도 동작에는 영향 없음
+    });
+  }
+
+  return envCredentials;
+}
+
+/**
+ * 키 캐시 초기화 (키 변경 시 호출)
+ */
+export function invalidateKISCredentialsCache(): void {
+  cachedCredentials = null;
+  credentialsValidated = false;
+  console.log('[KIS] 키 캐시 초기화됨');
+}
 
 // 토큰 캐시 파일 경로 결정
 // - 로컬 개발: .cache 디렉토리 (영구 보존)
@@ -256,6 +446,10 @@ interface KISDailyPriceResponse {
  * 2. 파일 캐시 (서버 재시작 후 복원, /tmp 또는 .cache)
  * 3. API 호출 (마지막 수단, 1일 1회 권장)
  *
+ * 키 조회 우선순위:
+ * 1. Supabase api_credentials 테이블
+ * 2. 환경변수 (KIS_APP_KEY, KIS_APP_SECRET)
+ *
  * 환경별 동작:
  * - 로컬: .cache/kis-token.json (영구 보존)
  * - Render/Vercel: /tmp/kis-cache/kis-token.json (컨테이너 수명 동안 유지)
@@ -273,22 +467,20 @@ async function getAccessToken(): Promise<string> {
     return fileToken.token;
   }
 
-  // 3. 새 토큰 발급 (캐시에 없는 경우에만)
-  if (!KIS_APP_KEY || !KIS_APP_SECRET) {
-    throw new Error('KIS_APP_KEY와 KIS_APP_SECRET이 설정되지 않았습니다.');
-  }
+  // 3. KIS 키 조회 (Supabase 우선, 환경변수 Fallback)
+  const credentials = await getKISCredentials();
 
   const env = process.env.NODE_ENV || 'development';
   const cacheMode = fileCacheEnabled ? `파일(${TOKEN_CACHE_FILE})` : '메모리만';
-  console.log(`[KIS] 캐시된 토큰 없음, 새 토큰 발급 요청... (환경: ${env}, 캐시: ${cacheMode})`);
+  console.log(`[KIS] 새 토큰 발급 요청... (환경: ${env}, 키 소스: ${credentials.source}, 캐시: ${cacheMode})`);
 
   try {
     const response = await axios.post<KISTokenResponse>(
       `${KIS_BASE_URL}/oauth2/tokenP`,
       {
         grant_type: 'client_credentials',
-        appkey: KIS_APP_KEY,
-        appsecret: KIS_APP_SECRET,
+        appkey: credentials.appKey,
+        appsecret: credentials.appSecret,
       },
       {
         headers: {
@@ -355,6 +547,7 @@ function isTokenExpiredResponse(data: KISBaseResponse): boolean {
 /**
  * KIS API 호출 헬퍼
  * - HTTP 401과 응답 본문의 토큰 만료 메시지 모두 처리
+ * - Supabase/환경변수에서 동적으로 키 조회
  */
 async function kisRequest<T extends KISBaseResponse>(
   endpoint: string,
@@ -363,6 +556,7 @@ async function kisRequest<T extends KISBaseResponse>(
   isRetry = false
 ): Promise<T> {
   const token = await getAccessToken();
+  const credentials = await getKISCredentials();
 
   try {
     const response = await axios.get<T>(`${KIS_BASE_URL}${endpoint}`, {
@@ -370,8 +564,8 @@ async function kisRequest<T extends KISBaseResponse>(
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
         authorization: `Bearer ${token}`,
-        appkey: KIS_APP_KEY,
-        appsecret: KIS_APP_SECRET,
+        appkey: credentials.appKey,
+        appsecret: credentials.appSecret,
         tr_id: trId,
       },
       timeout: 15000,
@@ -553,26 +747,54 @@ export async function fetchStockDataKIS(symbol: string): Promise<KISStockData | 
 }
 
 /**
- * API 키 설정 여부 확인
+ * API 키 설정 여부 확인 (환경변수 기준, 동기 호출용)
+ * Supabase 조회가 필요한 경우 isKISConfiguredAsync 사용
  */
 export function isKISConfigured(): boolean {
-  return !!KIS_APP_KEY && !!KIS_APP_SECRET && KIS_APP_KEY.length > 0 && KIS_APP_SECRET.length > 0;
+  return !!ENV_KIS_APP_KEY && !!ENV_KIS_APP_SECRET && ENV_KIS_APP_KEY.length > 0 && ENV_KIS_APP_SECRET.length > 0;
+}
+
+/**
+ * API 키 설정 여부 확인 (Supabase + 환경변수, 비동기)
+ */
+export async function isKISConfiguredAsync(): Promise<boolean> {
+  try {
+    const credentials = await getKISCredentials();
+    return !!credentials.appKey && !!credentials.appSecret;
+  } catch {
+    return false;
+  }
 }
 
 /**
  * API 키 유효성 확인 (실제 API 호출)
+ * Supabase 키 우선, 환경변수 Fallback
  */
 export async function validateKISApiKey(): Promise<boolean> {
-  if (!isKISConfigured()) {
-    return false;
-  }
-
   try {
-    // 삼성전자 시세 조회로 테스트
+    // getKISCredentials가 키를 조회하고 유효성도 검증함
+    const credentials = await getKISCredentials();
+    if (!credentials.appKey || !credentials.appSecret) {
+      return false;
+    }
+
+    // 추가로 실제 시세 조회로 검증
     const quote = await fetchQuoteKIS('005930');
     return quote !== null;
   } catch {
     return false;
+  }
+}
+
+/**
+ * 현재 사용 중인 키 소스 조회
+ */
+export async function getKISKeySource(): Promise<'supabase' | 'env' | 'none'> {
+  try {
+    const credentials = await getKISCredentials();
+    return credentials.source;
+  } catch {
+    return 'none';
   }
 }
 
