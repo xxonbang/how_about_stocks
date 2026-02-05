@@ -278,7 +278,7 @@ export function StockAutocomplete({
           }}
           disabled={disabled}
           placeholder={placeholder}
-          className="w-full pr-20"
+          className="w-full pr-20 text-base"
           aria-autocomplete="list"
           aria-controls="stock-suggestions"
           aria-expanded={showSuggestions && suggestions.length > 0}
