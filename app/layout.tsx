@@ -7,8 +7,30 @@ import { Navigation } from "@/components/navigation";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Stock Insight - AI 주식 분석",
-  description: "AI 기반 실시간 주식 분석 리포트",
+  title: "종목어때.ai - AI 주식 분석",
+  description: "AI 기반 실시간 주식 분석 리포트 - RSI, MACD, 볼린저밴드 등 14개 기술적 지표 분석",
+  keywords: ["주식 분석", "AI 분석", "종목 분석", "기술적 분석", "RSI", "MACD", "볼린저밴드"],
+  authors: [{ name: "종목어때.ai" }],
+  openGraph: {
+    title: "종목어때.ai - AI 주식 분석",
+    description: "AI 기반 실시간 주식 분석 리포트",
+    type: "website",
+    locale: "ko_KR",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "종목어때.ai - AI 주식 분석",
+    description: "AI 기반 실시간 주식 분석 리포트",
+  },
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
 };
 
 export default function RootLayout({
