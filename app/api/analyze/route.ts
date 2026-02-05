@@ -248,7 +248,7 @@ ${
 ${
   marketData.supplyDemand
     ? `
-**수급 데이터**:
+**수급 데이터**${marketData.supplyDemand.dataDate ? ` (${marketData.supplyDemand.dataDate})` : ""}:
 - 기관: ${
         marketData.supplyDemand.institutional > 0 ? "+" : ""
       }${marketData.supplyDemand.institutional.toLocaleString()}
@@ -257,7 +257,7 @@ ${
       }${marketData.supplyDemand.foreign.toLocaleString()}
 - 개인: ${
         marketData.supplyDemand.individual > 0 ? "+" : ""
-      }${marketData.supplyDemand.individual.toLocaleString()}
+      }${marketData.supplyDemand.individual.toLocaleString()}${marketData.supplyDemand.isIndividualEstimated ? " (추정값)" : ""}
 `
     : ""
 }

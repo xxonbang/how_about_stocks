@@ -458,8 +458,8 @@ export async function fetchKRXListedStocks(
       new Map(allStocks.map((s) => [s.code, s])).values()
     );
 
-    // 캐시에 저장 (24시간)
-    cache.set(cacheKey, uniqueStocks, 24 * 60 * 60 * 1000);
+    // 캐시에 저장 (24시간 TTL)
+    cache.set(cacheKey, uniqueStocks, CACHE_TTL.STOCK_LISTING);
     console.log(`[PublicData] KRX listing fetched: ${uniqueStocks.length} stocks (${market || 'ALL'})`);
 
     return uniqueStocks;

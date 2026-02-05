@@ -6,7 +6,7 @@
  * API 키 발급: https://fred.stlouisfed.org/docs/api/api-key.html
  */
 
-import { cache } from './cache';
+import { cache, CACHE_TTL } from './cache';
 
 const FRED_API_KEY = process.env.FRED_API_KEY;
 const FRED_BASE_URL = 'https://api.stlouisfed.org/fred/series/observations';
@@ -58,7 +58,7 @@ const FRED_SERIES = {
 } as const;
 
 const CACHE_KEY = 'fred-macro-data';
-const CACHE_TTL = 24 * 60 * 60 * 1000; // 24시간 (매크로 데이터는 일별 업데이트)
+// CACHE_TTL.MACRO (24시간) 사용 - lib/cache.ts에서 중앙 관리
 
 /**
  * FRED API에서 단일 시리즈 데이터 조회
@@ -224,8 +224,8 @@ export async function fetchFredMacroData(): Promise<FredMacroData> {
     console.log(`[FRED] 기대 인플레이션: ${inflation.value}% (${result.expectedInflation.level})`);
   }
 
-  // 캐시 저장
-  cache.set(CACHE_KEY, result, CACHE_TTL);
+  // 캐시 저장 (24시간 TTL)
+  cache.set(CACHE_KEY, result, CACHE_TTL.MACRO);
 
   return result;
 }

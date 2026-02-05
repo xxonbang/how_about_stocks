@@ -3,6 +3,60 @@
  * Phase 1 & Phase 2 지표 구현
  */
 
+// ===== 유틸리티 함수 =====
+
+/**
+ * 부동소수점 비교를 위한 epsilon 기반 동등 비교
+ * @param a 첫 번째 숫자
+ * @param b 두 번째 숫자
+ * @param epsilon 허용 오차 (기본값: 0.01, 가격 비교에 적합)
+ */
+function floatEquals(a: number, b: number, epsilon: number = 0.01): boolean {
+  return Math.abs(a - b) < epsilon;
+}
+
+/**
+ * 날짜 문자열을 ISO 8601 형식(YYYY-MM-DD)으로 정규화
+ * @param dateStr 원본 날짜 문자열
+ * @returns ISO 8601 형식 날짜 또는 빈 문자열 (파싱 실패 시)
+ */
+function normalizeDate(dateStr: string): string {
+  if (!dateStr || dateStr.trim() === '') {
+    return '';
+  }
+
+  try {
+    // 이미 ISO 형식인 경우
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      return dateStr;
+    }
+
+    // 다양한 형식 처리
+    const cleaned = dateStr.trim();
+
+    // YYYY.MM.DD 또는 YYYY/MM/DD 형식
+    const dotMatch = cleaned.match(/^(\d{4})[.\/](\d{1,2})[.\/](\d{1,2})$/);
+    if (dotMatch) {
+      const [, year, month, day] = dotMatch;
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    }
+
+    // Date 객체로 파싱 시도
+    const dateObj = new Date(cleaned);
+    if (!isNaN(dateObj.getTime())) {
+      return dateObj.toISOString().split('T')[0];
+    }
+
+    console.warn('[normalizeDate] Unable to parse date:', dateStr);
+    return '';
+  } catch (e) {
+    console.warn('[normalizeDate] Date parsing error:', dateStr, e);
+    return '';
+  }
+}
+
+// ===== 지표 계산 함수 =====
+
 /**
  * ETF 괴리율 계산
  * 괴리율(%) = ((시장 가격 - NAV) / NAV) × 100
@@ -192,9 +246,13 @@ export function calculateVolumeIndicators(
   // volumes 배열은 "과거 → 최신" 순서이므로, 마지막 요소가 최신 거래량
   const historicalLatestVolume = volumes.length > 0 ? volumes[volumes.length - 1] : 0;
   const currentVolume = latestVolume !== undefined ? latestVolume : historicalLatestVolume;
-  
-  // 디버깅 로그
-  if (latestVolume !== undefined) {
+
+  // 데이터 일관성 검증: quote와 historical 간 큰 차이가 있으면 경고
+  if (latestVolume !== undefined && historicalLatestVolume > 0) {
+    const discrepancyRatio = Math.abs(latestVolume - historicalLatestVolume) / historicalLatestVolume;
+    if (discrepancyRatio > 0.5) { // 50% 이상 차이나면 경고
+      console.warn(`[VolumeIndicators] Data discrepancy detected: quote=${latestVolume}, historical=${historicalLatestVolume}, diff=${(discrepancyRatio * 100).toFixed(1)}%`);
+    }
     console.log(`[VolumeIndicators] Using latestVolume from quote: ${latestVolume}, historical latest: ${historicalLatestVolume}`);
   }
   
@@ -407,20 +465,22 @@ export function calculateSupportResistance(
   // 저항선: 고점들 중 상위 3개 (날짜 정보 포함)
   // 같은 가격이 여러 날짜에 있을 경우, 가장 최근 날짜를 우선 선택
   const sortedHighs = [...highData].sort((a, b) => {
-    if (b.value !== a.value) {
+    // epsilon 기반 부동소수점 비교
+    if (!floatEquals(b.value, a.value)) {
       return b.value - a.value; // 가격 내림차순
     }
     // 가격이 같으면 날짜 내림차순 (최신 날짜 우선)
     return new Date(b.date).getTime() - new Date(a.date).getTime();
   });
-  
+
   // 중복 가격 제거 (같은 가격 중 가장 최근 날짜만 유지)
+  // epsilon 기반 비교로 비슷한 가격도 중복으로 처리
   const uniqueHighs: Array<{ value: number; date: string }> = [];
-  const seenHighValues = new Set<number>();
   for (const high of sortedHighs) {
-    const roundedValue = Math.round(high.value * 100) / 100;
-    if (!seenHighValues.has(roundedValue)) {
-      seenHighValues.add(roundedValue);
+    const isDuplicate = uniqueHighs.some(existing =>
+      floatEquals(existing.value, high.value)
+    );
+    if (!isDuplicate) {
       uniqueHighs.push(high);
     }
   }
@@ -430,79 +490,62 @@ export function calculateSupportResistance(
   
   // 각 저항선 레벨에 대해 recentData에서 해당 가격과 일치하는 모든 날짜를 찾아 가장 최근 날짜 선택
   const resistanceDates = top3Highs.map((h, idx) => {
-    // recentData에서 해당 가격과 일치하는 모든 날짜 찾기
+    // recentData에서 해당 가격과 일치하는 모든 날짜 찾기 (epsilon 기반 비교)
     const matchingDates = recentData
       .map(d => ({
         date: d.date,
         highValue: d.high !== undefined && d.high !== null ? d.high : d.close,
       }))
-      .filter(d => {
-        const roundedMatch = Math.round(d.highValue * 100) / 100;
-        const roundedTarget = Math.round(h.value * 100) / 100;
-        return Math.abs(roundedMatch - roundedTarget) < 0.01;
-      })
+      .filter(d => floatEquals(d.highValue, h.value))
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // 최신 날짜 우선
-    
+
     // 가장 최근 날짜 선택
     const mostRecentDate = matchingDates.length > 0 ? matchingDates[0].date : h.date;
-    
+
     // 디버깅: 날짜 선택 과정 확인
     if (matchingDates.length > 1) {
       console.log(`[calculateSupportResistance] Resistance level ${idx + 1} (${h.value}): Found ${matchingDates.length} matching dates, using most recent: ${mostRecentDate} (was: ${h.date})`);
     }
-    
+
     const dateStr = mostRecentDate || '';
-    // 날짜 형식 확인 및 정규화
+    // 날짜 형식 정규화
     if (!dateStr) {
       console.error(`[calculateSupportResistance] Empty date for resistance level ${idx + 1}:`, h);
       // 날짜가 없으면 recentData에서 해당 가격과 일치하는 모든 날짜 찾기
-      // 같은 가격이 여러 날짜에 있을 경우, 가장 최근 날짜를 선택
       const matchingDataList = recentData
         .map(d => ({
           date: d.date,
           highValue: d.high !== undefined && d.high !== null ? d.high : d.close,
         }))
-        .filter(d => Math.abs(d.highValue - h.value) < 0.01)
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // 최신 날짜 우선
-      
+        .filter(d => floatEquals(d.highValue, h.value))
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
       if (matchingDataList.length > 0 && matchingDataList[0].date) {
-        console.log(`[calculateSupportResistance] Found matching date from recentData (${matchingDataList.length} matches, using most recent):`, matchingDataList[0].date);
-        return matchingDataList[0].date;
+        console.log(`[calculateSupportResistance] Found matching date from recentData (${matchingDataList.length} matches):`, matchingDataList[0].date);
+        return normalizeDate(matchingDataList[0].date);
       }
       return '';
     }
-    // ISO 형식 (YYYY-MM-DD)이 아닌 경우 변환 시도
-    try {
-      const dateObj = new Date(dateStr);
-      if (isNaN(dateObj.getTime())) {
-        console.warn('[calculateSupportResistance] Invalid date format:', dateStr);
-        return '';
-      }
-      // ISO 형식으로 반환
-      return dateObj.toISOString().split('T')[0];
-    } catch (e) {
-      console.warn('[calculateSupportResistance] Date parsing error:', dateStr, e);
-      return dateStr; // 원본 반환
-    }
+    // normalizeDate 함수를 사용하여 ISO 형식으로 정규화
+    return normalizeDate(dateStr);
   });
   
   // 지지선: 저점들 중 하위 3개 (날짜 정보 포함)
   // 같은 가격이 여러 날짜에 있을 경우, 가장 최근 날짜를 우선 선택
   const sortedLows = [...lowData].sort((a, b) => {
-    if (a.value !== b.value) {
+    if (!floatEquals(a.value, b.value)) {
       return a.value - b.value; // 가격 오름차순
     }
     // 가격이 같으면 날짜 내림차순 (최신 날짜 우선)
     return new Date(b.date).getTime() - new Date(a.date).getTime();
   });
-  
+
   // 중복 가격 제거 (같은 가격 중 가장 최근 날짜만 유지)
+  // Set 대신 floatEquals를 사용한 중복 검사
   const uniqueLows: Array<{ value: number; date: string }> = [];
-  const seenLowValues = new Set<number>();
   for (const low of sortedLows) {
-    const roundedValue = Math.round(low.value * 100) / 100;
-    if (!seenLowValues.has(roundedValue)) {
-      seenLowValues.add(roundedValue);
+    const isDuplicate = uniqueLows.some(existing => floatEquals(existing.value, low.value));
+    if (!isDuplicate) {
       uniqueLows.push(low);
     }
   }
@@ -519,11 +562,7 @@ export function calculateSupportResistance(
         date: d.date,
         lowValue: d.low !== undefined && d.low !== null ? d.low : d.close,
       }))
-      .filter(d => {
-        const roundedMatch = Math.round(d.lowValue * 100) / 100;
-        const roundedTarget = Math.round(l.value * 100) / 100;
-        return Math.abs(roundedMatch - roundedTarget) < 0.01;
-      })
+      .filter(d => floatEquals(d.lowValue, l.value))
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()); // 최초 발생일 우선 (오름차순)
     
     // 가장 최초 발생일 선택
@@ -540,19 +579,8 @@ export function calculateSupportResistance(
       console.error(`[calculateSupportResistance] Empty date for support level ${idx + 1}:`, l);
       return '';
     }
-    // ISO 형식 (YYYY-MM-DD)이 아닌 경우 변환 시도
-    try {
-      const dateObj = new Date(dateStr);
-      if (isNaN(dateObj.getTime())) {
-        console.warn('[calculateSupportResistance] Invalid date format:', dateStr);
-        return '';
-      }
-      // ISO 형식으로 반환
-      return dateObj.toISOString().split('T')[0];
-    } catch (e) {
-      console.warn('[calculateSupportResistance] Date parsing error:', dateStr, e);
-      return dateStr; // 원본 반환
-    }
+    // normalizeDate 함수를 사용하여 ISO 형식으로 정규화
+    return normalizeDate(dateStr);
   });
   
   // 최종 결과 로깅
@@ -820,17 +848,20 @@ export function calculateStochastic(
   }
 
   // 매매 신호 (크로스오버 기반)
+  // 표준 스토캐스틱 신호 기준: 20/80 (zone 정의와 일치)
   let signal: 'buy' | 'sell' | 'none' = 'none';
   if (kLine.length >= 2 && dLine.length >= 2) {
     const prevK = kLine[kLine.length - 2];
     const prevD = dLine[dLine.length - 2];
 
-    // 과매도 영역에서 %K가 %D를 상향 돌파 = 매수 신호
-    if (prevK <= prevD && currentK > currentD && currentK <= 30) {
+    // 과매도 영역(≤20)에서 %K가 %D를 상향 돌파 = 매수 신호
+    // 또는 과매도 영역 진입 후 상승 반전 시 (prevK < 20, currentK > prevK)
+    if (prevK <= prevD && currentK > currentD && currentK <= 25) {
       signal = 'buy';
     }
-    // 과매수 영역에서 %K가 %D를 하향 돌파 = 매도 신호
-    else if (prevK >= prevD && currentK < currentD && currentK >= 70) {
+    // 과매수 영역(≥80)에서 %K가 %D를 하향 돌파 = 매도 신호
+    // 또는 과매수 영역 진입 후 하락 반전 시 (prevK > 80, currentK < prevK)
+    else if (prevK >= prevD && currentK < currentD && currentK >= 75) {
       signal = 'sell';
     }
   }

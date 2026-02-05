@@ -32,6 +32,8 @@ export interface SupplyDemandData {
   institutional: number;
   foreign: number;
   individual: number;
+  isIndividualEstimated?: boolean; // 개인 수급이 추정값인 경우 true
+  dataDate?: string; // 데이터 기준일 (YYYY-MM-DD)
 }
 
 export interface MarketSentiment {
@@ -92,10 +94,58 @@ export function calculateMA(prices: number[], period: number): number | null {
 
 /**
  * 이격도 계산: (현재가 / 이동평균) * 100
+ *
+ * 한국 표준 이격도 공식:
+ * - 100 이상: 현재가가 이동평균보다 높음 (양의 이격)
+ * - 100 이하: 현재가가 이동평균보다 낮음 (음의 이격)
+ *
+ * 해석 기준 (20일 이동평균 기준):
+ * - 105 이상: 과열권 (단기 조정 가능성)
+ * - 100~105: 정상 상승권
+ * - 95~100: 정상 하락권
+ * - 95 이하: 침체권 (반등 가능성)
  */
 export function calculateDisparity(currentPrice: number, movingAverage: number): number {
   if (movingAverage === 0) return 100;
   return Math.round((currentPrice / movingAverage) * 100 * 100) / 100;
+}
+
+/**
+ * 이격도 상세 계산 (해석 정보 포함)
+ */
+export function calculateDisparityDetailed(currentPrice: number, movingAverage: number): {
+  value: number; // 이격도 값 (100 기준)
+  deviation: number; // 이동평균 대비 편차 (%)
+  position: 'above' | 'below' | 'at'; // 이동평균 대비 위치
+  zone: 'overbought' | 'normal_up' | 'normal_down' | 'oversold'; // 해석 구간
+} {
+  if (movingAverage === 0) {
+    return {
+      value: 100,
+      deviation: 0,
+      position: 'at',
+      zone: 'normal_up',
+    };
+  }
+
+  const value = Math.round((currentPrice / movingAverage) * 100 * 100) / 100;
+  const deviation = Math.round((currentPrice - movingAverage) / movingAverage * 100 * 100) / 100;
+
+  const position = value > 100 ? 'above' : value < 100 ? 'below' : 'at';
+
+  // 해석 구간 결정 (20일 MA 기준)
+  let zone: 'overbought' | 'normal_up' | 'normal_down' | 'oversold';
+  if (value >= 105) {
+    zone = 'overbought';
+  } else if (value >= 100) {
+    zone = 'normal_up';
+  } else if (value >= 95) {
+    zone = 'normal_down';
+  } else {
+    zone = 'oversold';
+  }
+
+  return { value, deviation, position, zone };
 }
 
 /**
@@ -784,6 +834,7 @@ async function fetchKoreaSupplyDemandNaver(symbol: string): Promise<SupplyDemand
     let institutional = 0;
     let foreign = 0;
     let individual = 0;
+    let dataDate = '';
 
     // 외국인 기관 순매매 거래량 테이블 (type2 class)
     // 첫 번째 데이터 행 찾기 (헤더 행 제외)
@@ -792,6 +843,8 @@ async function fetchKoreaSupplyDemandNaver(symbol: string): Promise<SupplyDemand
 
       // 최소 7개의 td가 있고, 첫 번째 데이터 행인 경우
       if (cells.length >= 7) {
+        // 날짜 (index 0) - 형식: YYYY.MM.DD
+        const dateText = $(cells[0]).text().trim();
         // 기관 순매매량 (index 5)
         const institutionalText = $(cells[5]).text().trim().replace(/,/g, '').replace(/\+/g, '');
         // 외국인 순매매량 (index 6)
@@ -803,9 +856,12 @@ async function fetchKoreaSupplyDemandNaver(symbol: string): Promise<SupplyDemand
         if (!isNaN(institutionalParsed) && !isNaN(foreignParsed)) {
           institutional = institutionalParsed;
           foreign = foreignParsed;
-          // 개인은 기관+외국인의 반대값으로 추정 (수급 합계 = 0)
+          // 개인은 기관+외국인의 반대값으로 추정 (수급 합계 ≈ 0 가정)
+          // 주의: 이는 추정값이며 실제 개인 투자자 수급과 다를 수 있음
           individual = -(institutional + foreign);
-          console.log(`[Naver Supply/Demand] Parsed for ${symbol}: institutional=${institutional}, foreign=${foreign}, individual=${individual}`);
+          // 날짜 형식 변환 (YYYY.MM.DD -> YYYY-MM-DD)
+          dataDate = dateText.replace(/\./g, '-');
+          console.log(`[Naver Supply/Demand] Parsed for ${symbol}: date=${dataDate}, institutional=${institutional}, foreign=${foreign}, individual=${individual} (estimated)`);
           return false; // 첫 번째 유효한 행만 사용
         }
       }
@@ -815,21 +871,23 @@ async function fetchKoreaSupplyDemandNaver(symbol: string): Promise<SupplyDemand
     // 최소한 하나라도 0이 아니면 유효한 데이터로 간주
     // 단, 모든 값이 0이고 파싱이 실패했을 가능성도 있으므로 로깅
     if (institutional === 0 && foreign === 0 && individual === 0) {
-      console.warn(`All supply/demand values are zero for ${symbol} (may indicate parsing failure)`);
+      console.warn(`[Naver Supply/Demand] All values are zero for ${symbol} (may indicate parsing failure or actual zero trading)`);
       return null;
     }
 
     // 합리성 검증: 세 값의 합이 비정상적으로 크거나 작지 않은지 확인
     const total = Math.abs(institutional) + Math.abs(foreign) + Math.abs(individual);
     if (total > 1e12) { // 1조 이상은 비정상적
-      console.warn(`Suspiciously large supply/demand values for ${symbol}: total=${total}`);
+      console.warn(`[Naver Supply/Demand] Suspiciously large values for ${symbol}: total=${total}`);
     }
 
     const responseTime = Date.now() - startTime;
-    const result = {
+    const result: SupplyDemandData = {
       institutional,
       foreign,
       individual,
+      isIndividualEstimated: true, // 개인 수급은 항상 추정값
+      dataDate: dataDate || undefined,
     };
     metrics.success(symbol, 'Naver Finance (Crawling)', responseTime);
     return result;
