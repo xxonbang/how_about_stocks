@@ -890,10 +890,12 @@ export async function POST(request: NextRequest) {
             // fetchKoreaETFInfoKRX는 symbol과 일치하는 ETF가 없으면 null을 반환
             // NAV가 있고 0보다 큰 경우에만 ETF 괴리율 계산
             // 일반 주식의 경우 etfInfo가 null이거나 nav가 없으므로 etfPremium은 undefined로 유지됨
-            if (etfInfo && etfInfo.nav && etfInfo.nav > 0) {
-              etfPremium = calculateETFPremium(stockData.price, etfInfo.nav);
+            // 중요: 괴리율 계산 시 반드시 동일한 소스(KRX)의 가격과 NAV를 사용해야 함
+            if (etfInfo && etfInfo.nav && etfInfo.nav > 0 && etfInfo.price && etfInfo.price > 0) {
+              // etfInfo.price (KRX 종가)와 etfInfo.nav (KRX NAV)를 사용하여 정확한 괴리율 계산
+              etfPremium = calculateETFPremium(etfInfo.price, etfInfo.nav);
               console.log(
-                `[Analyze API] ETF premium calculated for ${symbol}: ${etfPremium.premium}%`,
+                `[Analyze API] ETF premium calculated for ${symbol}: price=${etfInfo.price}, nav=${etfInfo.nav}, premium=${etfPremium.premium}%`,
               );
             } else {
               console.log(
