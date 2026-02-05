@@ -34,7 +34,7 @@ function getRSIZone(rsi: number): { zone: 'overbought' | 'oversold' | 'neutral';
 export function RSIChart({ data, currentRSI }: RSIChartProps) {
   if (!currentRSI && data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-gray-500">
+      <div className="flex items-center justify-center h-36 sm:h-48 text-gray-500 text-sm">
         RSI 데이터가 없습니다.
       </div>
     );
@@ -59,7 +59,7 @@ export function RSIChart({ data, currentRSI }: RSIChartProps) {
   // displayData가 빈 배열이면 메시지 표시
   if (displayData.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-gray-500">
+      <div className="flex items-center justify-center h-36 sm:h-48 text-gray-500 text-sm">
         RSI 데이터가 없습니다.
       </div>
     );
@@ -69,28 +69,30 @@ export function RSIChart({ data, currentRSI }: RSIChartProps) {
   const latestRSI = displayData.length > 0 ? displayData[displayData.length - 1].rsi : currentRSI;
   const rsiZone = latestRSI ? getRSIZone(latestRSI) : null;
 
-  // 커스텀 툴팁
+  // 커스텀 툴팁 - 모바일 최적화
   const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) => {
     if (active && payload && payload.length) {
       const rsi = payload[0].value;
       const zone = getRSIZone(rsi);
 
       return (
-        <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3 text-sm">
-          <p className="font-medium text-gray-900 mb-2">{label}</p>
-          <div className="space-y-1">
-            <div className="flex justify-between gap-4">
+        <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-2 sm:p-3 text-xs sm:text-sm max-w-[180px] sm:max-w-none">
+          <p className="font-medium text-gray-900 mb-1.5 sm:mb-2 truncate">{label}</p>
+          <div className="space-y-0.5 sm:space-y-1">
+            <div className="flex justify-between gap-2 sm:gap-4">
               <span className="text-gray-600">RSI</span>
               <span className={`font-bold ${zone.color}`}>
                 {rsi.toFixed(2)}
               </span>
             </div>
-            <div className="flex justify-between gap-4">
+            <div className="flex justify-between gap-2 sm:gap-4">
               <span className="text-gray-600">상태</span>
               <span className={`font-medium ${zone.color}`}>
                 {zone.label}
-                {zone.zone === 'overbought' && ' (매도 고려)'}
-                {zone.zone === 'oversold' && ' (매수 고려)'}
+                <span className="hidden sm:inline">
+                  {zone.zone === 'overbought' && ' (매도 고려)'}
+                  {zone.zone === 'oversold' && ' (매수 고려)'}
+                </span>
               </span>
             </div>
           </div>
@@ -110,25 +112,27 @@ export function RSIChart({ data, currentRSI }: RSIChartProps) {
 
   return (
     <div className="relative">
-      {/* 현재 RSI 상태 배지 */}
+      {/* 현재 RSI 상태 배지 - 모바일 최적화 */}
       {latestRSI && rsiZone && (
         <div className="absolute top-0 right-0 z-10 flex items-center gap-2">
-          <div className={`px-3 py-1.5 rounded-lg text-sm font-bold ${
+          <div className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md sm:rounded-lg text-xs sm:text-sm font-bold ${
             rsiZone.zone === 'overbought' ? 'bg-red-100 text-red-700' :
             rsiZone.zone === 'oversold' ? 'bg-green-100 text-green-700' :
             'bg-gray-100 text-gray-700'
           }`}>
-            RSI {latestRSI.toFixed(1)} ({rsiZone.label})
+            <span className="sm:hidden">{latestRSI.toFixed(0)}</span>
+            <span className="hidden sm:inline">RSI {latestRSI.toFixed(1)} ({rsiZone.label})</span>
           </div>
         </div>
       )}
 
-      <ResponsiveContainer width="100%" height={180} className="sm:h-[200px]">
-        <LineChart
-          data={displayData}
-          margin={{ top: 30, right: 10, left: 0, bottom: 5 }}
-          className="sm:!mr-8 sm:!ml-5"
-        >
+      {/* 모바일: 140px, 태블릿/데스크탑: 180px */}
+      <div className="h-[140px] sm:h-[180px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart
+            data={displayData}
+            margin={{ top: 25, right: 5, left: -15, bottom: 5 }}
+          >
           {/* 과매수 영역 배경 (70-100) */}
           <ReferenceArea
             y1={70}
@@ -150,12 +154,15 @@ export function RSIChart({ data, currentRSI }: RSIChartProps) {
             dataKey="date"
             tickFormatter={formatChartDate}
             stroke="#6b7280"
-            style={{ fontSize: '11px' }}
+            tick={{ fontSize: 10 }}
+            tickMargin={5}
+            interval="preserveStartEnd"
           />
           <YAxis
             domain={[0, 100]}
             stroke="#6b7280"
-            style={{ fontSize: '11px' }}
+            tick={{ fontSize: 10 }}
+            width={30}
             ticks={[0, 30, 50, 70, 100]}
           />
           <Tooltip content={<CustomTooltip />} />
@@ -201,23 +208,24 @@ export function RSIChart({ data, currentRSI }: RSIChartProps) {
             }}
           />
 
-          {/* 커스텀 범례 */}
+          {/* 커스텀 범례 - 모바일 최적화 */}
           <Legend
             content={() => (
-              <ul className="flex flex-wrap justify-center gap-3 mt-2 text-xs">
-                <li className="flex items-center gap-1.5">
-                  <span className="inline-block w-3 h-3 rounded-sm bg-red-100 border border-red-300" />
+              <ul className="flex flex-wrap justify-center gap-2 sm:gap-3 mt-1.5 sm:mt-2 text-[10px] sm:text-xs">
+                <li className="flex items-center gap-1 sm:gap-1.5">
+                  <span className="inline-block w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-sm bg-red-100 border border-red-300" />
                   <span className="text-gray-600">과매수 (70+)</span>
                 </li>
-                <li className="flex items-center gap-1.5">
-                  <span className="inline-block w-3 h-3 rounded-sm bg-green-100 border border-green-300" />
+                <li className="flex items-center gap-1 sm:gap-1.5">
+                  <span className="inline-block w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-sm bg-green-100 border border-green-300" />
                   <span className="text-gray-600">과매도 (30-)</span>
                 </li>
               </ul>
             )}
           />
         </LineChart>
-      </ResponsiveContainer>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }

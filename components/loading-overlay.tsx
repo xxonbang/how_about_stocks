@@ -139,24 +139,24 @@ export function LoadingOverlay({ isLoading, stocks = [] }: LoadingOverlayProps) 
   if (!isLoading) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in">
-      <div className="relative w-full max-w-md mx-4">
-        {/* 메인 로딩 카드 */}
-        <div className="bg-white rounded-2xl shadow-2xl p-8 space-y-6 animate-scale-in">
-          {/* 애니메이션 스피너 */}
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in p-4">
+      <div className="relative w-full max-w-sm sm:max-w-md">
+        {/* 메인 로딩 카드 - 모바일 최적화 */}
+        <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl p-5 sm:p-8 space-y-4 sm:space-y-6 animate-scale-in">
+          {/* 애니메이션 스피너 - 모바일에서 작게 */}
           <div className="flex justify-center">
-            <div className="relative w-20 h-20">
+            <div className="relative w-16 h-16 sm:w-20 sm:h-20">
               {/* 외부 회전 링 */}
-              <div className="absolute inset-0 border-4 border-blue-200 rounded-full"></div>
-              <div className="absolute inset-0 border-4 border-transparent border-t-blue-600 rounded-full animate-spin"></div>
-              
+              <div className="absolute inset-0 border-[3px] sm:border-4 border-blue-200 rounded-full"></div>
+              <div className="absolute inset-0 border-[3px] sm:border-4 border-transparent border-t-blue-600 rounded-full animate-spin"></div>
+
               {/* 내부 펄스 원 */}
-              <div className="absolute inset-4 bg-blue-600 rounded-full animate-pulse"></div>
-              
+              <div className="absolute inset-3 sm:inset-4 bg-blue-600 rounded-full animate-pulse"></div>
+
               {/* 중앙 아이콘 */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <svg
-                  className="w-8 h-8 text-blue-600"
+                  className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -172,21 +172,21 @@ export function LoadingOverlay({ isLoading, stocks = [] }: LoadingOverlayProps) 
             </div>
           </div>
 
-          {/* 로딩 텍스트 */}
-          <div className="text-center space-y-2">
-            <h3 className="text-2xl font-bold text-gray-900 animate-pulse">
+          {/* 로딩 텍스트 - 모바일 폰트 크기 조정 */}
+          <div className="text-center space-y-1.5 sm:space-y-2">
+            <h3 className="text-lg sm:text-2xl font-bold text-gray-900 animate-pulse">
               {loadingSteps[loadingStep]?.text || '분석 중...'}
             </h3>
             {stocks.length > 0 && (
-              <p className="text-sm text-gray-600">
+              <p className="text-xs sm:text-sm text-gray-600">
                 {stocks.length}개 종목 분석 중
               </p>
             )}
           </div>
 
-          {/* 진행 바 */}
-          <div className="space-y-2">
-            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+          {/* 진행 바 - 모바일에서 더 두껍게 */}
+          <div className="space-y-1.5 sm:space-y-2">
+            <div className="w-full bg-gray-200 rounded-full h-2.5 sm:h-3 overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 rounded-full transition-all duration-300 ease-out relative"
                 style={{ width: `${progress}%` }}
@@ -194,21 +194,21 @@ export function LoadingOverlay({ isLoading, stocks = [] }: LoadingOverlayProps) 
                 <div className="absolute inset-0 bg-white/30 animate-shimmer"></div>
               </div>
             </div>
-            <div className="flex justify-between text-xs text-gray-500">
+            <div className="flex justify-between text-[10px] sm:text-xs text-gray-500">
               <span>진행 중...</span>
               <span>{Math.round(progress)}%</span>
             </div>
           </div>
 
           {/* 단계 인디케이터 */}
-          <div className="flex justify-center gap-2">
+          <div className="flex justify-center gap-1.5 sm:gap-2">
             {loadingSteps.map((_, index) => (
               <div
                 key={index}
-                className={`h-2 rounded-full transition-all duration-300 ${
+                className={`h-1.5 sm:h-2 rounded-full transition-all duration-300 ${
                   index <= loadingStep
-                    ? 'bg-blue-600 w-8'
-                    : 'bg-gray-300 w-2'
+                    ? 'bg-blue-600 w-6 sm:w-8'
+                    : 'bg-gray-300 w-1.5 sm:w-2'
                 }`}
               />
             ))}

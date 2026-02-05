@@ -148,18 +148,18 @@ export function Navigation() {
             )}
           </div>
 
-          {/* 모바일 메뉴 (로그인 상태에서만) */}
+          {/* 모바일 메뉴 (로그인 상태에서만) - 터치 친화적 */}
           {isAuthenticated && mobileMenuOpen && (
-            <div className="sm:hidden mt-3 pb-2 border-t border-gray-100 pt-3">
-              <div className="flex flex-col gap-2">
+            <div className="sm:hidden mt-3 pb-3 border-t border-gray-100 pt-3">
+              <div className="flex flex-col gap-1">
                 {navLinks.map((link) => (
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`px-3 py-2 rounded-md text-sm transition-colors ${
+                    className={`min-h-[44px] flex items-center px-3 py-2.5 rounded-lg text-base transition-colors touch-manipulation ${
                       pathname === link.href
                         ? 'bg-gray-100 font-semibold text-gray-900'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                        : 'text-gray-600 hover:bg-gray-50 active:bg-gray-100 hover:text-gray-900'
                     }`}
                   >
                     {link.label}
@@ -168,10 +168,10 @@ export function Navigation() {
                 {showDualSource && (
                   <Link
                     href="/dual-source-validation"
-                    className={`px-3 py-2 rounded-md text-sm transition-colors font-medium ${
+                    className={`min-h-[44px] flex items-center px-3 py-2.5 rounded-lg text-base transition-colors font-medium touch-manipulation ${
                       pathname === '/dual-source-validation'
                         ? 'bg-blue-50 text-blue-800'
-                        : 'text-blue-600 hover:bg-blue-50'
+                        : 'text-blue-600 hover:bg-blue-50 active:bg-blue-100'
                     }`}
                   >
                     듀얼소스 검증
@@ -182,7 +182,7 @@ export function Navigation() {
                     variant="outline"
                     size="sm"
                     onClick={handleLogout}
-                    className="w-full text-sm"
+                    className="w-full min-h-[44px] text-base touch-manipulation"
                   >
                     로그아웃
                   </Button>

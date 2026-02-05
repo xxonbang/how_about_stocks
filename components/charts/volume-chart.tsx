@@ -31,7 +31,7 @@ interface VolumeChartProps {
 export function VolumeChart({ data, averageVolume, supplyDemand }: VolumeChartProps) {
   if (data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-gray-500">
+      <div className="flex items-center justify-center h-36 sm:h-48 text-gray-500 text-sm">
         거래량 데이터가 없습니다.
       </div>
     );
@@ -51,7 +51,7 @@ export function VolumeChart({ data, averageVolume, supplyDemand }: VolumeChartPr
     supplyDemand.foreign > 0 &&
     supplyDemand.institutional > 0;
 
-  // 커스텀 툴팁
+  // 커스텀 툴팁 - 모바일 최적화
   const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ payload: ChartDataPoint }>; label?: string }) => {
     if (active && payload && payload.length) {
       const d = payload[0].payload;
@@ -59,10 +59,10 @@ export function VolumeChart({ data, averageVolume, supplyDemand }: VolumeChartPr
       const volumeRatio = averageVolume ? ((d.volume / averageVolume) * 100).toFixed(0) : null;
 
       return (
-        <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3 text-sm">
-          <p className="font-medium text-gray-900 mb-2">{label}</p>
-          <div className="space-y-1">
-            <div className="flex justify-between gap-4">
+        <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-2 sm:p-3 text-xs sm:text-sm max-w-[180px] sm:max-w-none">
+          <p className="font-medium text-gray-900 mb-1.5 sm:mb-2 truncate">{label}</p>
+          <div className="space-y-0.5 sm:space-y-1">
+            <div className="flex justify-between gap-2 sm:gap-4">
               <span className="text-gray-600">거래량</span>
               <span className={`font-bold ${isHighVolume ? 'text-orange-600' : ''}`}>
                 {d.volume.toLocaleString()}
@@ -70,7 +70,7 @@ export function VolumeChart({ data, averageVolume, supplyDemand }: VolumeChartPr
               </span>
             </div>
             {averageVolume && (
-              <div className="flex justify-between gap-4">
+              <div className="flex justify-between gap-2 sm:gap-4">
                 <span className="text-gray-600">평균대비</span>
                 <span className={`font-medium ${
                   d.volume > averageVolume ? 'text-red-600' : 'text-blue-600'
@@ -79,7 +79,7 @@ export function VolumeChart({ data, averageVolume, supplyDemand }: VolumeChartPr
                 </span>
               </div>
             )}
-            <div className="flex justify-between gap-4">
+            <div className="flex justify-between gap-2 sm:gap-4">
               <span className="text-gray-600">주가</span>
               <span className={`font-medium ${(d.isUp ?? true) ? 'text-red-600' : 'text-blue-600'}`}>
                 {(d.isUp ?? true) ? '▲ 상승' : '▼ 하락'}
@@ -107,40 +107,45 @@ export function VolumeChart({ data, averageVolume, supplyDemand }: VolumeChartPr
   };
 
   return (
-    <div className="space-y-3">
-      {/* 고거래량 안내 배지 */}
+    <div className="space-y-2 sm:space-y-3">
+      {/* 고거래량 안내 배지 - 모바일 최적화 */}
       {averageVolume && displayData.some(d => d.volume > highVolumeThreshold) && (
         <div className="flex justify-end">
-          <div className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-md flex items-center gap-1">
+          <div className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-orange-100 text-orange-700 text-[10px] sm:text-xs rounded-md flex items-center gap-1">
             <span>🔥</span>
-            <span>고거래량 = 평균의 150% 이상</span>
+            <span className="hidden sm:inline">고거래량 = 평균의 150% 이상</span>
+            <span className="sm:hidden">고거래량</span>
           </div>
         </div>
       )}
 
-      <ResponsiveContainer width="100%" height={180} className="sm:h-[200px]">
-        <ComposedChart
-          data={displayData}
-          margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
-          className="sm:!mr-8 sm:!ml-5"
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-          <XAxis
-            dataKey="date"
-            tickFormatter={formatChartDate}
-            stroke="#6b7280"
-            style={{ fontSize: '11px' }}
-          />
-          <YAxis
-            stroke="#6b7280"
-            style={{ fontSize: '11px' }}
-            tickFormatter={(value) => {
-              if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
-              if (value >= 1000) return (value / 1000).toFixed(1) + 'K';
-              return value.toString();
-            }}
-          />
-          <Tooltip content={<CustomTooltip />} />
+      {/* 모바일: 140px, 태블릿/데스크탑: 180px */}
+      <div className="h-[140px] sm:h-[180px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart
+            data={displayData}
+            margin={{ top: 5, right: 5, left: -15, bottom: 5 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <XAxis
+              dataKey="date"
+              tickFormatter={formatChartDate}
+              stroke="#6b7280"
+              tick={{ fontSize: 10 }}
+              tickMargin={5}
+              interval="preserveStartEnd"
+            />
+            <YAxis
+              stroke="#6b7280"
+              tick={{ fontSize: 10 }}
+              width={40}
+              tickFormatter={(value) => {
+                if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
+                if (value >= 1000) return (value / 1000).toFixed(0) + 'K';
+                return value.toString();
+              }}
+            />
+            <Tooltip content={<CustomTooltip />} />
 
           {/* 거래량 바 - 주가 연동 색상 */}
           <Bar
@@ -173,29 +178,30 @@ export function VolumeChart({ data, averageVolume, supplyDemand }: VolumeChartPr
             />
           )}
 
-          {/* 커스텀 범례 */}
+          {/* 커스텀 범례 - 모바일 최적화 */}
           <Legend
             content={() => (
-              <ul className="flex flex-wrap justify-center gap-3 mt-2 text-xs">
-                <li className="flex items-center gap-1.5">
-                  <span className="inline-block w-3 h-3 rounded-sm bg-red-500" />
+              <ul className="flex flex-wrap justify-center gap-2 sm:gap-3 mt-1.5 sm:mt-2 text-[10px] sm:text-xs">
+                <li className="flex items-center gap-1 sm:gap-1.5">
+                  <span className="inline-block w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-sm bg-red-500" />
                   <span className="text-gray-600">상승일</span>
                 </li>
-                <li className="flex items-center gap-1.5">
-                  <span className="inline-block w-3 h-3 rounded-sm bg-blue-500" />
+                <li className="flex items-center gap-1 sm:gap-1.5">
+                  <span className="inline-block w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-sm bg-blue-500" />
                   <span className="text-gray-600">하락일</span>
                 </li>
                 {averageVolume && (
-                  <li className="flex items-center gap-1.5">
-                    <span className="inline-block w-3 h-0.5 bg-amber-500" style={{ borderStyle: 'dashed' }} />
-                    <span className="text-gray-600">평균 거래량</span>
+                  <li className="flex items-center gap-1 sm:gap-1.5">
+                    <span className="inline-block w-2.5 sm:w-3 h-0.5 bg-amber-500" style={{ borderStyle: 'dashed' }} />
+                    <span className="text-gray-600">평균</span>
                   </li>
                 )}
               </ul>
             )}
           />
         </ComposedChart>
-      </ResponsiveContainer>
+        </ResponsiveContainer>
+      </div>
 
       {/* 외국인/기관 순매수 정보 */}
       {supplyDemand && (

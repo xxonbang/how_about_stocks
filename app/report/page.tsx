@@ -360,64 +360,67 @@ export default function ReportPage() {
           </Button>
         </div>
 
-        {/* Admin 전용: 토큰 사용량 정보 */}
+        {/* Admin 전용: 토큰 사용량 정보 - 모바일 최적화 */}
         {isAdmin && metadata?.tokenUsage && (
-          <div className="mb-4 p-3 bg-gradient-to-r from-slate-800 to-slate-700 rounded-lg border border-slate-600 shadow-sm">
-            <div className="flex items-center justify-between">
+          <div className="mb-4 p-2.5 sm:p-3 bg-gradient-to-r from-slate-800 to-slate-700 rounded-lg border border-slate-600 shadow-sm">
+            {/* 헤더 - 모바일에서 세로 배치 */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
+              {/* 타이틀 */}
               <div className="flex items-center gap-2">
-                <span className="text-xs font-medium text-slate-300">🔐 Admin</span>
-                <span className="text-xs text-slate-400">|</span>
-                <span className="text-xs font-semibold text-emerald-400">Gemini API Token Usage</span>
+                <span className="text-xs sm:text-sm font-medium text-slate-300">🔐 Admin</span>
+                <span className="text-xs text-slate-400 hidden sm:inline">|</span>
+                <span className="text-xs sm:text-sm font-semibold text-emerald-400">Gemini Token</span>
               </div>
-              <div className="flex items-center gap-4 text-xs">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-slate-400">Input:</span>
+              {/* 토큰 정보 - 모바일에서 그리드 배치 */}
+              <div className="grid grid-cols-3 gap-2 sm:flex sm:items-center sm:gap-4 text-xs sm:text-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-1.5 bg-slate-900/50 sm:bg-transparent rounded p-1.5 sm:p-0">
+                  <span className="text-slate-400 text-[10px] sm:text-xs">Input</span>
                   <span className="font-mono font-semibold text-blue-400">
                     {metadata.tokenUsage.promptTokenCount.toLocaleString()}
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-slate-400">Output:</span>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-1.5 bg-slate-900/50 sm:bg-transparent rounded p-1.5 sm:p-0">
+                  <span className="text-slate-400 text-[10px] sm:text-xs">Output</span>
                   <span className="font-mono font-semibold text-amber-400">
                     {metadata.tokenUsage.candidatesTokenCount.toLocaleString()}
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5 pl-2 border-l border-slate-500">
-                  <span className="text-slate-400">Total:</span>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-1.5 sm:pl-2 sm:border-l sm:border-slate-500 bg-slate-900/50 sm:bg-transparent rounded p-1.5 sm:p-0">
+                  <span className="text-slate-400 text-[10px] sm:text-xs">Total</span>
                   <span className="font-mono font-bold text-white">
                     {metadata.tokenUsage.totalTokenCount.toLocaleString()}
                   </span>
                 </div>
               </div>
             </div>
-            {/* Saveticker PDF 포함 여부 */}
+            {/* Saveticker PDF 포함 여부 - 모바일 최적화 */}
             {metadata.savetickerIncluded && metadata.savetickerReport && (
-              <div className="mt-2 pt-2 border-t border-slate-600 flex items-center gap-2 text-xs">
-                <span className="text-purple-400">📄 Saveticker PDF 포함:</span>
-                <span className="text-slate-300">{metadata.savetickerReport.title}</span>
-                <span className="text-slate-500">({metadata.savetickerReport.date})</span>
+              <div className="mt-2 pt-2 border-t border-slate-600 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+                <span className="text-purple-400">📄 Saveticker PDF:</span>
+                <span className="text-slate-300 truncate">{metadata.savetickerReport.title}</span>
+                <span className="text-slate-500 text-[10px] sm:text-xs">({metadata.savetickerReport.date})</span>
               </div>
             )}
           </div>
         )}
 
-        {/* 종목 탭 - 항상 표시 (1개일 때도 표시하여 일관성 유지) */}
-        <div className="flex gap-2 mb-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+        {/* 종목 탭 - 모바일 최적화: 터치 친화적 크기 */}
+        <div className="flex gap-1.5 sm:gap-2 mb-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide">
           {results.map((result, index) => (
             <button
               key={`${result.symbol}-${index}`}
               onClick={() => setSelectedIndex(index)}
-              className={`px-3 sm:px-4 py-2 rounded-md font-medium whitespace-nowrap transition-colors text-sm sm:text-base flex-shrink-0 ${
+              className={`min-h-[44px] px-3 sm:px-4 py-2.5 sm:py-2 rounded-lg sm:rounded-md font-medium whitespace-nowrap transition-colors text-sm sm:text-base flex-shrink-0 touch-manipulation ${
                 selectedIndex === index
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-white text-gray-700 hover:bg-gray-100"
+                  ? "bg-primary text-primary-foreground shadow-md"
+                  : "bg-white text-gray-700 hover:bg-gray-100 active:bg-gray-200"
               }`}
             >
               <span className="block sm:inline">
                 {result.name || result.symbol}
               </span>
               {(result.period || result.historicalPeriod) && (
-                <span className="ml-1 sm:ml-2 text-xs opacity-75 hidden sm:inline">
+                <span className="ml-1 sm:ml-2 text-[10px] sm:text-xs opacity-75 hidden sm:inline">
                   {result.historicalPeriod &&
                     `과거: ${result.historicalPeriod}`}
                   {result.historicalPeriod && result.period && " / "}

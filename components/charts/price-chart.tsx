@@ -31,7 +31,7 @@ export function PriceChart({
 }: PriceChartProps) {
   if (data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-gray-500">
+      <div className="flex items-center justify-center h-48 sm:h-64 text-gray-500 text-sm">
         차트 데이터가 없습니다.
       </div>
     );
@@ -49,7 +49,7 @@ export function PriceChart({
   const maxPrice = Math.max(...prices);
   const priceRange = maxPrice - minPrice;
 
-  // 커스텀 툴팁
+  // 커스텀 툴팁 - 모바일 최적화
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
@@ -58,21 +58,21 @@ export function PriceChart({
       const isPositive = change >= 0;
 
       return (
-        <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3 text-sm">
-          <p className="font-medium text-gray-900 mb-2">{label}</p>
-          <div className="space-y-1">
-            <div className="flex justify-between gap-4">
+        <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-2 sm:p-3 text-xs sm:text-sm max-w-[200px] sm:max-w-none">
+          <p className="font-medium text-gray-900 mb-1.5 sm:mb-2 truncate">{label}</p>
+          <div className="space-y-0.5 sm:space-y-1">
+            <div className="flex justify-between gap-2 sm:gap-4">
               <span className="text-gray-600">종가</span>
               <span className="font-bold">{data.close?.toLocaleString()}원</span>
             </div>
-            <div className="flex justify-between gap-4">
+            <div className="flex justify-between gap-2 sm:gap-4">
               <span className="text-gray-600">전일대비</span>
               <span className={`font-medium ${isPositive ? 'text-red-600' : 'text-blue-600'}`}>
                 {isPositive ? '+' : ''}{change.toLocaleString()} ({isPositive ? '+' : ''}{changePercent.toFixed(2)}%)
               </span>
             </div>
             {data.volume && (
-              <div className="flex justify-between gap-4">
+              <div className="flex justify-between gap-2 sm:gap-4">
                 <span className="text-gray-600">거래량</span>
                 <span>{data.volume.toLocaleString()}</span>
               </div>
@@ -86,42 +86,46 @@ export function PriceChart({
 
   return (
     <div className="relative">
-      {/* 현재가 표시 배지 */}
+      {/* 현재가 표시 배지 - 모바일 최적화 */}
       <div className="absolute top-0 right-0 z-10 flex items-center gap-2">
-        <div className={`px-3 py-1.5 rounded-lg text-sm font-bold ${
+        <div className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md sm:rounded-lg text-xs sm:text-sm font-bold ${
           isUp ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
         }`}>
           {isUp ? '▲' : '▼'} {latestData.close.toLocaleString()}원
         </div>
       </div>
 
-      <ResponsiveContainer width="100%" height={280} className="sm:h-[320px]">
-        <ComposedChart
-          data={displayData}
-          margin={{ top: 30, right: 10, left: 0, bottom: 5 }}
-          className="sm:!mr-8 sm:!ml-5"
-        >
-          <defs>
-            {/* 주가 영역 그라데이션 */}
-            <linearGradient id="priceGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={isUp ? "#ef4444" : "#3b82f6"} stopOpacity={0.3}/>
-              <stop offset="95%" stopColor={isUp ? "#ef4444" : "#3b82f6"} stopOpacity={0.05}/>
-            </linearGradient>
-          </defs>
+      {/* 모바일: 220px, 태블릿: 260px, 데스크탑: 320px */}
+      <div className="h-[220px] sm:h-[260px] md:h-[320px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart
+            data={displayData}
+            margin={{ top: 25, right: 5, left: -15, bottom: 5 }}
+          >
+            <defs>
+              {/* 주가 영역 그라데이션 */}
+              <linearGradient id="priceGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={isUp ? "#ef4444" : "#3b82f6"} stopOpacity={0.3}/>
+                <stop offset="95%" stopColor={isUp ? "#ef4444" : "#3b82f6"} stopOpacity={0.05}/>
+              </linearGradient>
+            </defs>
 
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-          <XAxis
-            dataKey="date"
-            tickFormatter={formatChartDate}
-            stroke="#6b7280"
-            style={{ fontSize: '11px' }}
-          />
-          <YAxis
-            tickFormatter={formatChartPrice}
-            stroke="#6b7280"
-            style={{ fontSize: '11px' }}
-            domain={[minPrice - priceRange * 0.1, maxPrice + priceRange * 0.1]}
-          />
+            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <XAxis
+              dataKey="date"
+              tickFormatter={formatChartDate}
+              stroke="#6b7280"
+              tick={{ fontSize: 10 }}
+              tickMargin={5}
+              interval="preserveStartEnd"
+            />
+            <YAxis
+              tickFormatter={formatChartPrice}
+              stroke="#6b7280"
+              tick={{ fontSize: 10 }}
+              width={45}
+              domain={[minPrice - priceRange * 0.1, maxPrice + priceRange * 0.1]}
+            />
           <Tooltip content={<CustomTooltip />} />
 
           {/* 주가 영역 채우기 */}
@@ -216,7 +220,7 @@ export function PriceChart({
             </>
           )}
 
-          {/* 커스텀 범례 */}
+          {/* 커스텀 범례 - 모바일 최적화 */}
           <Legend
             content={({ payload }) => {
               if (!payload || payload.length === 0) return null;
@@ -232,17 +236,18 @@ export function PriceChart({
               });
 
               return (
-                <ul className="flex flex-wrap justify-center gap-3 mt-3 text-xs">
+                <ul className="flex flex-wrap justify-center gap-2 sm:gap-3 mt-2 sm:mt-3 text-[10px] sm:text-xs">
                   {sortedPayload.map((entry, index) => (
-                    <li key={`item-${index}`} className="flex items-center gap-1.5">
+                    <li key={`item-${index}`} className="flex items-center gap-1 sm:gap-1.5">
                       <span
                         style={{
                           display: 'inline-block',
-                          width: '12px',
-                          height: '3px',
+                          width: '10px',
+                          height: '2px',
                           backgroundColor: entry.color,
                           borderRadius: '1px',
                         }}
+                        className="sm:!w-3 sm:!h-[3px]"
                       />
                       <span style={{ color: '#4b5563' }}>
                         {entry.value}
@@ -254,7 +259,8 @@ export function PriceChart({
             }}
           />
         </ComposedChart>
-      </ResponsiveContainer>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }

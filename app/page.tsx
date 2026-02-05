@@ -615,8 +615,9 @@ function HomePageContent() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                <div className="flex items-center space-x-2 py-1">
+              {/* 지표 그리드 - 모바일 터치 최적화 */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-2">
+                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
                   <Checkbox
                     checked={indicators.rsi}
                     onChange={(e) =>
@@ -624,10 +625,10 @@ function HomePageContent() {
                     }
                     disabled={isLoading}
                   />
-                  <span className="text-xs sm:text-sm cursor-pointer" onClick={() => !isLoading && setIndicators({ ...indicators, rsi: !indicators.rsi })}>RSI</span>
+                  <span className="text-sm sm:text-sm flex-1">RSI</span>
                   <IndicatorInfoButton indicatorKey="rsi" />
-                </div>
-                <div className="flex items-center space-x-2 py-1">
+                </label>
+                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
                   <Checkbox
                     checked={indicators.movingAverages}
                     onChange={(e) =>
@@ -638,10 +639,10 @@ function HomePageContent() {
                     }
                     disabled={isLoading}
                   />
-                  <span className="text-xs sm:text-sm cursor-pointer" onClick={() => !isLoading && setIndicators({ ...indicators, movingAverages: !indicators.movingAverages })}>이동평균선 (5/20/60/120)</span>
+                  <span className="text-sm sm:text-sm flex-1">이동평균선</span>
                   <IndicatorInfoButton indicatorKey="movingAverages" />
-                </div>
-                <div className="flex items-center space-x-2 py-1">
+                </label>
+                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
                   <Checkbox
                     checked={indicators.disparity}
                     onChange={(e) =>
@@ -652,10 +653,10 @@ function HomePageContent() {
                     }
                     disabled={isLoading}
                   />
-                  <span className="text-xs sm:text-sm cursor-pointer" onClick={() => !isLoading && setIndicators({ ...indicators, disparity: !indicators.disparity })}>이격도</span>
+                  <span className="text-sm sm:text-sm flex-1">이격도</span>
                   <IndicatorInfoButton indicatorKey="disparity" />
-                </div>
-                <div className="flex items-center space-x-2 py-1">
+                </label>
+                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
                   <Checkbox
                     checked={indicators.supplyDemand}
                     onChange={(e) =>
@@ -666,10 +667,10 @@ function HomePageContent() {
                     }
                     disabled={isLoading}
                   />
-                  <span className="text-xs sm:text-sm cursor-pointer" onClick={() => !isLoading && setIndicators({ ...indicators, supplyDemand: !indicators.supplyDemand })}>수급 (기관/외인)</span>
+                  <span className="text-sm sm:text-sm flex-1">수급 (기관/외인)</span>
                   <IndicatorInfoButton indicatorKey="supplyDemand" />
-                </div>
-                <div className="flex items-center space-x-2 py-1">
+                </label>
+                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
                   <Checkbox
                     checked={indicators.fearGreed}
                     onChange={(e) =>
@@ -680,10 +681,10 @@ function HomePageContent() {
                     }
                     disabled={isLoading}
                   />
-                  <span className="text-xs sm:text-sm cursor-pointer" onClick={() => !isLoading && setIndicators({ ...indicators, fearGreed: !indicators.fearGreed })}>공포/탐욕 지수</span>
+                  <span className="text-sm sm:text-sm flex-1">공포/탐욕 지수</span>
                   <IndicatorInfoButton indicatorKey="fearGreed" />
-                </div>
-                <div className="flex items-center space-x-2 py-1">
+                </label>
+                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
                   <Checkbox
                     checked={indicators.exchangeRate}
                     onChange={(e) =>
@@ -694,11 +695,11 @@ function HomePageContent() {
                     }
                     disabled={isLoading}
                   />
-                  <span className="text-xs sm:text-sm cursor-pointer" onClick={() => !isLoading && setIndicators({ ...indicators, exchangeRate: !indicators.exchangeRate })}>환율</span>
+                  <span className="text-sm sm:text-sm flex-1">환율</span>
                   <IndicatorInfoButton indicatorKey="exchangeRate" />
-                </div>
+                </label>
                 {/* Phase 1 지표 */}
-                <div className="flex items-center space-x-2 py-1">
+                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
                   <Checkbox
                     checked={indicators.etfPremium || false}
                     onChange={(e) =>
@@ -709,10 +710,10 @@ function HomePageContent() {
                     }
                     disabled={isLoading}
                   />
-                  <span className="text-xs sm:text-sm cursor-pointer" onClick={() => !isLoading && setIndicators({ ...indicators, etfPremium: !indicators.etfPremium })}>ETF 괴리율</span>
+                  <span className="text-sm sm:text-sm flex-1">ETF 괴리율</span>
                   <IndicatorInfoButton indicatorKey="etfPremium" />
-                </div>
-                <div className="flex items-center space-x-2 py-1">
+                </label>
+                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
                   <Checkbox
                     checked={indicators.bollingerBands || false}
                     onChange={(e) =>
@@ -723,10 +724,10 @@ function HomePageContent() {
                     }
                     disabled={isLoading}
                   />
-                  <span className="text-xs sm:text-sm cursor-pointer" onClick={() => !isLoading && setIndicators({ ...indicators, bollingerBands: !indicators.bollingerBands })}>볼린저 밴드</span>
+                  <span className="text-sm sm:text-sm flex-1">볼린저 밴드</span>
                   <IndicatorInfoButton indicatorKey="bollingerBands" />
-                </div>
-                <div className="flex items-center space-x-2 py-1">
+                </label>
+                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
                   <Checkbox
                     checked={indicators.volatility || false}
                     onChange={(e) =>
@@ -737,10 +738,10 @@ function HomePageContent() {
                     }
                     disabled={isLoading}
                   />
-                  <span className="text-xs sm:text-sm cursor-pointer" onClick={() => !isLoading && setIndicators({ ...indicators, volatility: !indicators.volatility })}>변동성 지표</span>
+                  <span className="text-sm sm:text-sm flex-1">변동성 지표</span>
                   <IndicatorInfoButton indicatorKey="volatility" />
-                </div>
-                <div className="flex items-center space-x-2 py-1">
+                </label>
+                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
                   <Checkbox
                     checked={indicators.volumeIndicators || false}
                     onChange={(e) =>
@@ -751,11 +752,11 @@ function HomePageContent() {
                     }
                     disabled={isLoading}
                   />
-                  <span className="text-xs sm:text-sm cursor-pointer" onClick={() => !isLoading && setIndicators({ ...indicators, volumeIndicators: !indicators.volumeIndicators })}>거래량 지표</span>
+                  <span className="text-sm sm:text-sm flex-1">거래량 지표</span>
                   <IndicatorInfoButton indicatorKey="volumeIndicators" />
-                </div>
+                </label>
                 {/* Phase 2 지표 */}
-                <div className="flex items-center space-x-2 py-1">
+                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
                   <Checkbox
                     checked={indicators.supportLevel || false}
                     onChange={(e) =>
@@ -766,10 +767,10 @@ function HomePageContent() {
                     }
                     disabled={isLoading}
                   />
-                  <span className="text-xs sm:text-sm cursor-pointer" onClick={() => !isLoading && setIndicators({ ...indicators, supportLevel: !indicators.supportLevel })}>눌림목 여부</span>
+                  <span className="text-sm sm:text-sm flex-1">눌림목 여부</span>
                   <IndicatorInfoButton indicatorKey="supportLevel" />
-                </div>
-                <div className="flex items-center space-x-2 py-1">
+                </label>
+                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
                   <Checkbox
                     checked={indicators.supportResistance || false}
                     onChange={(e) =>
@@ -780,11 +781,11 @@ function HomePageContent() {
                     }
                     disabled={isLoading}
                   />
-                  <span className="text-xs sm:text-sm cursor-pointer" onClick={() => !isLoading && setIndicators({ ...indicators, supportResistance: !indicators.supportResistance })}>저항선/지지선</span>
+                  <span className="text-sm sm:text-sm flex-1">저항선/지지선</span>
                   <IndicatorInfoButton indicatorKey="supportResistance" />
-                </div>
+                </label>
                 {/* Phase 3 지표 */}
-                <div className="flex items-center space-x-2 py-1">
+                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
                   <Checkbox
                     checked={indicators.macd || false}
                     onChange={(e) =>
@@ -795,10 +796,10 @@ function HomePageContent() {
                     }
                     disabled={isLoading}
                   />
-                  <span className="text-xs sm:text-sm cursor-pointer" onClick={() => !isLoading && setIndicators({ ...indicators, macd: !indicators.macd })}>MACD</span>
+                  <span className="text-sm sm:text-sm flex-1">MACD</span>
                   <IndicatorInfoButton indicatorKey="macd" />
-                </div>
-                <div className="flex items-center space-x-2 py-1">
+                </label>
+                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
                   <Checkbox
                     checked={indicators.stochastic || false}
                     onChange={(e) =>
@@ -809,9 +810,9 @@ function HomePageContent() {
                     }
                     disabled={isLoading}
                   />
-                  <span className="text-xs sm:text-sm cursor-pointer" onClick={() => !isLoading && setIndicators({ ...indicators, stochastic: !indicators.stochastic })}>스토캐스틱</span>
+                  <span className="text-sm sm:text-sm flex-1">스토캐스틱</span>
                   <IndicatorInfoButton indicatorKey="stochastic" />
-                </div>
+                </label>
               </div>
             </CardContent>
           </Card>
