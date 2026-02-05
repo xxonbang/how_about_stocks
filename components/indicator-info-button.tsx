@@ -37,7 +37,7 @@ export function IndicatorInfoButton({ indicatorKey }: IndicatorInfoButtonProps) 
           e.preventDefault();
           e.stopPropagation();
         }}
-        className="inline-flex items-center justify-center w-4 h-4 ml-1.5 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 rounded-full"
+        className="inline-flex items-center justify-center w-8 h-8 sm:w-5 sm:h-5 -mr-1 sm:mr-0 text-gray-400 hover:text-gray-600 active:text-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 rounded-full touch-manipulation"
         aria-label={`${description.name} 설명 보기`}
       >
         <svg
@@ -57,13 +57,13 @@ export function IndicatorInfoButton({ indicatorKey }: IndicatorInfoButtonProps) 
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-2xl flex flex-col p-0">
-          <DialogHeader className="sticky top-0 z-10 bg-white border-b px-6 py-4 rounded-t-lg">
+        <DialogContent className="w-[calc(100%-2rem)] sm:w-full max-w-2xl flex flex-col p-0 mx-4 sm:mx-auto">
+          <DialogHeader className="sticky top-0 z-10 bg-white border-b px-4 sm:px-6 py-3 sm:py-4 rounded-t-lg">
             <div className="flex items-center justify-between">
-              <DialogTitle>{description.name}</DialogTitle>
+              <DialogTitle className="text-base sm:text-lg">{description.name}</DialogTitle>
               <button
                 onClick={() => setOpen(false)}
-                className="text-gray-400 hover:text-gray-600 transition-colors ml-4"
+                className="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 active:text-gray-700 transition-colors ml-2 rounded-full touch-manipulation"
                 aria-label="닫기"
               >
                 <svg
@@ -82,7 +82,7 @@ export function IndicatorInfoButton({ indicatorKey }: IndicatorInfoButtonProps) 
               </button>
             </div>
           </DialogHeader>
-          <div className="flex-1 overflow-y-auto px-6 py-4">
+          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4">
             <div className="space-y-4 text-sm text-gray-700">
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">일반 설명</h3>

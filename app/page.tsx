@@ -509,9 +509,9 @@ function HomePageContent() {
                   type="date"
                   value={analysisDate}
                   disabled
-                  className="w-full sm:max-w-xs bg-gray-50 text-gray-700 cursor-not-allowed"
+                  className="w-full sm:max-w-xs bg-gray-50 text-base text-gray-700 cursor-not-allowed min-h-[44px] sm:min-h-0"
                 />
-                <span className="text-xs sm:text-sm text-gray-500 whitespace-nowrap">
+                <span className="text-sm text-gray-500 whitespace-nowrap">
                   (변경 불가)
                 </span>
               </div>
@@ -546,10 +546,10 @@ function HomePageContent() {
                         type="button"
                         onClick={() => setHistoricalPeriod(p)}
                         disabled={isLoading}
-                        className={`px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm rounded-md font-medium transition-colors ${
+                        className={`min-h-[44px] sm:min-h-0 px-3 sm:px-3 py-2.5 sm:py-2 text-sm rounded-md font-medium transition-colors touch-manipulation ${
                           historicalPeriod === p
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                            ? "bg-primary text-primary-foreground active:bg-primary/80"
+                            : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 active:bg-gray-100"
                         }`}
                       >
                         {labels[p]}
@@ -589,10 +589,10 @@ function HomePageContent() {
                         type="button"
                         onClick={() => setPeriod(p)}
                         disabled={isLoading}
-                        className={`px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm rounded-md font-medium transition-colors ${
+                        className={`min-h-[44px] sm:min-h-0 px-3 sm:px-3 py-2.5 sm:py-2 text-sm rounded-md font-medium transition-colors touch-manipulation ${
                           period === p
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                            ? "bg-primary text-primary-foreground active:bg-primary/80"
+                            : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 active:bg-gray-100"
                         }`}
                       >
                         {labels[p]}
@@ -912,7 +912,7 @@ function HomePageContent() {
                 type="button"
                 variant="outline"
                 onClick={() => setShowLoginAlert(false)}
-                className="min-w-[80px]"
+                className="min-w-[80px] min-h-[44px] sm:min-h-0 touch-manipulation"
               >
                 취소
               </Button>
@@ -922,7 +922,7 @@ function HomePageContent() {
                   // 로그인 버튼으로 스크롤 및 하이라이트 효과
                   window.dispatchEvent(new Event("highlightLogin"));
                 }}
-                className="min-w-[100px] bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-md"
+                className="min-w-[100px] min-h-[44px] sm:min-h-0 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 active:from-blue-700 active:to-blue-800 shadow-md touch-manipulation"
               >
                 로그인하기
               </Button>

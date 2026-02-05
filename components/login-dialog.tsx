@@ -164,14 +164,14 @@ export function LoginDialog({ open, onOpenChange, highlight = false }: LoginDial
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
-              className="min-w-[80px]"
+              className="min-w-[80px] min-h-[44px] sm:min-h-0 touch-manipulation"
             >
               취소
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={isSubmitting}
-              className="min-w-[100px] bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-md"
+              className="min-w-[100px] min-h-[44px] sm:min-h-0 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 active:from-blue-700 active:to-blue-800 shadow-md touch-manipulation"
             >
               {isSubmitting ? (
                 <span className="flex items-center gap-2">
