@@ -53,6 +53,7 @@ export function Navigation() {
 
   const navLinks = [
     { href: '/', label: '분석' },
+    { href: '/history', label: '히스토리' },
     { href: '/metrics', label: '메트릭' },
     { href: '/alerts', label: '알림' },
     { href: '/settings', label: '설정' },
