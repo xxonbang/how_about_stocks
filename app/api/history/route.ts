@@ -6,6 +6,63 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { desc, lt, or, sql } from 'drizzle-orm';
+import { readFile } from 'fs/promises';
+import { join } from 'path';
+
+// --- 종목명 조회 ---
+
+interface SymbolData {
+  code: string;
+  name: string;
+  market: string;
+  country: 'KR' | 'US';
+}
+
+interface SymbolsJSON {
+  korea: { stocks: SymbolData[] };
+  us: { stocks: SymbolData[] };
+}
+
+let cachedSymbolMap: Map<string, string> | null = null;
+
+async function getStockNameMap(): Promise<Map<string, string>> {
+  if (cachedSymbolMap) return cachedSymbolMap;
+
+  try {
+    const symbolsPath = join(process.cwd(), 'public', 'data', 'symbols.json');
+    const fileContent = await readFile(symbolsPath, 'utf-8');
+    const data: SymbolsJSON = JSON.parse(fileContent);
+
+    const map = new Map<string, string>();
+    for (const stock of data.korea.stocks) {
+      map.set(stock.code, stock.name);
+    }
+    for (const stock of data.us.stocks) {
+      map.set(stock.code, stock.name);
+    }
+
+    cachedSymbolMap = map;
+    return map;
+  } catch (error) {
+    console.error('[History] Failed to load symbols.json:', error);
+    return new Map();
+  }
+}
+
+function resolveStockNames(
+  allStocks: string[],
+  nameMap: Map<string, string>
+): Record<string, string> {
+  const result: Record<string, string> = {};
+  for (const symbol of allStocks) {
+    const rawCode = symbol.replace(/\.(KS|KQ)$/, '');
+    const name = nameMap.get(rawCode);
+    if (name) {
+      result[symbol] = name;
+    }
+  }
+  return result;
+}
 
 /**
  * 30일 이상 된 히스토리 삭제 (retention policy)
@@ -109,14 +166,19 @@ export async function GET(request: NextRequest) {
       .from(analysisHistory);
     const total = Number(countResult[0]?.count || 0);
 
+    // 종목명 조회: 모든 히스토리의 종목코드를 수집하여 일괄 매핑
+    const allStocks = [...new Set(history.flatMap((h) => h.stocks as string[]))];
+    const nameMap = await getStockNameMap();
+    const stockNames = resolveStockNames(allStocks, nameMap);
+
     return NextResponse.json({
       success: true,
       data: {
         history: history.map((h) => ({
           ...h,
-          // results는 상세 조회 시에만 반환 (목록에서는 제외)
           createdAt: h.createdAt?.toISOString(),
         })),
+        stockNames,
         total,
         hasMore,
       },

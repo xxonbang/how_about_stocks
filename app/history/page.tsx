@@ -25,6 +25,7 @@ interface HistoryResponse {
   success: boolean;
   data?: {
     history: HistoryListItem[];
+    stockNames: Record<string, string>;
     total: number;
     hasMore: boolean;
   };
@@ -48,6 +49,7 @@ export default function HistoryPage() {
   const [offset, setOffset] = useState(0);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [viewingId, setViewingId] = useState<string | null>(null);
+  const [stockNames, setStockNames] = useState<Record<string, string>>({});
 
   const LIMIT = 20;
 
@@ -75,8 +77,10 @@ export default function HistoryPage() {
       if (data.success && data.data) {
         if (reset) {
           setHistory(data.data.history);
+          setStockNames(data.data.stockNames ?? {});
         } else {
           setHistory((prev) => [...prev, ...data.data!.history]);
+          setStockNames((prev) => ({ ...prev, ...(data.data!.stockNames ?? {}) }));
         }
         setHasMore(data.data.hasMore);
         setTotal(data.data.total);
@@ -259,7 +263,9 @@ export default function HistoryPage() {
                               key={stock}
                               className="px-2 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded"
                             >
-                              {stock}
+                              {stockNames[stock]
+                                ? `${stockNames[stock]} (${stock.replace(/\.(KS|KQ)$/, '')})`
+                                : stock}
                             </span>
                           ))}
                         </div>
