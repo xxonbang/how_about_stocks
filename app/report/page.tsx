@@ -21,6 +21,7 @@ import { StochasticChart } from "@/components/charts/stochastic-chart";
 import { transformToChartData } from "@/lib/chart-utils";
 import { IndicatorInfoButton } from "@/components/indicator-info-button";
 import { LegendTooltip } from "@/components/legend-tooltip";
+import { PDFExportButton } from "@/components/pdf-export-button";
 
 // 토큰 사용량 타입
 interface TokenUsage {
@@ -351,13 +352,22 @@ export default function ReportPage() {
               </div>
             )}
           </div>
-          <Button
-            variant="outline"
-            onClick={() => router.push("/")}
-            className="w-full sm:w-auto"
-          >
-            새 분석
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            {currentResult && (
+              <PDFExportButton
+                result={currentResult}
+                chartsContainerId="charts-container"
+                className="w-full sm:w-auto"
+              />
+            )}
+            <Button
+              variant="outline"
+              onClick={() => router.push("/")}
+              className="w-full sm:w-auto"
+            >
+              새 분석
+            </Button>
+          </div>
         </div>
 
         {/* Admin 전용: 토큰 사용량 정보 - 모바일 최적화 */}
@@ -1651,7 +1661,7 @@ export default function ReportPage() {
 
         {/* 차트 섹션 */}
         {chartData && chartData.length > 0 && (
-          <div className="space-y-4 sm:space-y-6 mb-4 sm:mb-6">
+          <div id="charts-container" className="space-y-4 sm:space-y-6 mb-4 sm:mb-6">
             {/* 주가 차트 (이동평균선) */}
             {marketData.movingAverages && (
               <Card>
