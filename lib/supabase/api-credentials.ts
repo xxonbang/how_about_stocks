@@ -8,7 +8,7 @@
 import { supabaseServer, isSupabaseServerEnabled } from './server';
 
 export type ServiceName = 'kis' | 'finnhub' | 'twelvedata' | 'fmp' | 'gemini' | 'publicdata';
-export type CredentialType = 'app_key' | 'app_secret' | 'api_key' | 'account_no' | 'api_key_1' | 'api_key_2' | 'api_key_3';
+export type CredentialType = 'app_key' | 'app_secret' | 'api_key' | 'account_no' | 'api_key_1' | 'api_key_2' | 'api_key_3' | 'access_token';
 export type Environment = 'production' | 'development' | 'test';
 
 interface ApiCredential {
@@ -135,16 +135,21 @@ export async function getKISCredentials(): Promise<{
   appSecret: string;
   accountNo?: string;
 } | null> {
-  const credentials = await getServiceCredentials('kis');
+  // 개별 키만 조회 (access_token 등 불필요한 데이터 로드 방지)
+  const [appKey, appSecret, accountNo] = await Promise.all([
+    getApiCredential('kis', 'app_key'),
+    getApiCredential('kis', 'app_secret'),
+    getApiCredential('kis', 'account_no'),
+  ]);
 
-  if (!credentials.app_key || !credentials.app_secret) {
+  if (!appKey || !appSecret) {
     return null;
   }
 
   return {
-    appKey: credentials.app_key,
-    appSecret: credentials.app_secret,
-    accountNo: credentials.account_no,
+    appKey,
+    appSecret,
+    accountNo: accountNo ?? undefined,
   };
 }
 
@@ -154,39 +159,51 @@ export async function getKISCredentials(): Promise<{
  * @param serviceName - 서비스 이름
  * @param credentialType - 인증 타입
  * @param credentialValue - 인증 값
- * @param description - 설명 (선택)
- * @param environment - 환경
+ * @param options - 추가 옵션 (description, environment, expiresAt)
  * @returns 성공 여부
  */
 export async function setApiCredential(
   serviceName: ServiceName,
   credentialType: CredentialType,
   credentialValue: string,
-  description?: string,
+  descriptionOrOptions?: string | {
+    description?: string;
+    environment?: Environment;
+    expiresAt?: string;  // ISO 8601 — DB expires_at 컬럼에 저장
+  },
   environment: Environment = 'production'
 ): Promise<boolean> {
+  // 기존 호환: 4번째 인자가 string이면 description으로 처리
+  const opts = typeof descriptionOrOptions === 'string'
+    ? { description: descriptionOrOptions, environment, expiresAt: undefined }
+    : { environment, ...descriptionOrOptions };
+
   if (!isSupabaseServerEnabled() || !supabaseServer) {
     console.warn('[ApiCredentials] Supabase not configured');
     return false;
   }
 
   try {
+    const upsertData: Record<string, unknown> = {
+      service_name: serviceName,
+      credential_type: credentialType,
+      credential_value: credentialValue,
+      environment: opts.environment ?? environment,
+      description: opts.description || null,
+      is_active: true,
+      updated_at: new Date().toISOString(),
+    };
+
+    // expires_at이 제공되면 DB 컬럼에 저장 (DB 레벨 만료 필터링 활용)
+    if (opts.expiresAt) {
+      upsertData.expires_at = opts.expiresAt;
+    }
+
     const { error } = await supabaseServer
       .from('api_credentials')
-      .upsert(
-        {
-          service_name: serviceName,
-          credential_type: credentialType,
-          credential_value: credentialValue,
-          environment,
-          description: description || null,
-          is_active: true,
-          updated_at: new Date().toISOString(),
-        },
-        {
-          onConflict: 'service_name,credential_type,environment',
-        }
-      );
+      .upsert(upsertData, {
+        onConflict: 'service_name,credential_type,environment',
+      });
 
     if (error) {
       console.error(`[ApiCredentials] Upsert error:`, error);
@@ -198,6 +215,49 @@ export async function setApiCredential(
   } catch (error) {
     console.error(`[ApiCredentials] Failed to set ${serviceName}/${credentialType}:`, error);
     return false;
+  }
+}
+
+/**
+ * 유효한 토큰 조회 (DB 레벨 만료 필터링)
+ *
+ * expires_at 컬럼을 사용하여 DB 쿼리 레벨에서 만료된 토큰을 필터링.
+ * JSON 파싱 없이 유효한 토큰만 반환.
+ */
+export async function getValidToken(
+  serviceName: ServiceName,
+  environment: Environment = 'production'
+): Promise<{ credentialValue: string; expiresAt: string } | null> {
+  if (!isSupabaseServerEnabled() || !supabaseServer) {
+    return null;
+  }
+
+  try {
+    const { data, error } = await supabaseServer
+      .from('api_credentials')
+      .select('credential_value, expires_at')
+      .eq('service_name', serviceName)
+      .eq('credential_type', 'access_token')
+      .eq('environment', environment)
+      .eq('is_active', true)
+      .gt('expires_at', new Date().toISOString())
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') return null; // 결과 없음
+      console.error(`[ApiCredentials] getValidToken error:`, error);
+      return null;
+    }
+
+    if (!data?.credential_value || !data?.expires_at) return null;
+
+    return {
+      credentialValue: data.credential_value,
+      expiresAt: data.expires_at,
+    };
+  } catch (error) {
+    console.error(`[ApiCredentials] getValidToken failed:`, error);
+    return null;
   }
 }
 

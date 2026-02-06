@@ -109,8 +109,12 @@ async function saveKISCredentialsToSupabase(appKey: string, appSecret: string): 
 
 /**
  * KIS API 키로 토큰 발급 테스트 (키 유효성 검증)
+ * 발급받은 토큰을 반환하여 재활용 (토큰 낭비 방지)
  */
-async function validateKISCredentialsWithToken(appKey: string, appSecret: string): Promise<boolean> {
+async function validateKISCredentialsWithToken(
+  appKey: string,
+  appSecret: string
+): Promise<CachedTokenData | null> {
   try {
     const response = await axios.post<KISTokenResponse>(
       `${KIS_BASE_URL}/oauth2/tokenP`,
@@ -126,15 +130,21 @@ async function validateKISCredentialsWithToken(appKey: string, appSecret: string
     );
 
     if (response.data?.access_token) {
-      return true;
+      const { access_token, expires_in } = response.data;
+      const now = Date.now();
+      return {
+        token: access_token,
+        expiresAt: now + expires_in * 1000,
+        issuedAt: now,
+      };
     }
 
-    return false;
+    return null;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.warn('[KIS] 키 검증 실패:', error.response?.data?.error_description || error.message);
     }
-    return false;
+    return null;
   }
 }
 
@@ -157,17 +167,23 @@ async function getKISCredentials(): Promise<KISCredentials> {
   const supabaseCredentials = await getKISCredentialsFromSupabase();
 
   if (supabaseCredentials) {
-    // 2. Supabase 키 유효성 검증
+    // 2. Supabase 키 유효성 검증 (발급된 토큰을 캐시에 저장하여 재활용)
     console.log('[KIS] Supabase 키 유효성 검증 중...');
-    const isValid = await validateKISCredentialsWithToken(
+    const tokenResult = await validateKISCredentialsWithToken(
       supabaseCredentials.appKey,
       supabaseCredentials.appSecret
     );
 
-    if (isValid) {
-      console.log('[KIS] Supabase 키 유효 - 사용');
+    if (tokenResult) {
+      console.log('[KIS] Supabase 키 유효 - 사용 (검증 토큰 캐시 저장)');
       cachedCredentials = supabaseCredentials;
       credentialsValidated = true;
+
+      // 검증 시 발급받은 토큰을 모든 캐시 계층에 저장 (토큰 낭비 방지)
+      cachedToken = tokenResult;
+      saveTokenToFile(tokenResult);
+      saveTokenToSupabase(tokenResult);
+
       return supabaseCredentials;
     }
 
@@ -181,20 +197,25 @@ async function getKISCredentials(): Promise<KISCredentials> {
     throw new Error('KIS API 키가 설정되지 않았습니다. (Supabase 및 환경변수 모두 없음)');
   }
 
-  // 4. 환경변수 키 유효성 검증
+  // 4. 환경변수 키 유효성 검증 (발급된 토큰을 캐시에 저장하여 재활용)
   console.log('[KIS] 환경변수 키 유효성 검증 중...');
-  const isEnvValid = await validateKISCredentialsWithToken(
+  const envTokenResult = await validateKISCredentialsWithToken(
     envCredentials.appKey,
     envCredentials.appSecret
   );
 
-  if (!isEnvValid) {
+  if (!envTokenResult) {
     throw new Error('KIS API 키가 유효하지 않습니다. (환경변수 키도 무효)');
   }
 
-  console.log('[KIS] 환경변수 키 유효 - 사용');
+  console.log('[KIS] 환경변수 키 유효 - 사용 (검증 토큰 캐시 저장)');
   cachedCredentials = envCredentials;
   credentialsValidated = true;
+
+  // 검증 시 발급받은 토큰을 모든 캐시 계층에 저장
+  cachedToken = envTokenResult;
+  saveTokenToFile(envTokenResult);
+  saveTokenToSupabase(envTokenResult);
 
   // 5. Supabase에 유효한 키 저장/갱신 (비동기, 실패해도 무시)
   if (!supabaseCredentials || supabaseCredentials.appKey !== envCredentials.appKey) {
@@ -238,8 +259,15 @@ function getTokenCachePath(): { dir: string; file: string } {
 
 const { dir: TOKEN_CACHE_DIR, file: TOKEN_CACHE_FILE } = getTokenCachePath();
 
+// 토큰 캐시 데이터 구조
+interface CachedTokenData {
+  token: string;
+  expiresAt: number;   // Unix ms — 토큰 만료 시점
+  issuedAt: number;    // Unix ms — 토큰 발급 시점 (Rate Limit 체크용)
+}
+
 // 메모리 캐시 (파일 읽기 최소화, 가장 빠른 캐시)
-let cachedToken: { token: string; expiresAt: number } | null = null;
+let cachedToken: CachedTokenData | null = null;
 
 // 파일 캐시 사용 가능 여부 (한 번 실패하면 비활성화)
 let fileCacheEnabled = true;
@@ -247,7 +275,7 @@ let fileCacheEnabled = true;
 /**
  * 파일에서 토큰 로드 (서버 재시작 시 복원)
  */
-function loadTokenFromFile(): { token: string; expiresAt: number } | null {
+function loadTokenFromFile(): CachedTokenData | null {
   if (!fileCacheEnabled) return null;
 
   try {
@@ -257,14 +285,17 @@ function loadTokenFromFile(): { token: string; expiresAt: number } | null {
       if (data.expiresAt > Date.now() + 10 * 60 * 1000) {
         const remainingMinutes = Math.round((data.expiresAt - Date.now()) / 1000 / 60);
         console.log(`[KIS] 파일에서 토큰 복원 성공 (만료까지 ${remainingMinutes}분, 경로: ${TOKEN_CACHE_FILE})`);
-        return data;
+        return {
+          token: data.token,
+          expiresAt: data.expiresAt,
+          issuedAt: data.issuedAt ?? 0,  // 이전 형식 호환
+        };
       } else {
         console.log('[KIS] 저장된 토큰이 만료됨');
       }
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    // 읽기 전용 파일시스템 등의 오류 시 파일 캐시 비활성화
     if (message.includes('ENOENT') === false) {
       console.warn(`[KIS] 토큰 파일 로드 실패 (파일 캐시 비활성화): ${message}`);
       fileCacheEnabled = false;
@@ -276,25 +307,101 @@ function loadTokenFromFile(): { token: string; expiresAt: number } | null {
 /**
  * 토큰을 파일에 저장 (서버 재시작 대비)
  */
-function saveTokenToFile(token: string, expiresAt: number): void {
+function saveTokenToFile(tokenData: CachedTokenData): void {
   if (!fileCacheEnabled) {
     console.log('[KIS] 파일 캐시 비활성화 상태 - 메모리 캐시만 사용');
     return;
   }
 
   try {
-    // 캐시 디렉토리 생성
     if (!existsSync(TOKEN_CACHE_DIR)) {
       mkdirSync(TOKEN_CACHE_DIR, { recursive: true });
     }
-    writeFileSync(TOKEN_CACHE_FILE, JSON.stringify({ token, expiresAt }), 'utf-8');
+    writeFileSync(TOKEN_CACHE_FILE, JSON.stringify(tokenData), 'utf-8');
     console.log(`[KIS] 토큰 파일 저장 완료 (경로: ${TOKEN_CACHE_FILE})`);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.warn(`[KIS] 토큰 파일 저장 실패 (파일 캐시 비활성화): ${message}`);
-    // 쓰기 실패 시 파일 캐시 비활성화 (읽기 전용 파일시스템 등)
     fileCacheEnabled = false;
   }
+}
+
+// ========== Supabase 토큰 캐시 (서버리스 인스턴스간 공유) ==========
+
+/**
+ * Supabase에서 유효 토큰 로드 (DB 레벨 만료 필터링)
+ *
+ * DB의 expires_at 컬럼으로 만료 토큰을 쿼리 시점에 필터링.
+ * 서버리스 환경(Vercel)에서 메모리/파일 캐시가 초기화되어도 토큰 재사용 가능.
+ */
+async function loadTokenFromSupabase(): Promise<CachedTokenData | null> {
+  try {
+    const { getValidToken } = await import('./supabase/api-credentials');
+    const result = await getValidToken('kis');
+
+    if (!result) return null;
+
+    // 표준화된 JSON 형식: { access_token, expires_at (ISO), issued_at (ISO) }
+    const parsed: {
+      access_token: string;
+      expires_at: string;
+      issued_at: string;
+    } = JSON.parse(result.credentialValue);
+
+    if (!parsed.access_token) return null;
+
+    const expiresAt = new Date(parsed.expires_at).getTime();
+    const issuedAt = new Date(parsed.issued_at).getTime();
+
+    // 추가 안전 체크: 만료 10분 전까지만 사용
+    if (expiresAt <= Date.now() + 10 * 60 * 1000) {
+      console.log('[KIS] Supabase 토큰 만료 임박 - 재발급 필요');
+      return null;
+    }
+
+    const remainingMinutes = Math.round((expiresAt - Date.now()) / 1000 / 60);
+    console.log(`[KIS] Supabase에서 토큰 복원 성공 (만료까지 ${remainingMinutes}분)`);
+
+    return { token: parsed.access_token, expiresAt, issuedAt };
+  } catch (error) {
+    console.warn('[KIS] Supabase 토큰 로드 실패:', error instanceof Error ? error.message : error);
+    return null;
+  }
+}
+
+/**
+ * Supabase에 토큰 저장 (비동기, fire-and-forget)
+ *
+ * 표준화된 JSON 형식으로 저장:
+ * { access_token, expires_at (ISO), issued_at (ISO) }
+ *
+ * DB expires_at 컬럼에도 만료시간 저장 → DB 레벨 만료 필터링 가능
+ */
+function saveTokenToSupabase(tokenData: CachedTokenData): void {
+  const expiresAtISO = new Date(tokenData.expiresAt).toISOString();
+  const issuedAtISO = new Date(tokenData.issuedAt).toISOString();
+
+  import('./supabase/api-credentials')
+    .then(({ setApiCredential }) => {
+      const credentialValue = JSON.stringify({
+        access_token: tokenData.token,
+        expires_at: expiresAtISO,
+        issued_at: issuedAtISO,
+      });
+
+      return setApiCredential('kis', 'access_token', credentialValue, {
+        description: 'KIS OAuth Access Token (자동 갱신)',
+        expiresAt: expiresAtISO,  // DB expires_at 컬럼에 저장
+      });
+    })
+    .then((saved) => {
+      if (saved) {
+        console.log('[KIS] Supabase에 토큰 캐시 저장 완료');
+      }
+    })
+    .catch(() => {
+      // Supabase 저장 실패해도 동작에 영향 없음
+    });
 }
 
 /**
@@ -302,6 +409,13 @@ function saveTokenToFile(token: string, expiresAt: number): void {
  */
 function invalidateTokenCache(): void {
   cachedToken = null;
+
+  // Supabase 토큰 캐시 비활성화 (is_active = false)
+  import('./supabase/api-credentials')
+    .then(({ deactivateApiCredential }) => {
+      return deactivateApiCredential('kis', 'access_token');
+    })
+    .catch(() => {});
 
   if (!fileCacheEnabled) return;
 
@@ -438,21 +552,31 @@ interface KISDailyPriceResponse {
 
 // ========== 토큰 관리 ==========
 
+// 토큰 재발급 제한 (23시간 버퍼 — KIS 1일 1회 권장)
+const TOKEN_REFRESH_MIN_INTERVAL_MS = 23 * 60 * 60 * 1000;
+
+/**
+ * 토큰 재발급 가능 여부 확인 (Rate Limit 보호)
+ * KIS API는 토큰 발급을 1일 1회 권장하므로, 23시간 이내 재발급을 차단
+ */
+function canRefreshToken(): boolean {
+  if (!cachedToken || cachedToken.issuedAt === 0) return true;
+  return Date.now() - cachedToken.issuedAt >= TOKEN_REFRESH_MIN_INTERVAL_MS;
+}
+
 /**
  * OAuth 접근 토큰 발급
  *
  * 캐시 우선순위:
  * 1. 메모리 캐시 (가장 빠름, 프로세스 내 유지)
- * 2. 파일 캐시 (서버 재시작 후 복원, /tmp 또는 .cache)
- * 3. API 호출 (마지막 수단, 1일 1회 권장)
+ * 2. Supabase 캐시 (중앙 집중식 진실의 원천, 인스턴스간 공유)
+ * 3. 파일 캐시 (Supabase 장애 시 폴백, /tmp 또는 .cache)
+ * 4. getKISCredentials 검증 시 발급된 토큰 (자동 캐시됨)
+ * 5. API 호출 (마지막 수단, 1일 1회 권장 — 23시간 Rate Limit 적용)
  *
  * 키 조회 우선순위:
  * 1. Supabase api_credentials 테이블
  * 2. 환경변수 (KIS_APP_KEY, KIS_APP_SECRET)
- *
- * 환경별 동작:
- * - 로컬: .cache/kis-token.json (영구 보존)
- * - Render/Vercel: /tmp/kis-cache/kis-token.json (컨테이너 수명 동안 유지)
  */
 async function getAccessToken(): Promise<string> {
   // 1. 메모리 캐시 확인 (만료 10분 전까지 사용)
@@ -460,16 +584,41 @@ async function getAccessToken(): Promise<string> {
     return cachedToken.token;
   }
 
-  // 2. 파일 캐시에서 복원 시도 (서버 재시작 후)
+  // 2. Supabase 토큰 캐시 확인 (중앙 집중식 — 다른 환경에서 발급한 토큰도 재사용)
+  const supabaseToken = await loadTokenFromSupabase();
+  if (supabaseToken) {
+    cachedToken = supabaseToken;
+    saveTokenToFile(supabaseToken);
+    return supabaseToken.token;
+  }
+
+  // 3. 파일 캐시에서 복원 시도 (Supabase 장애 시 폴백)
   const fileToken = loadTokenFromFile();
   if (fileToken) {
     cachedToken = fileToken;
     return fileToken.token;
   }
 
-  // 3. KIS 키 조회 (Supabase 우선, 환경변수 Fallback)
+  // 4. KIS 키 조회 (Supabase 우선, 환경변수 Fallback)
+  //    getKISCredentials 내부에서 검증 시 발급된 토큰이 cachedToken에 저장될 수 있음
   const credentials = await getKISCredentials();
 
+  // 4-1. 검증 과정에서 이미 토큰이 캐시되었는지 확인
+  if (cachedToken && cachedToken.expiresAt > Date.now() + 10 * 60 * 1000) {
+    console.log('[KIS] 키 검증 시 발급된 토큰 재사용');
+    return cachedToken.token;
+  }
+
+  // 5. Rate Limit 체크 (23시간 이내 재발급 차단)
+  if (!canRefreshToken()) {
+    const nextRefreshMs = TOKEN_REFRESH_MIN_INTERVAL_MS - (Date.now() - (cachedToken?.issuedAt ?? 0));
+    const nextRefreshHours = Math.round(nextRefreshMs / 1000 / 60 / 60 * 10) / 10;
+    throw new Error(
+      `KIS 토큰 재발급 불가: 1일 1회 제한 (${nextRefreshHours}시간 후 재시도 가능)`
+    );
+  }
+
+  // 6. 새 토큰 발급 (마지막 수단)
   const env = process.env.NODE_ENV || 'development';
   const cacheMode = fileCacheEnabled ? `파일(${TOKEN_CACHE_FILE})` : '메모리만';
   console.log(`[KIS] 새 토큰 발급 요청... (환경: ${env}, 키 소스: ${credentials.source}, 캐시: ${cacheMode})`);
@@ -491,16 +640,17 @@ async function getAccessToken(): Promise<string> {
     );
 
     const { access_token, expires_in } = response.data;
-    const expiresAt = Date.now() + expires_in * 1000;
-
-    // 메모리 캐시 저장
-    cachedToken = {
+    const now = Date.now();
+    const newToken: CachedTokenData = {
       token: access_token,
-      expiresAt,
+      expiresAt: now + expires_in * 1000,
+      issuedAt: now,
     };
 
-    // 파일 캐시 저장 (서버 재시작 대비)
-    saveTokenToFile(access_token, expiresAt);
+    // 모든 캐시 계층에 저장
+    cachedToken = newToken;
+    saveTokenToFile(newToken);
+    saveTokenToSupabase(newToken);
 
     const expiresInHours = Math.round(expires_in / 3600);
     console.log(`[KIS] 새 접근 토큰 발급 완료 (유효기간: ${expiresInHours}시간)`);
