@@ -61,8 +61,8 @@ export function Navigation() {
 
   const showDualSource = username === 'xxonbang' && (pathname === '/report' || pathname === '/dual-source-validation');
 
-  // 로그인 페이지에서는 Navigation 숨김
-  if (pathname === '/login') {
+  // 로그인/회원가입 페이지에서는 Navigation 숨김
+  if (pathname === '/login' || pathname === '/signup') {
     return null;
   }
 

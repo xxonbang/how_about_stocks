@@ -10,12 +10,17 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { INACTIVITY_TIMEOUT_MS, ONE_MINUTE_MS } from './constants';
+import { createClient } from '@/lib/supabase/client';
+
+type OAuthProvider = 'google' | 'github' | 'kakao';
 
 interface AuthContextType {
   isAuthenticated: boolean;
   username: string | null;
   isLoading: boolean;
-  login: (username: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signup: (email: string, password: string, username: string) => Promise<{ success: boolean; error?: string }>;
+  loginWithOAuth: (provider: OAuthProvider) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   updateLastActivity: () => void;
 }
@@ -25,7 +30,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const INACTIVITY_TIMEOUT = INACTIVITY_TIMEOUT_MS;
 const CHECK_INTERVAL = ONE_MINUTE_MS;
 const LAST_ACTIVITY_KEY = 'lastActivityTime';
-const USERNAME_KEY = 'authenticatedUsername';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -36,6 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const checkIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const activityListenersRef = useRef<boolean>(false);
+  const supabaseRef = useRef(createClient());
 
   const updateLastActivity = useCallback(() => {
     if (typeof window !== 'undefined' && isAuthenticated) {
@@ -45,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const handleAutoLogout = useCallback(async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
+      await supabaseRef.current.auth.signOut();
     } catch (error) {
       console.error('Logout error:', error);
     }
@@ -53,7 +58,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsAuthenticated(false);
     setUsername(null);
     if (typeof window !== 'undefined') {
-      localStorage.removeItem(USERNAME_KEY);
       localStorage.removeItem(LAST_ACTIVITY_KEY);
     }
 
@@ -82,16 +86,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [isAuthenticated, updateLastActivity, handleAutoLogout]);
 
-  // 초기 인증 상태 확인 (서버에서 쿠키 검증)
+  // 초기 인증 상태 확인 + onAuthStateChange 리스너
   useEffect(() => {
+    const supabase = supabaseRef.current;
+
     const checkAuthStatus = async () => {
       try {
-        const response = await fetch('/api/auth/status');
-        const data = await response.json();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
 
-        if (data.authenticated) {
+        if (user) {
           setIsAuthenticated(true);
-          setUsername(data.username || localStorage.getItem(USERNAME_KEY));
+          setUsername(
+            (user.user_metadata?.username as string) ?? user.email ?? null
+          );
           updateLastActivity();
         } else {
           setIsAuthenticated(false);
@@ -106,6 +115,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     checkAuthStatus();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setIsAuthenticated(true);
+        setUsername(
+          (session.user.user_metadata?.username as string) ??
+            session.user.email ??
+            null
+        );
+      } else {
+        setIsAuthenticated(false);
+        setUsername(null);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [updateLastActivity]);
 
   // 사용자 활동 감지 이벤트 리스너
@@ -156,38 +185,73 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [isAuthenticated, checkInactivity]);
 
-  const login = async (inputUsername: string, password: string): Promise<{ success: boolean; error?: string }> => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username: inputUsername, password }),
+      const { error } = await supabaseRef.current.auth.signInWithPassword({
+        email,
+        password,
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setIsAuthenticated(true);
-        setUsername(inputUsername);
-        if (typeof window !== 'undefined') {
-          localStorage.setItem(USERNAME_KEY, inputUsername);
-          updateLastActivity();
-        }
-        return { success: true };
-      } else {
-        return { success: false, error: data.error || '로그인에 실패했습니다.' };
+      if (error) {
+        return { success: false, error: error.message };
       }
+
+      updateLastActivity();
+      return { success: true };
     } catch (error) {
       console.error('Login error:', error);
       return { success: false, error: '서버 오류가 발생했습니다.' };
     }
   };
 
+  const signup = async (email: string, password: string, usernameInput: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const { error } = await supabaseRef.current.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            username: usernameInput,
+            role: 'user',
+          },
+        },
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      updateLastActivity();
+      return { success: true };
+    } catch (error) {
+      console.error('Signup error:', error);
+      return { success: false, error: '서버 오류가 발생했습니다.' };
+    }
+  };
+
+  const loginWithOAuth = async (provider: OAuthProvider): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const { error } = await supabaseRef.current.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error('OAuth login error:', error);
+      return { success: false, error: '소셜 로그인 중 오류가 발생했습니다.' };
+    }
+  };
+
   const logout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
+      await supabaseRef.current.auth.signOut();
     } catch (error) {
       console.error('Logout error:', error);
     }
@@ -195,14 +259,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsAuthenticated(false);
     setUsername(null);
     if (typeof window !== 'undefined') {
-      localStorage.removeItem(USERNAME_KEY);
       localStorage.removeItem(LAST_ACTIVITY_KEY);
     }
     router.push('/login');
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, username, isLoading, login, logout, updateLastActivity }}>
+    <AuthContext.Provider value={{ isAuthenticated, username, isLoading, login, signup, loginWithOAuth, logout, updateLastActivity }}>
       {children}
       {showTimeoutDialog && (
         <AutoLogoutDialog

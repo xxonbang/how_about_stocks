@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Dialog,
   DialogContent,
@@ -18,12 +19,13 @@ interface LoginDialogProps {
 }
 
 export function LoginDialog({ open, onOpenChange, highlight = false }: LoginDialogProps) {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { login } = useAuth();
-  const usernameInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+  const emailInputRef = useRef<HTMLInputElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
 
   // 하이라이트 효과
@@ -41,9 +43,9 @@ export function LoginDialog({ open, onOpenChange, highlight = false }: LoginDial
 
   // 다이얼로그가 열릴 때 포커스
   useEffect(() => {
-    if (open && usernameInputRef.current) {
+    if (open && emailInputRef.current) {
       setTimeout(() => {
-        usernameInputRef.current?.focus();
+        emailInputRef.current?.focus();
       }, 100);
     }
   }, [open]);
@@ -54,13 +56,12 @@ export function LoginDialog({ open, onOpenChange, highlight = false }: LoginDial
     setIsSubmitting(true);
 
     try {
-      const result = await login(username, password);
+      const result = await login(email, password);
       if (result.success) {
         onOpenChange(false);
-        setUsername('');
+        setEmail('');
         setPassword('');
-        // Full page reload로 쿠키 적용
-        window.location.reload();
+        router.refresh();
       } else {
         setError(result.error || '아이디 또는 비밀번호가 올바르지 않습니다.');
       }
@@ -102,19 +103,19 @@ export function LoginDialog({ open, onOpenChange, highlight = false }: LoginDial
         </DialogHeader>
         <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-5">
           <div className="space-y-2">
-            <label 
-              htmlFor="username" 
+            <label
+              htmlFor="email"
               className="text-sm font-semibold text-gray-700 block"
             >
-              아이디
+              이메일
             </label>
             <Input
-              ref={usernameInputRef}
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="아이디를 입력하세요"
+              ref={emailInputRef}
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="이메일을 입력하세요"
               required
               disabled={isSubmitting}
               className="h-11 transition-all focus:ring-2 focus:ring-blue-500"

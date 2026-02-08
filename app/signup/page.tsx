@@ -6,12 +6,14 @@ import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { OAuthButtons, OAuthDivider } from '@/components/oauth-buttons';
 
-function LoginForm() {
+function SignupForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login, isAuthenticated, isLoading } = useAuth();
+  const { signup, isAuthenticated, isLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [username, setUsername] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -26,16 +28,27 @@ function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (password !== confirmPassword) {
+      setError('비밀번호가 일치하지 않습니다.');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('비밀번호는 6자 이상이어야 합니다.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      const result = await login(email, password);
+      const result = await signup(email, password, username);
 
       if (result.success) {
         router.push(callbackUrl);
         router.refresh();
       } else {
-        setError(result.error || '로그인에 실패했습니다.');
+        setError(result.error || '회원가입에 실패했습니다.');
       }
     } catch {
       setError('서버 오류가 발생했습니다.');
@@ -57,7 +70,7 @@ function LoginForm() {
       <div className="w-full max-w-md px-4">
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl mb-4">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl mb-4">
               <svg
                 className="w-8 h-8 text-white"
                 fill="none"
@@ -68,12 +81,12 @@ function LoginForm() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
                 />
               </svg>
             </div>
             <h1 className="text-2xl font-bold text-gray-900">Stock Insight</h1>
-            <p className="text-gray-500 mt-2">관리자 로그인</p>
+            <p className="text-gray-500 mt-2">회원가입</p>
           </div>
 
           {/* TODO: OAuth 프로바이더 설정 후 활성화
@@ -81,12 +94,31 @@ function LoginForm() {
           <OAuthDivider />
           */}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
                 {error}
               </div>
             )}
+
+            <div>
+              <label
+                htmlFor="username"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                사용자명
+              </label>
+              <input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                autoComplete="username"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                placeholder="사용자명을 입력하세요"
+              />
+            </div>
 
             <div>
               <label
@@ -102,8 +134,8 @@ function LoginForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoComplete="email"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                placeholder="admin@example.com"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                placeholder="email@example.com"
               />
             </div>
 
@@ -120,16 +152,35 @@ function LoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                autoComplete="current-password"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                placeholder="********"
+                autoComplete="new-password"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                placeholder="6자 이상"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                비밀번호 확인
+              </label>
+              <input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                autoComplete="new-password"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                placeholder="비밀번호를 다시 입력하세요"
               />
             </div>
 
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-3 px-4 rounded-lg font-medium hover:from-emerald-600 hover:to-teal-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <span className="flex items-center justify-center">
@@ -152,21 +203,21 @@ function LoginForm() {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>
-                  로그인 중...
+                  가입 중...
                 </span>
               ) : (
-                '로그인'
+                '회원가입'
               )}
             </button>
           </form>
 
           <p className="mt-6 text-center text-sm text-gray-500">
-            계정이 없으신가요?{' '}
+            이미 계정이 있으신가요?{' '}
             <Link
-              href="/signup"
+              href="/login"
               className="text-blue-600 hover:text-blue-700 font-medium"
             >
-              회원가입
+              로그인
             </Link>
           </p>
         </div>
@@ -175,7 +226,7 @@ function LoginForm() {
   );
 }
 
-function LoginLoading() {
+function SignupLoading() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
@@ -183,10 +234,10 @@ function LoginLoading() {
   );
 }
 
-export default function LoginPage() {
+export default function SignupPage() {
   return (
-    <Suspense fallback={<LoginLoading />}>
-      <LoginForm />
+    <Suspense fallback={<SignupLoading />}>
+      <SignupForm />
     </Suspense>
   );
 }

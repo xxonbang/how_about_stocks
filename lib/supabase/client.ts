@@ -1,36 +1,41 @@
 /**
- * Supabase 클라이언트 인스턴스 (브라우저/클라이언트용)
+ * Supabase 브라우저 클라이언트 (Auth + 일반 용도)
  *
- * 공개 익명 키를 사용하며, RLS 정책에 따라 접근 제어됨
+ * @supabase/ssr의 createBrowserClient를 사용하여
+ * 쿠키 기반 세션 관리를 자동으로 처리함
  */
 
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+let _client: SupabaseClient | null = null;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn(
-    '[Supabase Client] Missing SUPABASE_URL or SUPABASE_ANON_KEY. Supabase features will be disabled.'
-  );
+export function createClient(): SupabaseClient {
+  if (_client) return _client;
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!url || !key) {
+    throw new Error(
+      '[Supabase Client] Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY'
+    );
+  }
+
+  _client = createBrowserClient(url, key);
+  return _client;
 }
 
 /**
- * Supabase 클라이언트 인스턴스
- * 환경변수가 없으면 null 반환
+ * 하위 호환용: 기존 코드에서 supabaseClient를 직접 참조하는 경우
  */
-export const supabaseClient: SupabaseClient | null = supabaseUrl && supabaseAnonKey
-  ? createClient(supabaseUrl, supabaseAnonKey, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-      },
-    })
-  : null;
+export const supabaseClient: SupabaseClient | null = (() => {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return null;
+  return createBrowserClient(url, key);
+})();
 
-/**
- * Supabase 클라이언트 사용 가능 여부
- */
 export const isSupabaseClientEnabled = (): boolean => {
   return supabaseClient !== null;
 };

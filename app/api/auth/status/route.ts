@@ -1,28 +1,25 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { verifyToken, AUTH_COOKIE_NAME } from '@/lib/auth';
+import { NextResponse } from 'next/server';
+import { createAuthServerClient } from '@/lib/supabase/auth-server';
 
-// 쿠키 사용으로 인한 동적 렌더링 필수
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
+    const supabase = await createAuthServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!token) {
-      return NextResponse.json({ authenticated: false }, { status: 200 });
-    }
-
-    const payload = await verifyToken(token);
-
-    if (!payload) {
+    if (!user) {
       return NextResponse.json({ authenticated: false }, { status: 200 });
     }
 
     return NextResponse.json(
       {
         authenticated: true,
-        username: payload.username,
-        role: payload.role,
+        username:
+          (user.user_metadata?.username as string) ?? user.email ?? '',
+        role: (user.user_metadata?.role as string) ?? 'user',
       },
       { status: 200 }
     );
