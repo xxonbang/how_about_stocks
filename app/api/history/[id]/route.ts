@@ -7,9 +7,66 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
+import { readFile } from 'fs/promises';
+import { join } from 'path';
 
 interface Params {
   params: Promise<{ id: string }>;
+}
+
+// --- 종목명 조회 (history/route.ts와 동일 로직) ---
+
+interface SymbolData {
+  code: string;
+  name: string;
+  market: string;
+  country: 'KR' | 'US';
+}
+
+interface SymbolsJSON {
+  korea: { stocks: SymbolData[] };
+  us: { stocks: SymbolData[] };
+}
+
+let cachedSymbolMap: Map<string, string> | null = null;
+
+async function getStockNameMap(): Promise<Map<string, string>> {
+  if (cachedSymbolMap) return cachedSymbolMap;
+
+  try {
+    const symbolsPath = join(process.cwd(), 'public', 'data', 'symbols.json');
+    const fileContent = await readFile(symbolsPath, 'utf-8');
+    const data: SymbolsJSON = JSON.parse(fileContent);
+
+    const map = new Map<string, string>();
+    for (const stock of data.korea.stocks) {
+      map.set(stock.code, stock.name);
+    }
+    for (const stock of data.us.stocks) {
+      map.set(stock.code, stock.name);
+    }
+
+    cachedSymbolMap = map;
+    return map;
+  } catch (error) {
+    console.error('[History Detail] Failed to load symbols.json:', error);
+    return new Map();
+  }
+}
+
+function resolveStockNames(
+  allStocks: string[],
+  nameMap: Map<string, string>
+): Record<string, string> {
+  const result: Record<string, string> = {};
+  for (const symbol of allStocks) {
+    const rawCode = symbol.replace(/\.(KS|KQ)$/, '');
+    const name = nameMap.get(rawCode);
+    if (name) {
+      result[symbol] = name;
+    }
+  }
+  return result;
 }
 
 export async function GET(request: NextRequest, { params }: Params) {
@@ -48,6 +105,10 @@ export async function GET(request: NextRequest, { params }: Params) {
 
     const history = result[0];
 
+    // 종목명 조회
+    const nameMap = await getStockNameMap();
+    const stockNames = resolveStockNames(history.stocks, nameMap);
+
     return NextResponse.json({
       success: true,
       data: {
@@ -62,6 +123,7 @@ export async function GET(request: NextRequest, { params }: Params) {
         dataSource: history.dataSource,
         metadata: history.metadata,
         createdAt: history.createdAt?.toISOString(),
+        stockNames,
       },
     });
   } catch (error) {

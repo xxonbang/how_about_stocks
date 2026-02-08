@@ -70,6 +70,7 @@ export interface AnalysisHistoryRow {
   results: Record<string, unknown>;
   data_source: Record<string, unknown> | null;
   metadata: Record<string, unknown>;
+  user_id: string | null;
   created_at: string;
 }
 
@@ -84,6 +85,7 @@ export interface AnalysisHistoryInsert {
   results: Record<string, unknown>;
   data_source?: Record<string, unknown> | null;
   metadata?: Record<string, unknown>;
+  user_id?: string | null;
 }
 
 // Supabase Database 타입

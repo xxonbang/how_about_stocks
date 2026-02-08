@@ -84,6 +84,8 @@ function HomePageContent() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [showLoginAlert, setShowLoginAlert] = useState(false);
+  const [showRateLimitAlert, setShowRateLimitAlert] = useState(false);
+  const [rateLimitInfo, setRateLimitInfo] = useState<{ remaining: number; limit: number } | null>(null);
 
   const addStockInput = () => {
     if (stocks.length < 5) {
@@ -334,6 +336,13 @@ function HomePageContent() {
         let errorMessage = "분석 요청에 실패했습니다.";
         try {
           const errorData = await response.json();
+          // Rate Limit 초과 (429)
+          if (response.status === 429 && errorData.rateLimited) {
+            setRateLimitInfo({ remaining: errorData.remaining, limit: errorData.limit });
+            setShowRateLimitAlert(true);
+            setIsLoading(false);
+            return;
+          }
           errorMessage = errorData.error || errorMessage;
         } catch (parseError) {
           // JSON 파싱 실패 시 기본 메시지 사용
@@ -925,6 +934,65 @@ function HomePageContent() {
                 className="min-w-[100px] min-h-[44px] sm:min-h-0 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 active:from-blue-700 active:to-blue-800 shadow-md touch-manipulation"
               >
                 로그인하기
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* 일일 분석 횟수 초과 팝업 */}
+      <Dialog open={showRateLimitAlert} onOpenChange={setShowRateLimitAlert}>
+        <DialogContent className="w-[calc(100%-2rem)] sm:w-full sm:max-w-md mx-4 sm:mx-0">
+          <DialogHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-md">
+                <svg
+                  className="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <DialogTitle className="mb-0">일일 분석 횟수 초과</DialogTitle>
+            </div>
+            <p className="text-sm text-gray-500 mt-1">
+              오늘의 분석 횟수를 모두 사용했습니다
+            </p>
+          </DialogHeader>
+          <div className="px-6 pb-6 space-y-4">
+            <div className="flex items-start gap-3 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+              <svg
+                className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <p className="text-sm text-orange-800 font-medium flex-1 leading-relaxed">
+                하루 {rateLimitInfo?.limit ?? 2}회까지 분석이 가능합니다.
+                <br />
+                내일 다시 이용하실 수 있습니다.
+              </p>
+            </div>
+            <div className="flex justify-end pt-2">
+              <Button
+                onClick={() => setShowRateLimitAlert(false)}
+                className="min-w-[100px] min-h-[44px] sm:min-h-0 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 active:from-orange-700 active:to-orange-800 shadow-md touch-manipulation"
+              >
+                확인
               </Button>
             </div>
           </div>

@@ -53,6 +53,7 @@ export const analysisHistory = pgTable('analysis_history', {
   results: jsonb('results').notNull(),
   dataSource: jsonb('data_source'),
   metadata: jsonb('metadata').default({}),
+  userId: uuid('user_id'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
 });
 

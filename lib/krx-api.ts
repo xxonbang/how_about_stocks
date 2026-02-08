@@ -442,48 +442,36 @@ export async function fetchKoreaETFInfoKRX(symbol: string): Promise<{
     );
 
     // symbol과 일치하는 ETF 찾기
-    const matchingETF = etfInfo.find((item) => item.ISU_CD === symbol);
-    
-    if (!matchingETF) {
-      // 어제 데이터로 재시도
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = yesterday.toISOString().split('T')[0].replace(/-/g, '');
-      
-      const etfInfoYesterday = await krxRequest<KRXETFDailyTradingInfo>(
-        KRX_ETF_ENDPOINT,
-        {
-          basDd: yesterdayStr, // 실제 API 파라미터명
-        }
+    // ISU_CD는 ISIN 형식(KR7396500006) 또는 단축코드(396500)일 수 있음
+    const findETF = (items: KRXETFDailyTradingInfo[]) => {
+      // 1) 정확한 ISU_CD 매칭
+      const exact = items.find((item) => item.ISU_CD === symbol);
+      if (exact) return exact;
+      // 2) ISIN 코드 내 단축코드 포함 매칭 (KR7XXXXXX... 형식)
+      const byIsin = items.find((item) =>
+        item.ISU_CD && item.ISU_CD.includes(symbol)
       );
+      if (byIsin) return byIsin;
+      // 3) ISU_SRT_CD (단축코드) 필드 매칭 (API가 지원하는 경우)
+      const byShort = items.find((item) =>
+        (item as Record<string, unknown>).ISU_SRT_CD === symbol
+      );
+      return byShort || null;
+    };
 
-      if (etfInfoYesterday.length === 0) {
-        return null;
-      }
-
-      // 어제 데이터에서도 symbol과 일치하는 ETF 찾기
-      const matchingETFYesterday = etfInfoYesterday.find((item) => item.ISU_CD === symbol);
-      if (!matchingETFYesterday) {
-        // symbol과 일치하는 ETF가 없으면 null 반환 (일반 주식일 가능성)
-        return null;
-      }
-
-      const data = matchingETFYesterday;
-      
-      // 실제 API 필드명 사용 (캡처 이미지 기반)
+    const parseETFData = (data: KRXETFDailyTradingInfo) => {
       const name = data.ISU_NM || '';
       const closePrice = data.TDD_CLSPRC || '0';
       const change = data.CMPPREVDD_PRC || '0';
       const changePercent = data.FLUC_RT || '0';
       const volume = data.ACC_TRDVOL || '0';
-      
       const nav = data.NAV ? parseFloat(String(data.NAV).replace(/,/g, '')) : undefined;
-      
-      // NAV가 없으면 일반 주식이므로 null 반환
+
       if (!nav || nav === 0) {
+        console.warn(`[KRX API] ETF ${symbol} found (${name}) but NAV is missing or 0`);
         return null;
       }
-      
+
       return {
         name,
         price: parseFloat(String(closePrice).replace(/,/g, '')) || 0,
@@ -492,31 +480,34 @@ export async function fetchKoreaETFInfoKRX(symbol: string): Promise<{
         volume: parseInt(String(volume).replace(/,/g, '')) || 0,
         nav,
       };
+    };
+
+    let matchingETF = findETF(etfInfo);
+
+    if (!matchingETF) {
+      // 어제 데이터로 재시도
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split('T')[0].replace(/-/g, '');
+
+      const etfInfoYesterday = await krxRequest<KRXETFDailyTradingInfo>(
+        KRX_ETF_ENDPOINT,
+        {
+          basDd: yesterdayStr,
+        }
+      );
+
+      if (etfInfoYesterday.length === 0) {
+        return null;
+      }
+
+      matchingETF = findETF(etfInfoYesterday);
+      if (!matchingETF) {
+        return null;
+      }
     }
 
-    const data = matchingETF;
-    
-    // 실제 API 필드명 사용 (캡처 이미지 기반)
-    const name = data.ISU_NM || '';
-    const closePrice = data.TDD_CLSPRC || '0';
-    const change = data.CMPPREVDD_PRC || '0';
-    const changePercent = data.FLUC_RT || '0';
-    const volume = data.ACC_TRDVOL || '0';
-    const nav = data.NAV ? parseFloat(String(data.NAV).replace(/,/g, '')) : undefined;
-    
-    // NAV가 없으면 일반 주식이므로 null 반환
-    if (!nav || nav === 0) {
-      return null;
-    }
-    
-    return {
-      name,
-      price: parseFloat(String(closePrice).replace(/,/g, '')) || 0,
-      change: parseFloat(String(change).replace(/[+,]/g, '')) || 0,
-      changePercent: parseFloat(String(changePercent).replace(/[+,%]/g, '')) || 0,
-      volume: parseInt(String(volume).replace(/,/g, '')) || 0,
-      nav,
-    };
+    return parseETFData(matchingETF);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.warn(`[KRX API] Error fetching ETF info for ${symbol}, falling back:`, errorMessage);

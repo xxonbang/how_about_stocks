@@ -34,7 +34,7 @@ interface HistoryResponse {
 
 interface HistoryDetailResponse {
   success: boolean;
-  data?: AnalysisHistoryRow;
+  data?: AnalysisHistoryRow & { stockNames?: Record<string, string> };
   error?: string;
 }
 
@@ -107,9 +107,20 @@ export default function HistoryPage() {
       const data: HistoryDetailResponse = await response.json();
 
       if (data.success && data.data) {
+        // 종목명 매핑 적용 (API에서 stockNames 제공)
+        const names: Record<string, string> = data.data.stockNames ?? {};
+        const resultsArray = Array.isArray(data.data.results) ? data.data.results : [];
+        const resultsWithNames = resultsArray.map((result: Record<string, unknown>) => {
+          const symbol = result.symbol as string;
+          if (symbol && names[symbol]) {
+            return { ...result, name: names[symbol] };
+          }
+          return result;
+        });
+
         // sessionStorage에 결과 저장 (report 페이지와 동일한 형식)
         const analysisResponse = {
-          results: data.data.results,
+          results: resultsWithNames,
           dataSource: data.data.data_source,
           _metadata: data.data.metadata,
         };

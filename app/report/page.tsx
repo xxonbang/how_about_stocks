@@ -864,8 +864,8 @@ export default function ReportPage() {
                   </>
                 ) : (
                   <div className="text-sm text-gray-600 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                    ⚠️ 일반 종목은 ETF 괴리율 분석이 불가능합니다. ETF 괴리율은
-                    ETF 전용 지표입니다.
+                    ⚠️ ETF 괴리율 데이터를 조회할 수 없습니다. 일반 종목이거나,
+                    ETF 시장 데이터가 일시적으로 제공되지 않고 있습니다.
                   </div>
                 )}
               </CardContent>

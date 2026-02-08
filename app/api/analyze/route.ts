@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { startAlertMonitoring } from "@/lib/alert-system";
+import { getSession } from "@/lib/auth";
+import { checkAnalysisRateLimit } from "@/lib/rate-limit";
 import type { AnalysisHistoryInsert } from "@/lib/supabase/types";
 
 /**
@@ -29,6 +31,7 @@ async function saveAnalysisHistoryToSupabase(
       results: history.results,
       dataSource: history.data_source,
       metadata: history.metadata || {},
+      userId: history.user_id ?? null,
     });
 
     console.log("[AnalysisHistory] Saved to Supabase:", history.request_id);
@@ -300,7 +303,7 @@ ${
 `
     : selectedIndicators?.etfPremium
       ? `
-**ETF 괴리율**: ⚠️ 일반 종목은 ETF 괴리율 분석이 불가능합니다. ETF 괴리율은 ETF 전용 지표입니다.
+**ETF 괴리율**: ⚠️ ETF 괴리율 데이터를 조회할 수 없습니다. 일반 종목이거나, ETF 데이터가 일시적으로 제공되지 않고 있습니다.
 `
       : ""
 }
@@ -621,6 +624,29 @@ export async function POST(request: NextRequest) {
   try {
     const body: AnalyzeRequest = await request.json();
     const { stocks, period, historicalPeriod, analysisDate, indicators } = body;
+
+    // 인증 확인
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json(
+        { error: "로그인이 필요합니다." },
+        { status: 401 },
+      );
+    }
+
+    // Rate Limit 확인 (Admin은 무제한)
+    const rateLimitResult = await checkAnalysisRateLimit(session);
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        {
+          error: "일일 분석 횟수를 초과했습니다.",
+          rateLimited: true,
+          remaining: rateLimitResult.remaining,
+          limit: rateLimitResult.limit,
+        },
+        { status: 429 },
+      );
+    }
 
     // 지표 선택 상태 로깅 (모든 지표 포함)
     console.log("[Analyze API] Selected indicators:", {
@@ -1286,6 +1312,7 @@ export async function POST(request: NextRequest) {
         savetickerIncluded: !!savetickerPDF,
         tokenUsage: tokenUsage || null,
       },
+      user_id: session.id,
     }).catch(() => {
       // 이미 함수 내부에서 에러 로깅하므로 여기서는 무시
     });
