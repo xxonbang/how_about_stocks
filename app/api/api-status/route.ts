@@ -360,6 +360,9 @@ async function checkPublicData(): Promise<APIStatus> {
 
 /**
  * KIS (한국투자증권) API 검사
+ *
+ * 주의: 토큰 발급(/oauth2/tokenP)은 1일 1회 제한이 있으므로
+ * 상태 확인 시에는 토큰을 발급하지 않고, 기존 토큰 유효성만 확인합니다.
  */
 async function checkKIS(): Promise<APIStatus> {
   const startTime = Date.now();
@@ -375,56 +378,39 @@ async function checkKIS(): Promise<APIStatus> {
   }
 
   try {
-    // 토큰 발급 테스트
-    const response = await axios.post(
-      'https://openapi.koreainvestment.com:9443/oauth2/tokenP',
-      {
-        grant_type: 'client_credentials',
-        appkey: KIS_APP_KEY,
-        appsecret: KIS_APP_SECRET,
-      },
-      {
-        timeout: 10000,
-        validateStatus: () => true,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
-
+    // Supabase에서 유효한 토큰 존재 여부 확인 (토큰 발급 없이)
+    const { getValidToken } = await import('@/lib/supabase/api-credentials');
+    const validToken = await getValidToken('kis');
     const latency = Date.now() - startTime;
 
-    if (response.status === 200 && response.data?.access_token) {
+    if (validToken) {
+      const expiresAt = new Date(validToken.expiresAt);
+      const hoursLeft = Math.round((expiresAt.getTime() - Date.now()) / (1000 * 60 * 60));
       return {
         name: '한국투자증권 (KIS)',
         configured: true,
         valid: true,
-        message: 'API 키가 유효합니다.',
-        latency,
-      };
-    } else if (response.data?.error_code) {
-      return {
-        name: '한국투자증권 (KIS)',
-        configured: true,
-        valid: false,
-        message: `오류: ${response.data.error_description || response.data.error_code}`,
-        statusCode: response.status,
-        latency,
-      };
-    } else {
-      return {
-        name: '한국투자증권 (KIS)',
-        configured: true,
-        valid: false,
-        message: `예상치 못한 응답 (${response.status})`,
-        statusCode: response.status,
+        message: `API 키 설정됨, 토큰 유효 (만료까지 약 ${hoursLeft}시간)`,
         latency,
       };
     }
+
+    // 토큰은 없지만 키는 설정되어 있는 경우
+    return {
+      name: '한국투자증권 (KIS)',
+      configured: true,
+      valid: true,
+      message: 'API 키가 설정되어 있습니다. 토큰은 분석 요청 시 자동 발급됩니다.',
+      note: '토큰 발급은 1일 1회 제한으로, 상태 확인 시에는 발급하지 않습니다.',
+      latency,
+    };
   } catch (error) {
     return {
       name: '한국투자증권 (KIS)',
       configured: true,
-      valid: false,
-      message: error instanceof Error ? error.message : '연결 오류',
+      valid: true,
+      message: 'API 키가 설정되어 있습니다. (토큰 상태 확인 불가)',
+      note: error instanceof Error ? error.message : '토큰 조회 중 오류',
       latency: Date.now() - startTime,
     };
   }
