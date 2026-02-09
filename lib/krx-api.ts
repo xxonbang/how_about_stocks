@@ -338,44 +338,27 @@ export async function fetchKoreaStockInfoKRX(symbol: string): Promise<{
       return null;
     }
 
-    const today = new Date();
-    const todayStr = today.toISOString().split('T')[0].replace(/-/g, '');
-    
-    // 실제 엔드포인트: /sto/stk_bydd_trd
-    // 실제 파라미터: basDd (기준일자, string(8))
-    const stockInfo = await krxRequest<KRXStockDailyTradingInfo>(
-      KRX_STOCK_ENDPOINT,
-      {
-        basDd: todayStr, // 실제 API 파라미터명
-      }
-    );
+    // 최근 5일까지 탐색 (주말+공휴일 커버)
+    const MAX_DAYS_BACK = 5;
+    for (let daysBack = 0; daysBack < MAX_DAYS_BACK; daysBack++) {
+      const targetDate = new Date();
+      targetDate.setDate(targetDate.getDate() - daysBack);
+      const dateStr = targetDate.toISOString().split('T')[0].replace(/-/g, '');
 
-    if (stockInfo.length === 0) {
-      // 어제 데이터로 재시도
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = yesterday.toISOString().split('T')[0].replace(/-/g, '');
-      
-      const stockInfoYesterday = await krxRequest<KRXStockDailyTradingInfo>(
+      const stockInfo = await krxRequest<KRXStockDailyTradingInfo>(
         KRX_STOCK_ENDPOINT,
-        {
-          basDd: yesterdayStr, // 실제 API 파라미터명
-        }
+        { basDd: dateStr }
       );
 
-      if (stockInfoYesterday.length === 0) {
-        return null;
-      }
+      if (stockInfo.length === 0) continue;
 
-      const data = stockInfoYesterday[0];
-      
-      // 실제 API 필드명 사용 (캡처 이미지 기반)
+      const data = stockInfo[0];
       const name = data.ISU_NM || '';
       const closePrice = data.TDD_CLSPRC || '0';
       const change = data.CMPPREVDD_PRC || '0';
       const changePercent = data.FLUC_RT || '0';
       const volume = data.ACC_TRDVOL || '0';
-      
+
       return {
         name,
         price: parseFloat(String(closePrice).replace(/,/g, '')) || 0,
@@ -385,22 +368,7 @@ export async function fetchKoreaStockInfoKRX(symbol: string): Promise<{
       };
     }
 
-    const data = stockInfo[0];
-    
-    // 실제 API 필드명 사용 (캡처 이미지 기반)
-    const name = data.ISU_NM || '';
-    const closePrice = data.TDD_CLSPRC || '0';
-    const change = data.CMPPREVDD_PRC || '0';
-    const changePercent = data.FLUC_RT || '0';
-    const volume = data.ACC_TRDVOL || '0';
-    
-    return {
-      name,
-      price: parseFloat(String(closePrice).replace(/,/g, '')) || 0,
-      change: parseFloat(String(change).replace(/[+,]/g, '')) || 0,
-      changePercent: parseFloat(String(changePercent).replace(/[+,%]/g, '')) || 0,
-      volume: parseInt(String(volume).replace(/,/g, '')) || 0,
-    };
+    return null;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.warn(`[KRX API] Error fetching stock info for ${symbol}, falling back:`, errorMessage);
@@ -428,18 +396,6 @@ export async function fetchKoreaETFInfoKRX(symbol: string): Promise<{
     if (!KRX_API_KEY) {
       return null;
     }
-
-    const today = new Date();
-    const todayStr = today.toISOString().split('T')[0].replace(/-/g, '');
-    
-    // 실제 엔드포인트: /etp/etf_bydd_trd
-    // 실제 파라미터: basDd (기준일자, string(8))
-    const etfInfo = await krxRequest<KRXETFDailyTradingInfo>(
-      KRX_ETF_ENDPOINT,
-      {
-        basDd: todayStr, // 실제 API 파라미터명
-      }
-    );
 
     // symbol과 일치하는 ETF 찾기
     // ISU_CD는 ISIN 형식(KR7396500006) 또는 단축코드(396500)일 수 있음
@@ -482,32 +438,28 @@ export async function fetchKoreaETFInfoKRX(symbol: string): Promise<{
       };
     };
 
-    let matchingETF = findETF(etfInfo);
+    // 최근 5일까지 탐색 (주말+공휴일 커버)
+    const MAX_DAYS_BACK = 5;
+    for (let daysBack = 0; daysBack < MAX_DAYS_BACK; daysBack++) {
+      const targetDate = new Date();
+      targetDate.setDate(targetDate.getDate() - daysBack);
+      const dateStr = targetDate.toISOString().split('T')[0].replace(/-/g, '');
 
-    if (!matchingETF) {
-      // 어제 데이터로 재시도
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = yesterday.toISOString().split('T')[0].replace(/-/g, '');
-
-      const etfInfoYesterday = await krxRequest<KRXETFDailyTradingInfo>(
+      const etfData = await krxRequest<KRXETFDailyTradingInfo>(
         KRX_ETF_ENDPOINT,
-        {
-          basDd: yesterdayStr,
-        }
+        { basDd: dateStr }
       );
 
-      if (etfInfoYesterday.length === 0) {
-        return null;
-      }
+      if (etfData.length === 0) continue;
 
-      matchingETF = findETF(etfInfoYesterday);
-      if (!matchingETF) {
-        return null;
-      }
+      const matchingETF = findETF(etfData);
+      if (!matchingETF) continue;
+
+      const parsed = parseETFData(matchingETF);
+      if (parsed) return parsed;
     }
 
-    return parseETFData(matchingETF);
+    return null;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.warn(`[KRX API] Error fetching ETF info for ${symbol}, falling back:`, errorMessage);
