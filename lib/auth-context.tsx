@@ -17,6 +17,8 @@ type OAuthProvider = 'google' | 'github' | 'kakao';
 interface AuthContextType {
   isAuthenticated: boolean;
   username: string | null;
+  role: string | null;
+  isAdmin: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signup: (email: string, password: string, username: string) => Promise<{ success: boolean; error?: string }>;
@@ -34,6 +36,7 @@ const LAST_ACTIVITY_KEY = 'lastActivityTime';
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showTimeoutDialog, setShowTimeoutDialog] = useState(false);
   const router = useRouter();
@@ -57,6 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     setIsAuthenticated(false);
     setUsername(null);
+    setRole(null);
     if (typeof window !== 'undefined') {
       localStorage.removeItem(LAST_ACTIVITY_KEY);
     }
@@ -101,10 +105,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUsername(
             (user.user_metadata?.username as string) ?? user.email ?? null
           );
+          setRole((user.user_metadata?.role as string) ?? null);
           updateLastActivity();
         } else {
           setIsAuthenticated(false);
           setUsername(null);
+          setRole(null);
         }
       } catch (error) {
         console.error('Auth status check error:', error);
@@ -126,9 +132,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             session.user.email ??
             null
         );
+        setRole((session.user.user_metadata?.role as string) ?? null);
       } else {
         setIsAuthenticated(false);
         setUsername(null);
+        setRole(null);
       }
     });
 
@@ -258,6 +266,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     setIsAuthenticated(false);
     setUsername(null);
+    setRole(null);
     if (typeof window !== 'undefined') {
       localStorage.removeItem(LAST_ACTIVITY_KEY);
     }
@@ -265,7 +274,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, username, isLoading, login, signup, loginWithOAuth, logout, updateLastActivity }}>
+    <AuthContext.Provider value={{ isAuthenticated, username, role, isAdmin: role === 'admin' || username === 'xxonbang', isLoading, login, signup, loginWithOAuth, logout, updateLastActivity }}>
       {children}
       {showTimeoutDialog && (
         <AutoLogoutDialog

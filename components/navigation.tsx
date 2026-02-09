@@ -8,7 +8,7 @@ import { LoginDialog } from '@/components/login-dialog';
 import { Button } from '@/components/ui/button';
 
 export function Navigation() {
-  const { isAuthenticated, username, logout } = useAuth();
+  const { isAuthenticated, username, isAdmin, logout } = useAuth();
   const pathname = usePathname();
   const [loginDialogOpen, setLoginDialogOpen] = useState(false);
   const [highlightLogin, setHighlightLogin] = useState(false);
@@ -56,7 +56,7 @@ export function Navigation() {
     { href: '/history', label: '히스토리' },
     { href: '/metrics', label: '메트릭' },
     { href: '/alerts', label: '알림' },
-    { href: '/settings', label: '설정' },
+    ...(isAdmin ? [{ href: '/settings', label: '설정' }] : []),
   ];
 
   const showDualSource = username === 'xxonbang' && (pathname === '/report' || pathname === '/dual-source-validation');
