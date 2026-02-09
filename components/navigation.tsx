@@ -77,7 +77,7 @@ export function Navigation() {
               href="/"
               className="flex items-center gap-2 text-lg sm:text-xl font-bold text-gray-900 flex-shrink-0"
             >
-              <Image src="/icon.svg" alt="" width={28} height={28} className="rounded-md" />
+              <Image src="/logo.svg" alt="" width={28} height={28} className="rounded-md" />
               종목어때.ai
             </Link>
 
