@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -428,8 +429,9 @@ function HomePageContent() {
 
       <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-12 max-w-4xl">
         <div className="text-center mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-            📈 종목어때.ai
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 flex items-center justify-center gap-3">
+            <Image src="/logo.svg" alt="" width={40} height={40} className="rounded-xl" />
+            종목어때.ai
           </h1>
           <p className="text-sm sm:text-base text-gray-600">
             AI 기반 실시간 주식 분석 리포트
