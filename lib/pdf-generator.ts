@@ -7,6 +7,7 @@
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import type { AnalyzeResult } from './types';
+import { loadKoreanFont } from './pdf-font-loader';
 
 // PDF 설정
 const PDF_CONFIG = {
@@ -126,6 +127,13 @@ export async function generateAnalysisPDF(
 ): Promise<Blob> {
   const { includeCharts = true, chartsContainer } = options;
   const pdf = new jsPDF('p', 'mm', 'a4');
+
+  // 한글 폰트 임베딩
+  const fontBase64 = await loadKoreanFont();
+  pdf.addFileToVFS('NotoSansKR-Regular.ttf', fontBase64);
+  pdf.addFont('NotoSansKR-Regular.ttf', 'NotoSansKR', 'normal');
+  pdf.setFont('NotoSansKR');
+
   const { pageWidth, pageHeight, margin, fontSize, lineHeight } = PDF_CONFIG;
   const contentWidth = pageWidth - margin * 2;
 
@@ -148,9 +156,6 @@ export async function generateAnalysisPDF(
   ) => {
     pdf.setFontSize(size);
     pdf.setTextColor(...color);
-    // jsPDF는 기본적으로 한글을 지원하지 않으므로, 영문/숫자만 표시됨
-    // 한글 지원을 위해서는 별도의 폰트 임베딩이 필요하지만,
-    // 여기서는 기본 구현으로 진행 (일부 한글이 깨질 수 있음)
     const lines = splitTextToLines(pdf, text, contentWidth);
     lines.forEach((line) => {
       checkNewPage(size * 0.35 * lineHeight);

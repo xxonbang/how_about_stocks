@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import type { AnalyzeResult } from '@/lib/types';
 
@@ -20,11 +20,13 @@ export function PDFExportButton({
 
   const handleExport = async () => {
     setIsExporting(true);
-    setProgress('PDF 생성 중...');
+    setProgress('폰트 로딩 중...');
 
     try {
       // 동적 임포트로 pdf-generator 로드 (클라이언트 사이드에서만)
       const { exportAnalysisToPDF } = await import('@/lib/pdf-generator');
+
+      setProgress('PDF 생성 중...');
 
       // 차트 컨테이너 찾기 (선택적)
       const chartsContainer = document.getElementById(chartsContainerId);
