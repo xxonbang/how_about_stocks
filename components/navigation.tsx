@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { LoginDialog } from '@/components/login-dialog';
@@ -74,9 +75,10 @@ export function Navigation() {
             {/* 로고 */}
             <Link
               href="/"
-              className="text-lg sm:text-xl font-bold text-gray-900 flex-shrink-0"
+              className="flex items-center gap-2 text-lg sm:text-xl font-bold text-gray-900 flex-shrink-0"
             >
-              📈 종목어때.ai
+              <Image src="/icon.svg" alt="" width={28} height={28} className="rounded-md" />
+              종목어때.ai
             </Link>
 
             {/* 데스크톱 네비게이션 (로그인 상태) */}
