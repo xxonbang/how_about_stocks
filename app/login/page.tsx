@@ -34,13 +34,12 @@ function LoginForm() {
 
       if (result.success) {
         router.push(callbackUrl);
-        router.refresh();
       } else {
         setError(result.error || '로그인에 실패했습니다.');
+        setIsSubmitting(false);
       }
     } catch {
       setError('서버 오류가 발생했습니다.');
-    } finally {
       setIsSubmitting(false);
     }
   };

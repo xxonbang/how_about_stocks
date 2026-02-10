@@ -17,9 +17,6 @@ export const ONE_HOUR_MS = 60 * ONE_MINUTE_MS;
 /** 1일 (밀리초) */
 export const ONE_DAY_MS = 24 * ONE_HOUR_MS;
 
-/** 비활성 타임아웃: 10분 */
-export const INACTIVITY_TIMEOUT_MS = 10 * ONE_MINUTE_MS;
-
 /** 캐시 TTL: 24시간 */
 export const CACHE_TTL_MS = ONE_DAY_MS;
 
