@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAuthMiddlewareClient } from '@/lib/supabase/auth-middleware';
 
-const PUBLIC_PATHS = ['/login', '/signup', '/auth/callback', '/api/auth/status', '/api/health'];
+const PUBLIC_PATHS = ['/login', '/signup', '/auth/callback', '/api/auth/status', '/api/auth/verify-invite-code', '/api/health'];
 
 const PUBLIC_FILE_EXTENSIONS = [
   '.ico',
