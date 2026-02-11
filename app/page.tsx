@@ -4,7 +4,6 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Card,
@@ -515,16 +514,13 @@ function HomePageContent() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                <Input
-                  type="date"
-                  value={analysisDate}
-                  disabled
-                  className="w-full sm:max-w-xs bg-gray-50 text-base text-gray-700 cursor-not-allowed min-h-[44px] sm:min-h-0"
-                />
-                <span className="text-sm text-gray-500 whitespace-nowrap">
-                  (변경 불가)
-                </span>
+              <div className="flex items-center gap-2">
+                <div className="px-3 py-2.5 sm:py-2 bg-gray-50 border border-gray-200 rounded-md text-base sm:text-sm text-gray-700 min-h-[44px] sm:min-h-0 flex items-center">
+                  {(() => {
+                    const [y, m, d] = analysisDate.split("-");
+                    return `${y}년 ${Number(m)}월 ${Number(d)}일 (오늘)`;
+                  })()}
+                </div>
               </div>
             </CardContent>
           </Card>
