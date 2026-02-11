@@ -194,7 +194,7 @@ async function generateAIReportsBatch(
   // Google Search Retrieval 도구 활성화: 재료분석을 위한 실시간 뉴스 검색
   const model = genAI.getGenerativeModel({
     model: modelName,
-    tools: [{ googleSearchRetrieval: {} }],
+    tools: [{ googleSearch: {} }],
   });
 
   const hasSavetickerReport = !!savetickerPDF;
