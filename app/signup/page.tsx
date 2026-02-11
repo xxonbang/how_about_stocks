@@ -10,6 +10,7 @@ function SignupForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { signup, isAuthenticated, isLoading } = useAuth();
+  const [inviteCode, setInviteCode] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -39,9 +40,27 @@ function SignupForm() {
       return;
     }
 
+    if (!inviteCode.trim()) {
+      setError('가입코드를 입력해주세요.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
+      const verifyRes = await fetch('/api/auth/verify-invite-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: inviteCode.trim() }),
+      });
+      const verifyData = (await verifyRes.json()) as { valid: boolean; error?: string };
+
+      if (!verifyData.valid) {
+        setError(verifyData.error || '유효하지 않은 가입코드입니다.');
+        setIsSubmitting(false);
+        return;
+      }
+
       const result = await signup(email, password, username);
 
       if (result.success) {
@@ -100,6 +119,25 @@ function SignupForm() {
                 {error}
               </div>
             )}
+
+            <div>
+              <label
+                htmlFor="inviteCode"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                가입코드
+              </label>
+              <input
+                id="inviteCode"
+                type="text"
+                value={inviteCode}
+                onChange={(e) => setInviteCode(e.target.value)}
+                required
+                autoComplete="off"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                placeholder="가입코드를 입력하세요"
+              />
+            </div>
 
             <div>
               <label

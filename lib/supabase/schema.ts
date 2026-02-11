@@ -87,3 +87,17 @@ export type NewAnalysisHistory = typeof analysisHistory.$inferInsert;
 
 export type ApiCredential = typeof apiCredentials.$inferSelect;
 export type NewApiCredential = typeof apiCredentials.$inferInsert;
+
+/**
+ * invite_codes 테이블
+ * 회원가입 초대코드 관리
+ */
+export const inviteCodes = pgTable('invite_codes', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  code: varchar('code', { length: 50 }).notNull().unique(),
+  isActive: boolean('is_active').default(true),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+});
+
+export type InviteCode = typeof inviteCodes.$inferSelect;
+export type NewInviteCode = typeof inviteCodes.$inferInsert;
