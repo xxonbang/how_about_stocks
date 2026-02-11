@@ -104,7 +104,7 @@ function SignupForm() {
                 />
               </svg>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">Stock Insight</h1>
+            <h1 className="text-2xl font-bold text-gray-900">종목어때.ai</h1>
             <p className="text-gray-500 mt-2">회원가입</p>
           </div>
 
