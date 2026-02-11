@@ -105,7 +105,7 @@ function SignupForm() {
               </svg>
             </div>
             <h1 className="text-2xl font-bold text-gray-900">종목어때.ai</h1>
-            <p className="text-gray-500 mt-2">회원가입</p>
+            <p className="text-gray-500 mt-2">멀티 리소스 기반 AI 주식 분석</p>
           </div>
 
           {/* TODO: OAuth 프로바이더 설정 후 활성화
