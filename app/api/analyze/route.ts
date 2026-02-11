@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, type Tool } from "@google/generative-ai";
 import { startAlertMonitoring } from "@/lib/alert-system";
 import { getSession } from "@/lib/auth";
 import { checkAnalysisRateLimit } from "@/lib/rate-limit";
@@ -191,10 +191,12 @@ async function generateAIReportsBatch(
   };
 }> {
   // Gemini 모델명: 파라미터로 받은 모델 사용 (기본값: gemini-2.5-flash)
-  // Google Search Retrieval 도구 활성화: 재료분석을 위한 실시간 뉴스 검색
+  // Google Search 도구 활성화: 재료분석을 위한 실시간 뉴스 검색
+  // NOTE: @google/generative-ai SDK 타입에 googleSearch가 미정의 (레거시 패키지)
+  // gemini-2.0+ 모델은 googleSearchRetrieval 대신 googleSearch를 요구함
   const model = genAI.getGenerativeModel({
     model: modelName,
-    tools: [{ googleSearch: {} }],
+    tools: [{ googleSearch: {} } as unknown as Tool],
   });
 
   const hasSavetickerReport = !!savetickerPDF;
