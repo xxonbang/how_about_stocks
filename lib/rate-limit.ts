@@ -31,9 +31,12 @@ export async function checkAnalysisRateLimit(
 
     const { count, eq, gte, sql } = await import('drizzle-orm');
 
-    // 오늘 UTC 00:00:00 기준
-    const todayStart = new Date();
-    todayStart.setUTCHours(0, 0, 0, 0);
+    // 오늘 한국시간(KST, UTC+9) 00:00:00 기준
+    const now = new Date();
+    const kstOffset = 9 * 60 * 60 * 1000;
+    const kstDate = new Date(now.getTime() + kstOffset);
+    kstDate.setUTCHours(0, 0, 0, 0);
+    const todayStart = new Date(kstDate.getTime() - kstOffset);
 
     const result = await db
       .select({ count: count() })
