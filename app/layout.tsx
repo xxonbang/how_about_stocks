@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import { Navigation } from "@/components/navigation";
 import { ScrollToTop } from "@/components/scroll-to-top";
+import { PageTracker } from "@/components/page-tracker";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -44,6 +45,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <AuthProvider>
           <Navigation />
+          <PageTracker />
           {children}
           <ScrollToTop />
         </AuthProvider>

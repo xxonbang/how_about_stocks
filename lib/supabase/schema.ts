@@ -4,7 +4,7 @@
  * PostgreSQL(Supabase) 테이블 스키마
  */
 
-import { pgTable, uuid, timestamp, varchar, text, boolean, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, timestamp, varchar, text, boolean, jsonb, unique, index } from 'drizzle-orm/pg-core';
 
 /**
  * metrics 테이블
@@ -101,3 +101,40 @@ export const inviteCodes = pgTable('invite_codes', {
 
 export type InviteCode = typeof inviteCodes.$inferSelect;
 export type NewInviteCode = typeof inviteCodes.$inferInsert;
+
+/**
+ * user_history 테이블
+ * 사용자별 마지막 접속 시각 (시스템당 1행, upsert)
+ */
+export const userHistory = pgTable('user_history', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id').notNull(),
+  email: text('email').notNull().default(''),
+  systemName: varchar('system_name', { length: 50 }).notNull(),
+  accessedAt: timestamp('accessed_at', { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  unique('user_history_user_system_unique').on(t.userId, t.systemName),
+]);
+
+export type UserHistory = typeof userHistory.$inferSelect;
+export type NewUserHistory = typeof userHistory.$inferInsert;
+
+/**
+ * user_activity_log 테이블
+ * 상세 활동 로그 (append-only)
+ */
+export const userActivityLog = pgTable('user_activity_log', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id').notNull(),
+  email: text('email').notNull().default(''),
+  systemName: varchar('system_name', { length: 50 }).notNull(),
+  actionType: varchar('action_type', { length: 50 }).notNull(),
+  actionDetail: jsonb('action_detail').notNull().default({}),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index('idx_activity_log_user_system').on(t.userId, t.systemName),
+  index('idx_activity_log_created_at').on(t.createdAt),
+]);
+
+export type UserActivityLog = typeof userActivityLog.$inferSelect;
+export type NewUserActivityLog = typeof userActivityLog.$inferInsert;

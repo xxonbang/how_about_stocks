@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect, ReactNode, useRef, useC
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { SessionManager, type SessionExpiredReason } from '@/lib/session-manager';
+import { logActivity } from '@/lib/activity-logger';
 
 type OAuthProvider = 'google' | 'github' | 'kakao';
 
@@ -37,6 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // 세션 만료 콜백
   const handleSessionExpired = useCallback(async (reason: SessionExpiredReason) => {
+    logActivity('session_expired', { reason: reason ?? 'session_expired' });
     setSessionExpiredReason(reason);
     sessionManagerRef.current.stop();
     try {
@@ -136,6 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const sm = sessionManagerRef.current;
         sm.isExempt = isAdminUser(uRole, uName);
         sm.start();
+        logActivity('login');
       }
 
       return { success: true };
@@ -190,6 +193,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
+    logActivity('logout');
     sessionManagerRef.current.stop();
     setSessionExpiredReason(null);
 
