@@ -10,7 +10,7 @@ import { OAuthButtons, OAuthDivider } from '@/components/oauth-buttons';
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login, isAuthenticated, isLoading } = useAuth();
+  const { login, isAuthenticated, isLoading, sessionExpiredReason } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -61,6 +61,14 @@ function LoginForm() {
             <h1 className="text-2xl font-bold text-gray-900">종목어때.ai</h1>
             <p className="text-gray-500 mt-2">멀티 리소스 기반 AI 주식 분석</p>
           </div>
+
+          {sessionExpiredReason && (
+            <div className="mb-4 bg-amber-50 border border-amber-300 text-amber-800 px-4 py-3 rounded-lg text-sm">
+              {sessionExpiredReason === 'session_expired'
+                ? '세션이 만료되었습니다. 다시 로그인해주세요.'
+                : '장시간 미사용으로 자동 로그아웃되었습니다.'}
+            </div>
+          )}
 
           {/* TODO: OAuth 프로바이더 설정 후 활성화
           <OAuthButtons />
