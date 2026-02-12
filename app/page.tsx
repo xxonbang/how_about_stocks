@@ -88,7 +88,7 @@ function HomePageContent() {
   const [rateLimitInfo, setRateLimitInfo] = useState<{ remaining: number; limit: number } | null>(null);
 
   const addStockInput = () => {
-    if (stocks.length < 5) {
+    if (stocks.length < 2) {
       setStocks([...stocks, ""]);
     }
   };
@@ -443,7 +443,7 @@ function HomePageContent() {
             <CardHeader className="pb-4">
               <CardTitle className="text-xl sm:text-2xl">종목 입력</CardTitle>
               <CardDescription className="text-xs sm:text-sm">
-                분석할 종목을 입력하세요 (최대 5개)
+                분석할 종목을 입력하세요 (최대 2개)
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-1.5 sm:space-y-2">
@@ -452,7 +452,7 @@ function HomePageContent() {
                   종목명, 종목코드, 티커 등 (예: 삼성전자, AAPL, TSLA,
                   005930.KS)
                 </label>
-                {stocks.length < 5 && (
+                {stocks.length < 2 && (
                   <Button
                     type="button"
                     variant="outline"
@@ -495,11 +495,12 @@ function HomePageContent() {
                 </div>
               ))}
               {/* 안내 문구 */}
-              <div className="mt-0 px-0.5 py-0 bg-gray-50/50 rounded-md">
-                <p className="text-[10px] sm:text-xs text-gray-600 leading-relaxed">
-                  <span className="text-gray-500">💡</span> 검색이 끝나지
-                  않았더라도 종목명, 종목코드, 티커 등을 정확히 입력한 상태라면
-                  바로 분석 가능합니다.
+              <div className="mt-0 px-0.5 py-0 bg-gray-50/50 rounded-md space-y-0.5">
+                <p className="text-[10px] sm:text-xs text-gray-500 leading-relaxed">
+                  1회 분석 시 최대 2개 종목까지 입력 가능합니다.
+                </p>
+                <p className="text-[10px] sm:text-xs text-gray-500 leading-relaxed">
+                  검색이 끝나지 않았더라도 종목명, 종목코드, 티커 등을 정확히 입력한 상태라면 바로 분석 가능합니다.
                 </p>
               </div>
             </CardContent>

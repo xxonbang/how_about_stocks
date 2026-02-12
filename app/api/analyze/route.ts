@@ -197,14 +197,16 @@ async function generateAIReportsBatch(
   const model = genAI.getGenerativeModel({
     model: modelName,
     tools: [{ googleSearch: {} } as unknown as Tool],
+    generationConfig: {
+      maxOutputTokens: 65536,
+    },
   });
 
   const hasSavetickerReport = !!savetickerPDF;
   const systemPrompt = getSystemPrompt(period, historicalPeriod, analysisDate, hasSavetickerReport);
 
-  // 모든 종목의 데이터를 하나의 프롬프트로 구성
-  const stocksDataPrompt = stocksData
-    .map(({ symbol, marketData, selectedIndicators }) => {
+  // 개별 종목 데이터 프롬프트 생성 함수
+  const buildStockPrompt = ({ symbol, marketData, selectedIndicators }: typeof stocksData[number]) => {
       // 프롬프트에 포함될 지표 확인 로깅
       const includedIndicators = [];
       if (marketData.rsi !== undefined) includedIndicators.push("RSI");
@@ -413,8 +415,10 @@ ${
     : ""
 }
 ---`;
-    })
-    .join("\n");
+  };
+
+  // 모든 종목의 데이터를 하나의 프롬프트로 구성
+  const stocksDataPrompt = stocksData.map(buildStockPrompt).join("\n");
 
   const symbolsList = stocksData.map(({ symbol }) => symbol).join(", ");
 
@@ -487,6 +491,13 @@ ${formatExample}
     const response = await result.response;
     const fullReport = response.text();
 
+    // finishReason 체크: MAX_TOKENS로 응답이 잘렸는지 감지
+    const finishReason = response.candidates?.[0]?.finishReason;
+    const isResponseTruncated = finishReason === 'MAX_TOKENS' || finishReason === 'RECITATION';
+    if (isResponseTruncated) {
+      console.warn(`[Gemini] Response truncated! finishReason: ${finishReason}, stocks: ${stocksData.map(s => s.symbol).join(', ')}`);
+    }
+
     // 토큰 사용량 추출
     const usageMetadata = response.usageMetadata;
     const tokenUsage = usageMetadata
@@ -498,7 +509,7 @@ ${formatExample}
       : undefined;
 
     if (tokenUsage) {
-      console.log('[Gemini] Token Usage:', tokenUsage);
+      console.log('[Gemini] Token Usage:', tokenUsage, `finishReason: ${finishReason}`);
     }
 
     // 응답을 종목별로 파싱
@@ -579,26 +590,78 @@ ${formatExample}
         console.warn(
           `[AI Report Parsing] Failed to find matching report for ${symbol}`,
         );
-        // 패턴 매칭 실패 시, 전체 리포트를 첫 번째 종목에 할당
-        if (reportsMap.size === 0) {
-          reportsMap.set(symbol, fullReport);
-        } else {
-          reportsMap.set(
-            symbol,
-            `## ${symbol} 분석 리포트\n\n⚠️ AI 리포트 파싱 중 오류가 발생했습니다. 전체 리포트를 확인해주세요.`,
-          );
-        }
       }
     }
 
-    // 파싱 실패한 종목이 있으면 전체 리포트를 첫 번째 종목에 할당
-    if (reportsMap.size === 0 && stocksData.length > 0) {
+    // 단일 종목인데 파싱 실패 시 전체 리포트를 할당
+    if (reportsMap.size === 0 && stocksData.length === 1) {
       reportsMap.set(stocksData[0].symbol, fullReport);
-      for (let i = 1; i < stocksData.length; i++) {
-        reportsMap.set(
-          stocksData[i].symbol,
-          `## ${stocksData[i].symbol} 분석 리포트\n\n⚠️ AI 리포트 파싱 중 오류가 발생했습니다.`,
-        );
+    }
+
+    // 파싱 실패한 종목들을 개별 API 호출로 재시도
+    const failedStocks = stocksData.filter(s => !reportsMap.has(s.symbol));
+    if (failedStocks.length > 0 && stocksData.length > 1) {
+      console.log(`[AI Report Retry] ${failedStocks.length}개 종목 개별 재요청: ${failedStocks.map(s => s.symbol).join(', ')}`);
+
+      for (const failedStock of failedStocks) {
+        try {
+          const retryStockPrompt = buildStockPrompt(failedStock);
+          const retryDataPrompt = `
+다음 1개 종목(${failedStock.symbol})의 데이터를 분석해주세요:
+
+${retryStockPrompt}
+
+**중요 지침**:
+1. 해당 종목에 대해 독립적인 분석 리포트를 작성하되, 응답 형식은 반드시 다음과 같이 해주세요:
+2. **재료분석 필수**: 시스템 프롬프트의 재료분석 프로세스(뉴스 수집 → 분류 → 평가)를 반드시 수행하고, 결과를 "재료분석 (뉴스 기반)" 섹션에 정리하십시오.
+
+응답 형식:
+
+[종목: ${failedStock.symbol}]
+---
+## ${failedStock.symbol} 현재 시장 상황
+[분석]
+
+## ${failedStock.symbol} 재료분석 (뉴스 기반)
+[Google 검색으로 수집한 뉴스 기반 재료분석]
+
+## ${failedStock.symbol} 기술적 분석
+[분석]
+
+## ${failedStock.symbol} 수급 분석
+[분석]
+
+## ${failedStock.symbol} 투자 의견
+- 단기 관점: [의견]
+- 장기 관점: [의견]
+- 재료분석 반영: [의견]
+`;
+          const retryResult = await model.generateContent(
+            systemPrompt + "\n\n" + savetickerSection + retryDataPrompt
+          );
+          const retryResponse = await retryResult.response;
+          const retryReport = retryResponse.text();
+
+          if (retryReport && retryReport.length > 100) {
+            // [종목: SYMBOL] 헤더 제거 후 본문만 추출
+            const cleaned = retryReport
+              .replace(/^\s*\[종목:\s*[^\]]+\]\s*\n---\s*\n/, '')
+              .trim();
+            reportsMap.set(failedStock.symbol, cleaned.length > 100 ? cleaned : retryReport);
+            console.log(`[AI Report Retry] ${failedStock.symbol} 개별 재요청 성공 (length: ${retryReport.length})`);
+          } else {
+            reportsMap.set(
+              failedStock.symbol,
+              `## ${failedStock.symbol} 분석 리포트\n\n⚠️ AI 리포트 파싱 중 오류가 발생했습니다. 전체 리포트를 확인해주세요.`,
+            );
+          }
+        } catch (retryError) {
+          console.error(`[AI Report Retry] ${failedStock.symbol} 개별 재요청 실패:`, retryError);
+          reportsMap.set(
+            failedStock.symbol,
+            `## ${failedStock.symbol} 분석 리포트\n\n⚠️ AI 리포트 생성 중 오류가 발생했습니다. 전체 리포트를 확인해주세요.`,
+          );
+        }
       }
     }
 
@@ -704,9 +767,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (stocks.length > 5) {
+    if (stocks.length > 2) {
       return NextResponse.json(
-        { error: "최대 5개 종목까지 분석 가능합니다." },
+        { error: "최대 2개 종목까지 분석 가능합니다." },
         { status: 400 },
       );
     }
