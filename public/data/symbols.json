@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-02-13T17:41:35.684937",
+  "generated_at": "2026-02-14T01:31:34.665897",
   "korea": {
     "count": 4373,
     "stocks": [
@@ -26245,7 +26245,7 @@
     ]
   },
   "us": {
-    "count": 30009,
+    "count": 30012,
     "stocks": [
       {
         "code": "AHSLS",
@@ -236143,6 +236143,27 @@
         "type": "Common Stock"
       },
       {
+        "code": "RFAMU",
+        "name": "RFAMU",
+        "market": "NASDAQ",
+        "country": "US",
+        "type": "Common Stock"
+      },
+      {
+        "code": "WLIIU",
+        "name": "WLIIU",
+        "market": "NASDAQ",
+        "country": "US",
+        "type": "Common Stock"
+      },
+      {
+        "code": "XRXDW",
+        "name": "XRXDW",
+        "market": "NASDAQ",
+        "country": "US",
+        "type": "Common Stock"
+      },
+      {
         "code": "I",
         "name": "I",
         "market": "NYSE",
@@ -236312,5 +236333,5 @@
       }
     ]
   },
-  "total": 34382
+  "total": 34385
 }
