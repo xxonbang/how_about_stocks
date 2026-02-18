@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-02-17T17:57:59.294199",
+  "generated_at": "2026-02-18T01:49:12.798809",
   "korea": {
     "count": 4373,
     "stocks": [
@@ -26245,7 +26245,7 @@
     ]
   },
   "us": {
-    "count": 30017,
+    "count": 30009,
     "stocks": [
       {
         "code": "IPWR",
@@ -236143,55 +236143,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "CCCX",
-        "name": "CCCX",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "CCCXU",
-        "name": "CCCXU",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "CCCXW",
-        "name": "CCCXW",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "MOFG",
-        "name": "MOFG",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "SNCR",
-        "name": "SNCR",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "TECTP",
-        "name": "TECTP",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "ZEUS",
-        "name": "ZEUS",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "I",
         "name": "I",
         "market": "NYSE",
@@ -236325,13 +236276,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "RCC",
-        "name": "RCC",
-        "market": "NYSE",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "SCE",
         "name": "SCE",
         "market": "NYSE",
@@ -236368,5 +236312,5 @@
       }
     ]
   },
-  "total": 34390
+  "total": 34382
 }
