@@ -67,3 +67,6 @@ Thumbs.db
 docs/
 *.md
 !CLAUDE.MD
+
+# migrations
+migrations/
