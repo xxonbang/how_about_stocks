@@ -62,3 +62,8 @@ Thumbs.db
 
 # cache
 .cache/
+
+# docs / markdown (CLAUDE.MD 제외)
+docs/
+*.md
+!CLAUDE.MD
