@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/lib/auth-context';
-import { OAuthButtons, OAuthDivider } from '@/components/oauth-buttons';
+
 
 function LoginForm() {
   const router = useRouter();
@@ -70,10 +70,6 @@ function LoginForm() {
             </div>
           )}
 
-          {/* TODO: OAuth 프로바이더 설정 후 활성화
-          <OAuthButtons />
-          <OAuthDivider />
-          */}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (

@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
-import { OAuthButtons, OAuthDivider } from '@/components/oauth-buttons';
+
 
 function SignupForm() {
   const router = useRouter();
@@ -108,10 +108,6 @@ function SignupForm() {
             <p className="text-gray-500 mt-2">멀티 리소스 기반 AI 주식 분석</p>
           </div>
 
-          {/* TODO: OAuth 프로바이더 설정 후 활성화
-          <OAuthButtons />
-          <OAuthDivider />
-          */}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
