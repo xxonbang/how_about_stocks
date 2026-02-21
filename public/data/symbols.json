@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-02-20T17:38:35.911975",
+  "generated_at": "2026-02-21T01:30:18.238670",
   "korea": {
     "count": 4373,
     "stocks": [
@@ -26245,7 +26245,7 @@
     ]
   },
   "us": {
-    "count": 30047,
+    "count": 30042,
     "stocks": [
       {
         "code": "EMGE",
@@ -236374,34 +236374,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "AMPGW",
-        "name": "AMPGW",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "AUUDW",
-        "name": "AUUDW",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "BANXR",
-        "name": "BANXR",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "VRAR",
-        "name": "VRAR",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "I",
         "name": "I",
         "market": "NYSE",
@@ -236563,13 +236535,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "ARMN",
-        "name": "ARMN",
-        "market": "AMEX",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "PHXE",
         "name": "PHXE",
         "market": "AMEX",
@@ -236578,5 +236543,5 @@
       }
     ]
   },
-  "total": 34420
+  "total": 34415
 }
