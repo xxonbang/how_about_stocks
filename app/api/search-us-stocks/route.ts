@@ -43,19 +43,13 @@ export async function GET(request: NextRequest) {
       // 다중 데이터 소스로 미국 전체 종목 리스트 가져오기
       const { fetchUSStockSymbols, fetchETFList } = await import('@/lib/finnhub-symbols');
       
-      const [usStocks, etfs] = await Promise.all([
-        fetchUSStockSymbols(),
-        fetchETFList(),
-      ]);
-
-      // Python 스크립트를 통한 추가 데이터 소스 (GitHub 리소스 등)
-      let pythonStocks: Array<{ symbol: string; description: string }> = [];
-      try {
+      // Python 스크립트를 통한 추가 데이터 소스 (Finnhub과 병렬 실행)
+      const fetchPythonStocks = async (): Promise<Array<{ symbol: string; description: string }>> => {
         const { spawn } = await import('child_process');
         const { join } = await import('path');
         const { command: pythonCommand } = await findPythonCommand();
         const scriptPath = join(process.cwd(), 'scripts', 'get_us_stock_listing.py');
-        
+
         const pythonProcess = spawn(pythonCommand, [scriptPath]);
         let output = '';
         let errorOutput = '';
@@ -68,37 +62,50 @@ export async function GET(request: NextRequest) {
           errorOutput += data.toString();
         });
 
-        await new Promise<void>((resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+          pythonProcess.kill();
+        }, 15000);
+
+        await new Promise<void>((resolve) => {
           pythonProcess.on('close', (code) => {
-            if (code === 0) {
-              try {
-                const jsonStart = output.indexOf('{');
-                const jsonEnd = output.lastIndexOf('}') + 1;
-                if (jsonStart !== -1 && jsonEnd > jsonStart) {
-                  const jsonText = output.substring(jsonStart, jsonEnd);
-                  const result = JSON.parse(jsonText);
-                  if (result.success && result.data) {
-                    pythonStocks = result.data.map((item: any) => ({
-                      symbol: item.Symbol || item.symbol,
-                      description: item.Name || item.name || item.description,
-                    }));
-                    console.log(`[API] Python script loaded ${pythonStocks.length} US stocks`);
-                  }
-                }
-                resolve();
-              } catch (e) {
-                console.warn('[API] Failed to parse Python output for US stocks:', e);
-                resolve(); // 실패해도 계속 진행
-              }
-            } else {
+            clearTimeout(timeoutId);
+            if (code !== 0) {
               console.warn('[API] Python script failed for US stocks:', errorOutput.substring(0, 200));
-              resolve(); // 실패해도 계속 진행
             }
+            resolve();
           });
         });
-      } catch (error) {
-        console.warn('[API] Failed to fetch US stocks from Python script:', error);
-      }
+
+        try {
+          const jsonStart = output.indexOf('{');
+          const jsonEnd = output.lastIndexOf('}') + 1;
+          if (jsonStart !== -1 && jsonEnd > jsonStart) {
+            const jsonText = output.substring(jsonStart, jsonEnd);
+            const result = JSON.parse(jsonText);
+            if (result.success && result.data) {
+              const stocks = result.data.map((item: any) => ({
+                symbol: item.Symbol || item.symbol,
+                description: item.Name || item.name || item.description,
+              }));
+              console.log(`[API] Python script loaded ${stocks.length} US stocks`);
+              return stocks;
+            }
+          }
+        } catch (e) {
+          console.warn('[API] Failed to parse Python output for US stocks:', e);
+        }
+        return [];
+      };
+
+      // Finnhub API + Python 스크립트를 병렬로 실행
+      const [usStocks, etfs, pythonStocks] = await Promise.all([
+        fetchUSStockSymbols(),
+        fetchETFList(),
+        fetchPythonStocks().catch((error) => {
+          console.warn('[API] Failed to fetch US stocks from Python script:', error);
+          return [] as Array<{ symbol: string; description: string }>;
+        }),
+      ]);
 
       // 모든 데이터 소스 통합
       const allStocks: FinnhubStockSymbol[] = [...usStocks, ...etfs];

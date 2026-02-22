@@ -36,7 +36,7 @@ const API_CATEGORIES = {
   ai: {
     title: 'AI 분석',
     description: 'AI 기반 주식 분석에 사용되는 서비스',
-    apis: ['gemini', 'saveticker'],
+    apis: ['gemini'],
   },
 };
 
@@ -76,10 +76,6 @@ const API_INFO: Record<string, { icon: string; docUrl: string; rateLimit?: strin
     icon: '🤖',
     docUrl: 'https://aistudio.google.com/app/apikey',
     rateLimit: '변동 (티어별)',
-  },
-  saveticker: {
-    icon: '📄',
-    docUrl: 'https://www.saveticker.com/',
   },
 };
 
@@ -311,8 +307,7 @@ TWELVE_DATA_API_KEY=your_twelve_data_key
 # AI 분석
 GEMINI_API_KEY_01=your_gemini_api_key
 GEMINI_API_KEY_02=your_backup_gemini_key
-SAVETICKER_EMAIL=your_email
-SAVETICKER_PASSWORD=your_password`}
+`}
               </pre>
             </div>
             <p className="text-xs text-gray-500 mt-3">

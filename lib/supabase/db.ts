@@ -20,8 +20,8 @@ if (!databaseUrl) {
  */
 const client = databaseUrl
   ? postgres(databaseUrl, {
-      max: 10, // 최대 커넥션 풀
-      idle_timeout: 20, // 유휴 타임아웃 (초)
+      max: 25, // 최대 커넥션 풀
+      idle_timeout: 15, // 유휴 타임아웃 (초)
       connect_timeout: 10, // 연결 타임아웃 (초)
     })
   : null;

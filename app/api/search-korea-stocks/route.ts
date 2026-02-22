@@ -95,27 +95,34 @@ else:
             cwd: process.cwd(),
             env: { ...process.env, PYTHONIOENCODING: 'utf-8' }
           });
-          
+
           let stdout = '';
           let stderr = '';
-          
+
+          const timeoutId = setTimeout(() => {
+            proc.kill();
+            reject(new Error('Python subprocess timed out (15s)'));
+          }, 15000);
+
           proc.stdout?.on('data', (data) => {
             stdout += data.toString();
           });
-          
+
           proc.stderr?.on('data', (data) => {
             stderr += data.toString();
           });
-          
+
           proc.on('close', (code) => {
+            clearTimeout(timeoutId);
             if (code === 0) {
               resolve({ stdout, stderr });
             } else {
               reject(new Error(`Python script exited with code ${code}: ${stderr}`));
             }
           });
-          
+
           proc.on('error', (error) => {
+            clearTimeout(timeoutId);
             reject(error);
           });
         });
@@ -323,27 +330,34 @@ else:
               cwd: process.cwd(),
               env: { ...process.env, PYTHONIOENCODING: 'utf-8' }
             });
-            
+
             let stdout = '';
             let stderr = '';
-            
+
+            const timeoutId = setTimeout(() => {
+              proc.kill();
+              reject(new Error('Python subprocess timed out (15s)'));
+            }, 15000);
+
             proc.stdout?.on('data', (data) => {
               stdout += data.toString();
             });
-            
+
             proc.stderr?.on('data', (data) => {
               stderr += data.toString();
             });
-            
+
             proc.on('close', (code) => {
+              clearTimeout(timeoutId);
               if (code === 0) {
                 resolve({ stdout, stderr });
               } else {
                 reject(new Error(`Python script exited with code ${code}: ${stderr}`));
               }
             });
-            
+
             proc.on('error', (error) => {
+              clearTimeout(timeoutId);
               reject(error);
             });
           });

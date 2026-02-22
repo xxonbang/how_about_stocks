@@ -30,7 +30,7 @@ interface TokenUsage {
   totalTokenCount: number;
 }
 
-// 메타데이터 타입 (Saveticker 포함)
+// 메타데이터 타입
 interface AnalysisMetadata {
   dataCollection: number;
   indicatorCalculation: number;
@@ -38,10 +38,9 @@ interface AnalysisMetadata {
   reportGeneration: number;
   total: number;
   stockCount: number;
-  savetickerIncluded?: boolean;
-  savetickerReport?: {
-    title: string;
-    date: string;
+  macroDataIncluded?: boolean;
+  macroDataSummary?: {
+    newsCount: number;
   } | null;
   tokenUsage?: TokenUsage | null;
 }
@@ -403,12 +402,11 @@ export default function ReportPage() {
                 </div>
               </div>
             </div>
-            {/* Saveticker PDF 포함 여부 - 모바일 최적화 */}
-            {metadata.savetickerIncluded && metadata.savetickerReport && (
+            {/* 거시 환경 데이터 포함 여부 */}
+            {metadata.macroDataIncluded && metadata.macroDataSummary && (
               <div className="mt-2 pt-2 border-t border-slate-600 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs sm:text-sm">
-                <span className="text-purple-400">📄 Saveticker PDF:</span>
-                <span className="text-slate-300 truncate">{metadata.savetickerReport.title}</span>
-                <span className="text-slate-500 text-[10px] sm:text-xs">({metadata.savetickerReport.date})</span>
+                <span className="text-purple-400">Macro:</span>
+                <span className="text-slate-300">{metadata.macroDataSummary.newsCount} news</span>
               </div>
             )}
           </div>

@@ -5,6 +5,7 @@ import { AuthProvider } from "@/lib/auth-context";
 import { Navigation } from "@/components/navigation";
 import { ScrollToTop } from "@/components/scroll-to-top";
 import { PageTracker } from "@/components/page-tracker";
+import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -48,6 +49,7 @@ export default function RootLayout({
           <PageTracker />
           {children}
           <ScrollToTop />
+          <Toaster position="top-center" richColors />
         </AuthProvider>
       </body>
     </html>

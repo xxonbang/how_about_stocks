@@ -178,11 +178,10 @@ export interface AnalyzeResponse {
     reportGeneration: number;
     total: number;
     stockCount: number;
-    // Saveticker 정보
-    savetickerIncluded?: boolean;
-    savetickerReport?: {
-      title: string;
-      date: string;
+    // 거시 환경 데이터 정보
+    macroDataIncluded?: boolean;
+    macroDataSummary?: {
+      newsCount: number;
     } | null;
     // 토큰 사용량 (admin 전용)
     tokenUsage?: {

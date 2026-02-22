@@ -35,6 +35,7 @@ export async function searchStocksYahoo(
       headers: {
         'Accept': 'application/json',
       },
+      signal: AbortSignal.timeout(10000),
     });
 
     if (!response.ok) {
@@ -49,9 +50,9 @@ export async function searchStocksYahoo(
     }
 
     const results: StockSuggestion[] = data.ResultSet.Result
-      .filter((item: any) => item.symbol && item.name)
+      .filter((item: { symbol?: string; name?: string }) => item.symbol && item.name)
       .slice(0, 10) // 최대 10개
-      .map((item: any) => ({
+      .map((item: { symbol: string; name: string; exch?: string; type?: string }) => ({
         symbol: item.symbol,
         name: item.name,
         exchange: item.exch,
@@ -89,6 +90,7 @@ export async function searchStocksFinnhub(query: string): Promise<StockSuggestio
       headers: {
         'Accept': 'application/json',
       },
+      signal: AbortSignal.timeout(10000),
     });
 
     if (!response.ok) {
@@ -103,9 +105,9 @@ export async function searchStocksFinnhub(query: string): Promise<StockSuggestio
     }
 
     const results: StockSuggestion[] = data.result
-      .filter((item: any) => item.symbol && item.description)
+      .filter((item: { symbol?: string; description?: string }) => item.symbol && item.description)
       .slice(0, 10) // 최대 10개
-      .map((item: any) => ({
+      .map((item: { symbol: string; description: string; type?: string }) => ({
         symbol: item.symbol,
         name: item.description,
         type: item.type,

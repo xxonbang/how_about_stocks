@@ -240,7 +240,7 @@ export default function AlertsPage() {
               <CardTitle className="text-xl sm:text-2xl md:text-3xl text-green-600">{alerts.data.stats.resolved}</CardTitle>
             </CardHeader>
           </Card>
-          <Card>
+          <Card aria-label={`Critical 심각도 알림 ${alerts.data.stats.bySeverity.critical || 0}건`}>
             <CardHeader className="pb-2">
               <CardDescription className="text-xs sm:text-sm">Critical</CardDescription>
               <CardTitle className="text-xl sm:text-2xl md:text-3xl text-red-700">
@@ -248,7 +248,7 @@ export default function AlertsPage() {
               </CardTitle>
             </CardHeader>
           </Card>
-          <Card>
+          <Card aria-label={`High 심각도 알림 ${alerts.data.stats.bySeverity.high || 0}건`}>
             <CardHeader className="pb-2">
               <CardDescription className="text-xs sm:text-sm">High</CardDescription>
               <CardTitle className="text-xl sm:text-2xl md:text-3xl text-orange-600">

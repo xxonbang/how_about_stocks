@@ -114,7 +114,9 @@ export async function GET(request: NextRequest) {
     }
 
     // 30일 이상 된 데이터 정리 (비동기)
-    cleanupOldHistory().catch(() => {});
+    cleanupOldHistory().catch((err) => {
+      console.error('[History Cleanup] Unhandled error:', err);
+    });
 
     const searchParams = request.nextUrl.searchParams;
     const limit = Math.min(parseInt(searchParams.get('limit') || '20', 10), 100);
@@ -134,6 +136,7 @@ export async function GET(request: NextRequest) {
         dataSource: analysisHistory.dataSource,
         metadata: analysisHistory.metadata,
         createdAt: analysisHistory.createdAt,
+        totalCount: sql<number>`count(*) OVER()`,
       })
       .from(analysisHistory)
       .orderBy(desc(analysisHistory.createdAt))
@@ -160,11 +163,8 @@ export async function GET(request: NextRequest) {
     const hasMore = results.length > limit;
     const history = hasMore ? results.slice(0, -1) : results;
 
-    // 전체 카운트 조회
-    const countResult = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(analysisHistory);
-    const total = Number(countResult[0]?.count || 0);
+    // 전체 카운트는 window function으로 메인 쿼리에서 함께 조회 (별도 COUNT 쿼리 제거)
+    const total = Number(results[0]?.totalCount || 0);
 
     // 종목명 조회: 모든 히스토리의 종목코드를 수집하여 일괄 매핑
     const allStocks = [...new Set(history.flatMap((h) => h.stocks as string[]))];
@@ -174,7 +174,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        history: history.map((h) => ({
+        history: history.map(({ totalCount: _, ...h }) => ({
           ...h,
           createdAt: h.createdAt?.toISOString(),
         })),

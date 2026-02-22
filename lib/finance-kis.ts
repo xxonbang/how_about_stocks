@@ -220,8 +220,8 @@ async function getKISCredentials(): Promise<KISCredentials> {
   // 5. Supabase에 유효한 키 저장/갱신 (비동기, 실패해도 무시)
   if (!supabaseCredentials || supabaseCredentials.appKey !== envCredentials.appKey) {
     console.log('[KIS] Supabase에 유효한 키 동기화 시작...');
-    saveKISCredentialsToSupabase(envCredentials.appKey, envCredentials.appSecret).catch(() => {
-      // 저장 실패해도 동작에는 영향 없음
+    saveKISCredentialsToSupabase(envCredentials.appKey, envCredentials.appSecret).catch((err) => {
+      console.warn('[KIS] Supabase 키 동기화 실패:', err instanceof Error ? err.message : err);
     });
   }
 
@@ -399,8 +399,8 @@ function saveTokenToSupabase(tokenData: CachedTokenData): void {
         console.log('[KIS] Supabase에 토큰 캐시 저장 완료');
       }
     })
-    .catch(() => {
-      // Supabase 저장 실패해도 동작에 영향 없음
+    .catch((err) => {
+      console.warn('[KIS] Supabase 토큰 저장 실패:', err instanceof Error ? err.message : err);
     });
 }
 
@@ -415,7 +415,9 @@ function invalidateTokenCache(): void {
     .then(({ deactivateApiCredential }) => {
       return deactivateApiCredential('kis', 'access_token');
     })
-    .catch(() => {});
+    .catch((err) => {
+      console.warn('[KIS] Supabase 토큰 비활성화 실패:', err instanceof Error ? err.message : err);
+    });
 
   if (!fileCacheEnabled) return;
 

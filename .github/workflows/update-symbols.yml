@@ -12,10 +12,15 @@ on:
   # 수동 실행도 가능하도록 설정
   workflow_dispatch:
 
+concurrency:
+  group: update-symbols
+  cancel-in-progress: true
+
 jobs:
   update-symbols:
     name: Update Stock Symbols JSON
     runs-on: ubuntu-latest  # GitHub Actions의 무료 Ubuntu 가상 머신 사용
+    timeout-minutes: 15
     
     steps:
       # 1단계: 저장소 코드 체크아웃

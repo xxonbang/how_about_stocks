@@ -34,7 +34,7 @@ async function rateLimitedFetch(url: string): Promise<Response> {
   }
 
   lastRequestTime = Date.now();
-  return fetch(url);
+  return fetch(url, { signal: AbortSignal.timeout(10000) });
 }
 
 /**

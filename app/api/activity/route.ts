@@ -55,30 +55,33 @@ export async function POST(request: NextRequest) {
     const userId = user.id;
     const email = user.email ?? '';
 
-    // user_activity_log에 insert
-    await db.insert(userActivityLog).values({
-      userId,
-      email,
-      systemName: SYSTEM_NAME,
-      actionType,
-      actionDetail: actionDetail ?? {},
-    });
-
-    // user_history에 upsert (accessed_at 갱신)
-    await db
-      .insert(userHistory)
-      .values({
+    // 활동 기록 + 접속 이력을 트랜잭션으로 묶어 원자성 보장
+    await db.transaction(async (tx) => {
+      // user_activity_log에 insert
+      await tx.insert(userActivityLog).values({
         userId,
         email,
         systemName: SYSTEM_NAME,
-      })
-      .onConflictDoUpdate({
-        target: [userHistory.userId, userHistory.systemName],
-        set: {
-          email,
-          accessedAt: sql`now()`,
-        },
+        actionType,
+        actionDetail: actionDetail ?? {},
       });
+
+      // user_history에 upsert (accessed_at 갱신)
+      await tx
+        .insert(userHistory)
+        .values({
+          userId,
+          email,
+          systemName: SYSTEM_NAME,
+        })
+        .onConflictDoUpdate({
+          target: [userHistory.userId, userHistory.systemName],
+          set: {
+            email,
+            accessedAt: sql`now()`,
+          },
+        });
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

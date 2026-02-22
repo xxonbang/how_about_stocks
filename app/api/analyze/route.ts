@@ -85,16 +85,16 @@ import type {
 } from "@/lib/types";
 import { periodToKorean } from "@/lib/period-utils";
 import {
-  fetchLatestSavetickerPDF,
-  generateSavetickerPromptSection,
-  type SavetickerPDFData,
-} from "@/lib/saveticker";
+  fetchMacroData,
+  generateMacroPromptSection,
+  type MacroData,
+} from "@/lib/finnhub-macro";
 
 const getSystemPrompt = (
   period: string,
   historicalPeriod: string,
   analysisDate: string,
-  hasSavetickerReport: boolean = false,
+  hasMacroData: boolean = false,
 ) => `당신은 월스트리트와 여의도에서 20년 이상 활동한 **수석 투자 전략가(Chief Investment Strategist)**입니다.
 당신의 분석 스타일은 **'데이터에 기반한 냉철한 통찰'**입니다. 단순히 '사라/팔아라'가 아니라, 거시 경제 상황과 기업의 펀더멘털, 그리고 기술적 위치를 종합하여 논리적인 시나리오를 제시합니다.
 
@@ -142,7 +142,7 @@ const getSystemPrompt = (
 8. **할루시네이션(Hallucination)**: AI가 실제 데이터나 사실이 아닌 정보를 절대 생성하지 않도록 주의하시오. 모든 분석과 주장은 제공된 데이터와 사실에 근거해야 합니다.
 
 응답은 마크다운 형식으로 작성하되, 다음 구조를 따르세요:
-${hasSavetickerReport ? `## 시황 리포트 요약 (Saveticker)
+${hasMacroData ? `## 거시 환경 분석
 ` : ''}## 과거 이력 분석 (${historicalPeriod} 기간)
 ## 현재 시장 상황
 ## 재료분석 (뉴스 기반)
@@ -163,7 +163,7 @@ ${hasSavetickerReport ? `## 시황 리포트 요약 (Saveticker)
   - 과거 이력 기반 평가
   - 향후 전망 기간(${period}) 관점
   - 재료분석 반영 의견
-${hasSavetickerReport ? `  - 시황 리포트 반영 의견
+${hasMacroData ? `  - 거시 환경 반영 의견
 ` : ''}`;
 
 /**
@@ -171,7 +171,7 @@ ${hasSavetickerReport ? `  - 시황 리포트 반영 의견
  * @param stocksData 종목별 마켓 데이터 배열
  * @param period 분석 기간
  * @param genAI GoogleGenerativeAI 인스턴스
- * @param savetickerPDF Saveticker PDF 데이터 (선택)
+ * @param macroData Finnhub 거시 환경 데이터 (선택)
  * @returns 종목별 리포트 맵 (symbol -> report)
  */
 async function generateAIReportsBatch(
@@ -185,7 +185,7 @@ async function generateAIReportsBatch(
   analysisDate: string,
   genAI: GoogleGenerativeAI,
   modelName: string = "gemini-2.5-flash",
-  savetickerPDF?: SavetickerPDFData | null,
+  macroData?: MacroData | null,
 ): Promise<{
   reports: Map<string, string>;
   tokenUsage?: {
@@ -206,8 +206,8 @@ async function generateAIReportsBatch(
     },
   });
 
-  const hasSavetickerReport = !!savetickerPDF;
-  const systemPrompt = getSystemPrompt(period, historicalPeriod, analysisDate, hasSavetickerReport);
+  const hasMacroData = !!macroData;
+  const systemPrompt = getSystemPrompt(period, historicalPeriod, analysisDate, hasMacroData);
 
   // 개별 종목 데이터 프롬프트 생성 함수
   const buildStockPrompt = ({ symbol, marketData, selectedIndicators }: typeof stocksData[number]) => {
@@ -472,30 +472,15 @@ ${formatExample}
 각 종목의 리포트는 위 형식을 정확히 따라주세요. 종목 심볼을 명확히 표시하고, 각 종목에 대해 완전한 분석 리포트를 작성해주세요.
 `;
 
-  // Saveticker PDF 프롬프트 섹션 추가
-  const savetickerSection = savetickerPDF
-    ? generateSavetickerPromptSection(savetickerPDF)
+  // 거시 환경 데이터 프롬프트 섹션 추가
+  const macroSection = macroData
+    ? generateMacroPromptSection(macroData)
     : '';
 
-  const fullPrompt = systemPrompt + "\n\n" + savetickerSection + dataPrompt;
+  const fullPrompt = systemPrompt + "\n\n" + macroSection + dataPrompt;
 
   try {
-    // PDF가 있으면 멀티모달 입력, 없으면 텍스트만
-    let result;
-    if (savetickerPDF) {
-      console.log('[Gemini] PDF 포함 멀티모달 요청 (단일 API 호출)');
-      result = await model.generateContent([
-        {
-          inlineData: {
-            mimeType: savetickerPDF.mimeType,
-            data: savetickerPDF.pdfBase64,
-          },
-        },
-        fullPrompt,
-      ]);
-    } else {
-      result = await model.generateContent(fullPrompt);
-    }
+    const result = await model.generateContent(fullPrompt);
     const response = await result.response;
     const fullReport = response.text();
 
@@ -648,7 +633,7 @@ ${retryStockPrompt}
 - 재료분석 반영: [의견]
 `;
           const retryResult = await model.generateContent(
-            systemPrompt + "\n\n" + savetickerSection + retryDataPrompt
+            systemPrompt + "\n\n" + macroSection + retryDataPrompt
           );
           const retryResponse = await retryResult.response;
           const retryReport = retryResponse.text();
@@ -677,32 +662,32 @@ ${retryStockPrompt}
     }
 
     return { reports: reportsMap, tokenUsage };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errRecord = error && typeof error === 'object' ? (error as Record<string, unknown>) : {};
     console.error("Error generating AI reports:", error);
     console.error("Error details:", {
-      message: error?.message,
-      status: error?.status,
-      code: error?.code,
-      statusCode: error?.statusCode,
-      errorType: error?.constructor?.name,
+      message: errRecord.message ?? String(error),
+      status: errRecord.status,
+      code: errRecord.code,
+      statusCode: errRecord.statusCode,
+      errorType: error instanceof Error ? error.constructor.name : typeof error,
       fullError: error,
     });
 
     // 원본 오류를 그대로 throw하여 fallback 로직이 오류 정보를 제대로 감지할 수 있도록 함
     // (status, code 등의 속성이 유지되어야 fallback 로직이 재시도 가능한 오류인지 판단 가능)
     if (error instanceof Error) {
-      // Error 객체인 경우 그대로 throw
       throw error;
     } else {
-      // 기타 오류인 경우 Error로 감싸되, 원본 속성 유지
-      const errorMessage = error?.message || String(error) || "알 수 없는 오류";
+      const errorMessage = String(errRecord.message ?? error ?? "알 수 없는 오류");
       const wrappedError = new Error(errorMessage);
       // 원본 오류의 속성들을 유지
-      if (error?.status !== undefined)
-        (wrappedError as any).status = error.status;
-      if (error?.code !== undefined) (wrappedError as any).code = error.code;
-      if (error?.statusCode !== undefined)
-        (wrappedError as any).statusCode = error.statusCode;
+      if (errRecord.status !== undefined)
+        Object.assign(wrappedError, { status: errRecord.status });
+      if (errRecord.code !== undefined)
+        Object.assign(wrappedError, { code: errRecord.code });
+      if (errRecord.statusCode !== undefined)
+        Object.assign(wrappedError, { statusCode: errRecord.statusCode });
       throw wrappedError;
     }
   }
@@ -1219,32 +1204,32 @@ export async function POST(request: NextRequest) {
         indicatorCalculationEnd - indicatorCalculationTiming.startTime;
     }
 
-    // 단계 3: AI 분석 시작 (Saveticker PDF 수집 포함)
+    // 단계 3: AI 분석 시작 (거시 환경 데이터 수집 포함)
     const aiAnalysisStart = Date.now();
     stepTimings.push({ step: "aiAnalysis", startTime: aiAnalysisStart });
 
-    // Saveticker PDF 수집 (환경변수 설정 시에만 실행)
-    let savetickerPDF: SavetickerPDFData | null = null;
+    // Finnhub 거시 환경 데이터 수집
+    let macroData: MacroData | null = null;
     try {
-      console.log('[Saveticker] PDF 수집 시작...');
-      const pdfFetchStart = Date.now();
-      savetickerPDF = await fetchLatestSavetickerPDF();
-      const pdfFetchDuration = Date.now() - pdfFetchStart;
+      console.log('[FinnhubMacro] 거시 환경 데이터 수집 시작...');
+      const macroFetchStart = Date.now();
+      macroData = await fetchMacroData();
+      const macroFetchDuration = Date.now() - macroFetchStart;
 
-      if (savetickerPDF) {
+      if (macroData) {
         console.log(
-          `[Saveticker] PDF 수집 완료: ${savetickerPDF.report.title} (${pdfFetchDuration}ms)`
+          `[FinnhubMacro] 수집 완료: 뉴스 ${macroData.news.length}건 (${macroFetchDuration}ms)`
         );
       } else {
-        console.log('[Saveticker] PDF 없음 또는 미설정 (건너뜀)');
+        console.log('[FinnhubMacro] 데이터 없음 또는 미설정 (건너뜀)');
       }
-    } catch (pdfError) {
-      console.warn('[Saveticker] PDF 수집 실패, 주식 분석만 진행:', pdfError);
-      savetickerPDF = null;
+    } catch (macroError) {
+      console.warn('[FinnhubMacro] 거시 데이터 수집 실패, 주식 분석만 진행:', macroError);
+      macroData = null;
     }
 
     // 모든 종목의 데이터를 모아서 한 번에 AI 리포트 생성 (단 1회 Gemini API 호출, fallback 지원)
-    // Saveticker PDF가 있으면 함께 전달하여 종합 분석
+    // 거시 환경 데이터가 있으면 함께 전달하여 종합 분석
     let aiReportsMap = new Map<string, string>();
     let tokenUsage: {
       promptTokenCount: number;
@@ -1254,14 +1239,14 @@ export async function POST(request: NextRequest) {
 
     if (stocksDataForAI.length > 0) {
       try {
-        const reportSource = savetickerPDF
-          ? `${stocksDataForAI.length} stocks + Saveticker PDF`
+        const reportSource = macroData
+          ? `${stocksDataForAI.length} stocks + macro data`
           : `${stocksDataForAI.length} stocks`;
         console.log(
           `Generating AI reports for ${reportSource} in a single API call...`,
         );
 
-        // Fallback 지원으로 Gemini API 호출 (PDF 포함 시 멀티모달)
+        // Fallback 지원으로 Gemini API 호출
         const analysisDateStr =
           analysisDate || new Date().toISOString().split("T")[0];
         const result = await callGeminiWithFallback(
@@ -1273,7 +1258,7 @@ export async function POST(request: NextRequest) {
               analysisDateStr,
               genAI,
               modelName || "gemini-2.5-flash",
-              savetickerPDF, // PDF 데이터 전달
+              macroData, // 거시 환경 데이터 전달
             );
           },
           {
@@ -1368,22 +1353,19 @@ export async function POST(request: NextRequest) {
         stepTimings.find((t) => t.step === "reportGeneration")?.duration || 0,
       total: totalAnalysisTime,
       stockCount: stocks.length,
-      // Saveticker 통합 정보
-      savetickerIncluded: !!savetickerPDF,
-      savetickerReport: savetickerPDF
-        ? {
-            title: savetickerPDF.report.title,
-            date: savetickerPDF.report.created_at.split('T')[0],
-          }
+      // 거시 환경 데이터 정보
+      macroDataIncluded: !!macroData,
+      macroDataSummary: macroData
+        ? { newsCount: macroData.news.length }
         : null,
       // 토큰 사용량 (admin 전용)
       tokenUsage: tokenUsage || null,
     };
 
     console.log("[Analyze API] Step timings:", stepDurations);
-    if (savetickerPDF) {
+    if (macroData) {
       console.log(
-        `[Analyze API] Saveticker 리포트 통합: ${savetickerPDF.report.title} (Gemini API 단일 호출)`
+        `[Analyze API] 거시 환경 데이터 통합: 뉴스 ${macroData.news.length}건`
       );
     }
 
@@ -1405,12 +1387,12 @@ export async function POST(request: NextRequest) {
       data_source: dataSourceInfo as Record<string, unknown>,
       metadata: {
         stepDurations,
-        savetickerIncluded: !!savetickerPDF,
+        macroDataIncluded: !!macroData,
         tokenUsage: tokenUsage || null,
       },
       user_id: session.id,
-    }).catch(() => {
-      // 이미 함수 내부에서 에러 로깅하므로 여기서는 무시
+    }).catch((err) => {
+      console.error('[AnalysisHistory] Unhandled save error:', err instanceof Error ? err.message : err);
     });
 
     const response: AnalyzeResponse = {
@@ -1431,8 +1413,8 @@ export async function POST(request: NextRequest) {
       reportGeneration: stepDurations.reportGeneration,
       total: stepDurations.total,
       stockCount: stepDurations.stockCount,
-      savetickerIncluded: stepDurations.savetickerIncluded,
-      // savetickerReport 제외 (한국어 제목 포함 가능)
+      macroDataIncluded: stepDurations.macroDataIncluded,
+      // macroDataSummary 제외
       // tokenUsage 제외 (민감 정보)
     };
     responseObj.headers.set("X-Analysis-Timing", JSON.stringify(headerSafeTimings));

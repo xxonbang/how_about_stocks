@@ -120,7 +120,7 @@ async function fetchStockPriceByDate(
     url.searchParams.append('basDt', date);
     url.searchParams.append('likeSrtnCd', stockCode);
 
-    const response = await fetch(url.toString());
+    const response = await fetch(url.toString(), { signal: AbortSignal.timeout(15000) });
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -178,7 +178,7 @@ async function fetchStockHistorical(
     url.searchParams.append('endBasDt', formatDateForApi(endDate));
     url.searchParams.append('likeSrtnCd', stockCode);
 
-    const response = await fetch(url.toString());
+    const response = await fetch(url.toString(), { signal: AbortSignal.timeout(15000) });
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -413,7 +413,7 @@ export async function fetchKRXListedStocks(
       }
 
       console.log(`[PublicData] Fetching KRX listing page ${pageNo}...`);
-      const response = await fetch(url.toString());
+      const response = await fetch(url.toString(), { signal: AbortSignal.timeout(15000) });
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -511,7 +511,7 @@ export async function fetchKoreanIndex(
     url.searchParams.append('basDt', formatDateForApi(recentDate));
     url.searchParams.append('idxNm', indexType);
 
-    const response = await fetch(url.toString());
+    const response = await fetch(url.toString(), { signal: AbortSignal.timeout(15000) });
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);

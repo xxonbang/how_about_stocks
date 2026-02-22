@@ -38,8 +38,7 @@ const KIS_APP_SECRET = process.env.KIS_APP_SECRET || '';
 const GEMINI_API_KEY_01 = process.env.GEMINI_API_KEY_01 || '';
 const GEMINI_API_KEY_02 = process.env.GEMINI_API_KEY_02 || '';
 const GEMINI_API_KEY_03 = process.env.GEMINI_API_KEY_03 || '';
-const SAVETICKER_EMAIL = process.env.SAVETICKER_EMAIL || '';
-const SAVETICKER_PASSWORD = process.env.SAVETICKER_PASSWORD || '';
+
 
 /**
  * KRX API 검사
@@ -482,30 +481,6 @@ async function checkGemini(): Promise<APIStatus> {
 }
 
 /**
- * Saveticker 계정 검사
- */
-async function checkSaveticker(): Promise<APIStatus> {
-  if (!SAVETICKER_EMAIL || !SAVETICKER_PASSWORD) {
-    return {
-      name: 'Saveticker',
-      configured: false,
-      valid: null,
-      message: 'SAVETICKER_EMAIL 또는 SAVETICKER_PASSWORD가 설정되지 않았습니다.',
-      note: 'https://www.saveticker.com/ 에서 계정을 생성하세요.',
-    };
-  }
-
-  // Saveticker는 브라우저 자동화가 필요하므로 설정 여부만 확인
-  return {
-    name: 'Saveticker',
-    configured: true,
-    valid: true,
-    message: '계정 정보가 설정되어 있습니다. (로그인 테스트는 분석 시 수행)',
-    note: '실제 로그인 테스트는 분석 요청 시 수행됩니다.',
-  };
-}
-
-/**
  * 모든 API 상태 확인
  */
 export async function GET(request: NextRequest): Promise<NextResponse<APIStatusResponse>> {
@@ -520,7 +495,6 @@ export async function GET(request: NextRequest): Promise<NextResponse<APIStatusR
     publicdata: checkPublicData,
     kis: checkKIS,
     gemini: checkGemini,
-    saveticker: checkSaveticker,
   };
 
   const apisToCheck = specificApis

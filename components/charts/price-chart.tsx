@@ -50,7 +50,11 @@ export function PriceChart({
   const priceRange = maxPrice - minPrice;
 
   // 커스텀 툴팁 - 모바일 최적화
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: {
+    active?: boolean;
+    payload?: Array<{ payload: Record<string, number> }>;
+    label?: string;
+  }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       const change = data.priceChange || 0;

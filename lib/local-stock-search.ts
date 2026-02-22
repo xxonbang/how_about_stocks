@@ -231,8 +231,8 @@ export async function searchKoreaStocksLocal(query: string): Promise<StockSugges
       if (!aStartsWith && bStartsWith) return 1;
       
       // 유사도 점수로 정렬
-      const aScore = (a as any).score || 1;
-      const bScore = (b as any).score || 1;
+      const aScore = a.score ?? 1;
+      const bScore = b.score ?? 1;
       return aScore - bScore;
     });
   } catch (error) {
@@ -301,8 +301,8 @@ export async function searchUSStocksLocal(query: string): Promise<StockSuggestio
       if (!aStartsWith && bStartsWith) return 1;
       
       // 유사도 점수로 정렬
-      const aScore = (a as any).score || 1;
-      const bScore = (b as any).score || 1;
+      const aScore = a.score ?? 1;
+      const bScore = b.score ?? 1;
       return aScore - bScore;
     });
   } catch (error) {

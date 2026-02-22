@@ -21,37 +21,42 @@ export async function fetchStockSymbolsFromFinnhub(
   securityType?: string
 ): Promise<FinnhubStockSymbol[]> {
   const FINNHUB_API_KEY = process.env.NEXT_PUBLIC_FINNHUB_API_KEY || process.env.FINNHUB_API_KEY || '';
-  
+
   if (!FINNHUB_API_KEY) {
     console.warn('FINNHUB_API_KEY not available, skipping Finnhub symbols fetch');
     return [];
   }
 
   try {
-    let url = `https://finnhub.io/api/v1/stock/symbol?exchange=${exchange}&token=${FINNHUB_API_KEY}`;
-    if (securityType) {
-      url += `&securityType=${securityType}`;
-    }
+    const { getCircuitBreaker } = await import('./circuit-breaker');
+    const breaker = getCircuitBreaker('finnhub', { failureThreshold: 3, resetTimeout: 30000 });
 
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      },
+    return await breaker.execute(async () => {
+      let url = `https://finnhub.io/api/v1/stock/symbol?exchange=${exchange}&token=${FINNHUB_API_KEY}`;
+      if (securityType) {
+        url += `&securityType=${securityType}`;
+      }
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+        signal: AbortSignal.timeout(10000),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Finnhub API failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (!Array.isArray(data)) {
+        return [];
+      }
+
+      return (data as FinnhubStockSymbol[]).filter((item) => item.symbol && item.description);
     });
-
-    if (!response.ok) {
-      console.warn(`Finnhub stock symbols API failed: ${response.status}`);
-      return [];
-    }
-
-    const data = await response.json();
-    
-    if (!Array.isArray(data)) {
-      return [];
-    }
-
-    return data.filter((item: any) => item.symbol && item.description);
   } catch (error) {
     console.error(`Error fetching stock symbols from Finnhub for ${exchange}:`, error);
     return [];

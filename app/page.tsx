@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -133,12 +134,12 @@ function HomePageContent() {
 
     const validStocks = stocks.filter((s) => s.trim() !== "");
     if (validStocks.length === 0) {
-      alert("최소 1개 이상의 종목을 입력해주세요.");
+      toast.warning("최소 1개 이상의 종목을 입력해주세요.");
       return;
     }
 
     if (validStocks.length > 5) {
-      alert("최대 5개 종목까지 분석 가능합니다.");
+      toast.warning("최대 5개 종목까지 분석 가능합니다.");
       return;
     }
 
@@ -414,7 +415,7 @@ function HomePageContent() {
       console.error("Analysis error:", error);
       const errorMessage =
         error instanceof Error ? error.message : "분석 중 오류가 발생했습니다.";
-      alert(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -554,6 +555,8 @@ function HomePageContent() {
                         type="button"
                         onClick={() => setHistoricalPeriod(p)}
                         disabled={isLoading}
+                        aria-pressed={historicalPeriod === p}
+                        aria-label={`과거 데이터 기간 ${labels[p]}`}
                         className={`min-h-[44px] sm:min-h-0 px-3 sm:px-3 py-2.5 sm:py-2 text-sm rounded-md font-medium transition-colors touch-manipulation ${
                           historicalPeriod === p
                             ? "bg-primary text-primary-foreground active:bg-primary/80"
@@ -597,6 +600,8 @@ function HomePageContent() {
                         type="button"
                         onClick={() => setPeriod(p)}
                         disabled={isLoading}
+                        aria-pressed={period === p}
+                        aria-label={`전망 기간 ${labels[p]}`}
                         className={`min-h-[44px] sm:min-h-0 px-3 sm:px-3 py-2.5 sm:py-2 text-sm rounded-md font-medium transition-colors touch-manipulation ${
                           period === p
                             ? "bg-primary text-primary-foreground active:bg-primary/80"

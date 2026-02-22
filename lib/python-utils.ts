@@ -26,6 +26,17 @@ function checkPythonVersion(command: string): Promise<PythonVersionCheck> {
     let output = '';
     let errorOutput = '';
 
+    const timeoutId = setTimeout(() => {
+      pythonProcess.kill();
+      resolve({
+        command,
+        version: null,
+        major: 0,
+        minor: 0,
+        isValid: false,
+      });
+    }, 5000);
+
     pythonProcess.stdout.on('data', (data) => {
       output += data.toString();
     });
@@ -35,6 +46,7 @@ function checkPythonVersion(command: string): Promise<PythonVersionCheck> {
     });
 
     pythonProcess.on('close', (code) => {
+      clearTimeout(timeoutId);
       const versionOutput = output || errorOutput;
       const versionMatch = versionOutput.match(/Python (\d+)\.(\d+)\.(\d+)/);
       
@@ -62,6 +74,7 @@ function checkPythonVersion(command: string): Promise<PythonVersionCheck> {
     });
 
     pythonProcess.on('error', () => {
+      clearTimeout(timeoutId);
       resolve({
         command,
         version: null,

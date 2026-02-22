@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -127,11 +128,11 @@ export default function HistoryPage() {
         sessionStorage.setItem('analysisResults', JSON.stringify(analysisResponse));
         router.push('/report');
       } else {
-        alert('히스토리를 불러올 수 없습니다.');
+        toast.error('히스토리를 불러올 수 없습니다.');
       }
     } catch (error) {
       console.error('Failed to fetch history detail:', error);
-      alert('오류가 발생했습니다.');
+      toast.error('오류가 발생했습니다.');
     } finally {
       setViewingId(null);
     }
@@ -152,11 +153,11 @@ export default function HistoryPage() {
         setHistory((prev) => prev.filter((h) => h.id !== id));
         setTotal((prev) => prev - 1);
       } else {
-        alert('삭제에 실패했습니다.');
+        toast.error('삭제에 실패했습니다.');
       }
     } catch (error) {
       console.error('Failed to delete history:', error);
-      alert('오류가 발생했습니다.');
+      toast.error('오류가 발생했습니다.');
     } finally {
       setDeletingId(null);
     }
