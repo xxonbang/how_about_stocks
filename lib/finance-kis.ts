@@ -729,6 +729,9 @@ async function kisRequest<T extends KISBaseResponse>(
     if (isTokenExpiredResponse(data)) {
       if (isRetry) {
         // 재시도에서도 실패하면 에러 throw
+        import('./alert-system').then(({ alertSystem }) => {
+          alertSystem.alertApiKeyInvalid('KIS', `토큰 재발급 후에도 만료: ${data.msg1}`, { endpoint });
+        }).catch(() => {});
         throw new Error(`KIS 토큰 재발급 후에도 실패: ${data.msg1}`);
       }
 
@@ -747,6 +750,11 @@ async function kisRequest<T extends KISBaseResponse>(
         console.log('[KIS] HTTP 401 오류 - 토큰 만료, 재발급 시도');
         invalidateTokenCache();
         return kisRequest<T>(endpoint, trId, params, true);
+      }
+      if (error.response?.status === 401 && isRetry) {
+        import('./alert-system').then(({ alertSystem }) => {
+          alertSystem.alertApiKeyInvalid('KIS', `HTTP 401 (재시도 후에도 실패)`, { endpoint });
+        }).catch(() => {});
       }
       throw new Error(`KIS API 오류: ${error.response?.data?.msg1 || error.message}`);
     }

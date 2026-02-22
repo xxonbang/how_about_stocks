@@ -6,6 +6,7 @@ import { Navigation } from "@/components/navigation";
 import { ScrollToTop } from "@/components/scroll-to-top";
 import { PageTracker } from "@/components/page-tracker";
 import { Toaster } from "sonner";
+import { ApiKeyAlertBanner } from "@/components/api-key-alert-banner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -45,6 +46,7 @@ export default function RootLayout({
     <html lang="ko">
       <body className={inter.className}>
         <AuthProvider>
+          <ApiKeyAlertBanner />
           <Navigation />
           <PageTracker />
           {children}

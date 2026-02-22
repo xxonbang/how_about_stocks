@@ -201,36 +201,44 @@ async function sendDiscordNotification(alert: Alert): Promise<void> {
 }
 
 /**
- * 이메일로 알림 전송
- * 
- * 이메일 알림을 사용하려면:
- * 1. npm install nodemailer
- * 2. 환경 변수 설정 (ALERT_EMAIL_*)
- * 3. 이 함수의 주석을 해제하고 구현
- * 
- * 현재는 이메일 기능이 비활성화되어 있습니다.
- * 필요시 별도로 구현하거나 nodemailer를 설치한 후 활성화하세요.
+ * 이메일로 알림 전송 (Resend 사용)
  */
 async function sendEmailNotification(alert: Alert): Promise<void> {
   const config = getNotificationConfig();
-  
+
   if (!config.email?.enabled) {
     return;
   }
 
-  // 이메일 기능은 nodemailer 설치 후 활성화 가능
-  // 현재는 비활성화되어 있음
-  console.warn('[Alert] Email notification is not implemented. Install nodemailer and configure email settings to enable.');
-  
-  // TODO: nodemailer 설치 후 아래 코드 활성화
-  /*
+  const severityLabel: Record<Alert['severity'], string> = {
+    critical: '🚨 CRITICAL',
+    high: '🔴 HIGH',
+    medium: '⚠️ MEDIUM',
+    low: 'ℹ️ LOW',
+  };
+
+  const subject = `[${severityLabel[alert.severity]}] ${alert.title}`;
+  const html = `
+    <h2>${alert.title}</h2>
+    <table style="border-collapse:collapse;">
+      <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">심각도</td><td>${alert.severity.toUpperCase()}</td></tr>
+      <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">유형</td><td>${alert.type}</td></tr>
+      <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">데이터 소스</td><td>${alert.dataSource}</td></tr>
+      ${alert.symbol ? `<tr><td style="padding:4px 12px 4px 0;font-weight:bold;">종목</td><td>${alert.symbol}</td></tr>` : ''}
+      <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">메시지</td><td>${alert.message}</td></tr>
+      <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">발생 시간</td><td>${new Date(alert.timestamp).toLocaleString('ko-KR')}</td></tr>
+    </table>
+    <p style="margin-top:16px;color:#666;font-size:12px;">Stock Insight Alert System</p>
+  `;
+
   try {
-    const nodemailer = await import('nodemailer');
-    // 이메일 전송 로직 구현
+    const { sendAlertEmail } = await import('./email');
+    await sendAlertEmail(subject, html);
+    console.log(`[Alert] Email notification sent for alert: ${alert.id}`);
   } catch (error) {
-    console.warn('[Alert] Nodemailer not installed. Install with: npm install nodemailer');
+    console.error(`[Alert] Failed to send email notification:`, error);
+    throw error;
   }
-  */
 }
 
 /**

@@ -101,6 +101,11 @@ export async function fetchTwelveDataQuote(
     const response = await rateLimitedFetch(url);
 
     if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        import('./alert-system').then(({ alertSystem }) => {
+          alertSystem.alertApiKeyInvalid('TwelveData', `HTTP ${response.status}`);
+        }).catch(() => {});
+      }
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
@@ -146,6 +151,11 @@ export async function fetchTwelveDataTimeSeries(
     const response = await rateLimitedFetch(url);
 
     if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        import('./alert-system').then(({ alertSystem }) => {
+          alertSystem.alertApiKeyInvalid('TwelveData', `HTTP ${response.status}`);
+        }).catch(() => {});
+      }
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 

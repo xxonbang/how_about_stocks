@@ -170,6 +170,9 @@ async function fmpRequest<T>(
         throw new Error('FMP API rate limit 초과. 내일 다시 시도하거나 유료 플랜으로 업그레이드해주세요.');
       }
       if (error.response?.status === 401 || error.response?.status === 403) {
+        import('./alert-system').then(({ alertSystem }) => {
+          alertSystem.alertApiKeyInvalid('FMP', `HTTP ${error.response?.status}`, { endpoint });
+        }).catch(() => {});
         throw new Error('FMP API 키가 유효하지 않습니다.');
       }
       if (error.response?.status === 404) {

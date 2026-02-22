@@ -65,6 +65,9 @@ async function finnhubRequest<T>(endpoint: string, params: Record<string, string
         throw new Error('Finnhub API rate limit 초과. 잠시 후 다시 시도해주세요.');
       }
       if (error.response?.status === 401) {
+        import('./alert-system').then(({ alertSystem }) => {
+          alertSystem.alertApiKeyInvalid('Finnhub', `HTTP 401`, { endpoint });
+        }).catch(() => {});
         throw new Error('Finnhub API 키가 유효하지 않습니다.');
       }
       throw new Error(`Finnhub API 오류: ${error.message}`);

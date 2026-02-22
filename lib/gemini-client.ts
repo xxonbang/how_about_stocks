@@ -169,7 +169,12 @@ export async function callGeminiWithFallback<T>(
         console.log(`[Gemini] ${keyLabel}를 실패 목록에 추가 (Rate Limit). 다음 키로 전환...`);
         continue;
       } else {
-        // 다른 오류 (인증 오류 등) - 즉시 throw
+        // 다른 오류 (인증 오류 등) - 알림 후 즉시 throw
+        if (isAuthError(error)) {
+          import('./alert-system').then(({ alertSystem }) => {
+            alertSystem.alertApiKeyInvalid('Gemini', errorMessage.substring(0, 200), { keyIndex });
+          }).catch(() => {});
+        }
         throw lastError;
       }
     }
@@ -206,6 +211,25 @@ function getSmartKeyOrder(totalKeys: number): number[] {
   }
 
   return order;
+}
+
+/**
+ * 인증 관련 오류인지 확인 (401/403)
+ */
+function isAuthError(error: unknown): boolean {
+  const errorMessage = error instanceof Error ? error.message : String(error);
+  const statusCode = (error as Record<string, unknown>)?.status ||
+                     (error as Record<string, unknown>)?.statusCode;
+
+  return (
+    statusCode === 401 ||
+    statusCode === 403 ||
+    errorMessage.includes('401') ||
+    errorMessage.includes('403') ||
+    errorMessage.toLowerCase().includes('api key not valid') ||
+    errorMessage.toLowerCase().includes('permission denied') ||
+    errorMessage.toLowerCase().includes('unauthorized')
+  );
 }
 
 /**
