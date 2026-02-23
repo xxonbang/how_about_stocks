@@ -11,6 +11,29 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // ============================================
+// 유틸리티 함수
+// ============================================
+
+/** 대기 */
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/** 에러 응답에서 retryDelay(초) 파싱 → ms 반환 */
+function parseRetryDelay(error: unknown): number | null {
+  const msg = error instanceof Error ? error.message : String(error);
+  const match = msg.match(/retry\s*(?:in|Delay['":\s]*)\s*(\d+(?:\.\d+)?)\s*s/i);
+  return match ? Math.ceil(parseFloat(match[1]) * 1000) : null;
+}
+
+/** 지수 백오프 + 지터 계산 */
+function getBackoffDelay(attempt: number, baseMs = 1000, maxMs = 30000): number {
+  const exponential = Math.min(baseMs * Math.pow(2, attempt), maxMs);
+  const jitter = Math.random() * exponential * 0.1;
+  return Math.round(exponential + jitter);
+}
+
+// ============================================
 // 세션 레벨 키 상태 관리 (모듈 싱글톤)
 // ============================================
 
@@ -129,54 +152,79 @@ export async function callGeminiWithFallback<T>(
     return callGeminiWithFallback(operation, options);
   }
 
-  // 각 키로 순차적으로 시도
-  for (const keyIndex of keyIndicesToTry) {
+  const MAX_SAME_KEY_RETRIES = 2;
+
+  // 각 키로 순차적으로 시도 (외부: 키 순회, 내부: 같은 키 재시도)
+  for (let ki = 0; ki < keyIndicesToTry.length; ki++) {
+    const keyIndex = keyIndicesToTry[ki];
     const apiKey = apiKeys[keyIndex];
     const keyLabel = `Key ${keyIndex + 1}`;
     const isLastSuccess = keyIndex === keyState.lastSuccessKeyIndex;
+    let retryCount = 0;
 
-    try {
-      if (isLastSuccess) {
-        console.log(`[Gemini] ${keyLabel} (마지막 성공 키) + ${modelName} 사용...`);
-      } else {
-        console.log(`[Gemini] ${keyLabel} + ${modelName} 시도...`);
-      }
+    while (retryCount <= MAX_SAME_KEY_RETRIES) {
+      try {
+        if (retryCount === 0) {
+          if (isLastSuccess) {
+            console.log(`[Gemini] ${keyLabel} (마지막 성공 키) + ${modelName} 사용...`);
+          } else {
+            console.log(`[Gemini] ${keyLabel} + ${modelName} 시도...`);
+          }
+        } else {
+          console.log(`[Gemini] ${keyLabel} 재시도 ${retryCount}/${MAX_SAME_KEY_RETRIES}...`);
+        }
 
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const result = await operation(genAI, modelName);
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const result = await operation(genAI, modelName);
 
-      // 성공 - 키 상태 업데이트
-      if (keyIndex !== keyState.lastSuccessKeyIndex) {
-        console.log(`[Gemini] ${keyLabel} 성공! 이후 이 키를 계속 사용합니다.`);
-      }
-      keyState.lastSuccessKeyIndex = keyIndex;
-      keyState.currentKeyIndex = keyIndex;
+        // 성공 - 키 상태 업데이트
+        if (keyIndex !== keyState.lastSuccessKeyIndex) {
+          console.log(`[Gemini] ${keyLabel} 성공! 이후 이 키를 계속 사용합니다.`);
+        }
+        keyState.lastSuccessKeyIndex = keyIndex;
+        keyState.currentKeyIndex = keyIndex;
 
-      return result;
+        return result;
 
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      lastError = error instanceof Error ? error : new Error(errorMessage);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        lastError = error instanceof Error ? error : new Error(errorMessage);
 
-      // 오류 유형 분석
-      const isRateLimitError = isRetryableRateLimitError(error);
+        console.error(`[Gemini] ${keyLabel} 실패:`, errorMessage.substring(0, 100));
 
-      console.error(`[Gemini] ${keyLabel} 실패:`, errorMessage.substring(0, 100));
-
-      if (isRateLimitError) {
-        // Rate Limit 오류 - 이 키를 실패 목록에 추가
-        keyState.failedKeyIndices.add(keyIndex);
-        console.log(`[Gemini] ${keyLabel}를 실패 목록에 추가 (Rate Limit). 다음 키로 전환...`);
-        continue;
-      } else {
-        // 다른 오류 (인증 오류 등) - 알림 후 즉시 throw
+        // 1. 인증 오류 → 즉시 throw (재시도 불가)
         if (isAuthError(error)) {
           import('./alert-system').then(({ alertSystem }) => {
             alertSystem.alertApiKeyInvalid('Gemini', errorMessage.substring(0, 200), { keyIndex });
           }).catch(() => {});
+          throw lastError;
         }
+
+        // 2. 500/503 서버 오류 → 같은 키로 백오프 재시도 (서버 전체 문제, 키 전환 무의미)
+        if ((isServerInternalError(error) || isServiceUnavailableError(error)) && retryCount < MAX_SAME_KEY_RETRIES) {
+          const delay = parseRetryDelay(error) || getBackoffDelay(retryCount);
+          console.log(`[Gemini] ${keyLabel} 서버 오류. ${delay}ms 대기 후 같은 키로 재시도...`);
+          await sleep(delay);
+          retryCount++;
+          continue;
+        }
+
+        // 3. 429 Rate Limit (프로젝트별 할당량) → 즉시 다음 키 전환 (다른 프로젝트 = 독립 할당량)
+        if (isRateLimitError(error)) {
+          keyState.failedKeyIndices.add(keyIndex);
+          console.log(`[Gemini] ${keyLabel} Rate Limit (429). 다른 프로젝트 키로 즉시 전환...`);
+          break; // 다음 키로 (대기 불필요 — 프로젝트별 독립 할당량)
+        }
+
+        // 4. 기타 → 즉시 throw
         throw lastError;
       }
+    }
+
+    // MAX_SAME_KEY_RETRIES 초과 시 다음 키로
+    if (retryCount > MAX_SAME_KEY_RETRIES) {
+      console.log(`[Gemini] ${keyLabel} 최대 재시도 초과. 다음 키로 전환...`);
+      keyState.failedKeyIndices.add(keyIndex);
     }
   }
 
@@ -233,9 +281,9 @@ function isAuthError(error: unknown): boolean {
 }
 
 /**
- * Rate Limit 관련 재시도 가능한 오류인지 확인
+ * Rate Limit 오류인지 확인 (429 — 프로젝트별 할당량)
  */
-function isRetryableRateLimitError(error: unknown): boolean {
+function isRateLimitError(error: unknown): boolean {
   const errorMessage = error instanceof Error ? error.message : String(error);
   const errorCode = (error as Record<string, unknown>)?.code;
   const statusCode = (error as Record<string, unknown>)?.status ||
@@ -243,9 +291,7 @@ function isRetryableRateLimitError(error: unknown): boolean {
 
   return (
     errorCode === 429 ||
-    errorCode === 503 ||
     statusCode === 429 ||
-    statusCode === 503 ||
     errorMessage.toLowerCase().includes('429') ||
     errorMessage.toLowerCase().includes('quota') ||
     errorMessage.toLowerCase().includes('rate limit') ||
@@ -253,6 +299,46 @@ function isRetryableRateLimitError(error: unknown): boolean {
     errorMessage.toLowerCase().includes('exceeded') ||
     errorMessage.toLowerCase().includes('daily limit') ||
     errorMessage.toLowerCase().includes('usage limit')
+  );
+}
+
+/**
+ * 503 서버 과부하 오류 (서버 전체 문제 — 키 전환 무의미)
+ */
+function isServiceUnavailableError(error: unknown): boolean {
+  const errorCode = (error as Record<string, unknown>)?.code;
+  const statusCode = (error as Record<string, unknown>)?.status ||
+                     (error as Record<string, unknown>)?.statusCode;
+  const msg = (error instanceof Error ? error.message : String(error)).toLowerCase();
+  return (
+    errorCode === 503 || statusCode === 503 ||
+    msg.includes('503') || msg.includes('overloaded')
+  );
+}
+
+/**
+ * RPD(일일 할당량) 소진 여부
+ */
+function isDailyQuotaExhausted(error: unknown): boolean {
+  const msg = (error instanceof Error ? error.message : String(error)).toLowerCase();
+  return (
+    msg.includes('perday') ||
+    msg.includes('per_day') ||
+    (msg.includes('daily') && (msg.includes('limit') || msg.includes('quota')))
+  );
+}
+
+/**
+ * 500 서버 내부 오류 (재시도 가능)
+ */
+function isServerInternalError(error: unknown): boolean {
+  const code = (error as Record<string, unknown>)?.code;
+  const status = (error as Record<string, unknown>)?.status ||
+                 (error as Record<string, unknown>)?.statusCode;
+  const msg = (error instanceof Error ? error.message : String(error)).toLowerCase();
+  return (
+    code === 500 || status === 500 ||
+    (msg.includes('500') && msg.includes('internal'))
   );
 }
 
