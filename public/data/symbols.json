@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-02-27T17:33:58.408652",
+  "generated_at": "2026-02-28T01:22:27.032656",
   "korea": {
     "count": 4278,
     "stocks": [
@@ -25675,7 +25675,7 @@
     ]
   },
   "us": {
-    "count": 30112,
+    "count": 30111,
     "stocks": [
       {
         "code": "YCL",
@@ -236280,13 +236280,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "BCTXW",
-        "name": "BCTXW",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "AHL",
         "name": "AHL",
         "market": "NYSE",
@@ -236463,5 +236456,5 @@
       }
     ]
   },
-  "total": 34390
+  "total": 34389
 }
