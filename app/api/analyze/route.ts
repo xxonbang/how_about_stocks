@@ -59,6 +59,8 @@ import {
   fetchNews,
   fetchUnifiedQuotesBatch,
   getDataSourceInfo,
+  fetchFearGreed,
+  type FearGreedData,
 } from "@/lib/finance-adapter";
 import {
   fetchKoreaSupplyDemand,
@@ -89,6 +91,11 @@ import {
   generateMacroPromptSection,
   type MacroData,
 } from "@/lib/finnhub-macro";
+import {
+  fetchMacroIndicators,
+  summarizeFredData,
+  type FredMacroData,
+} from "@/lib/finance-adapter";
 
 const getSystemPrompt = (
   period: string,
@@ -179,6 +186,7 @@ async function generateAIReportsBatch(
     symbol: string;
     marketData: AnalyzeResult["marketData"];
     selectedIndicators?: AnalyzeRequest["indicators"];
+    historicalData?: Array<{ date: string; close: number; volume: number; high?: number; low?: number; open?: number }>;
   }>,
   period: string,
   historicalPeriod: string,
@@ -186,6 +194,7 @@ async function generateAIReportsBatch(
   genAI: GoogleGenerativeAI,
   modelName: string = "gemini-2.5-flash",
   macroData?: MacroData | null,
+  fredData?: FredMacroData | null,
 ): Promise<{
   reports: Map<string, string>;
   tokenUsage?: {
@@ -210,7 +219,7 @@ async function generateAIReportsBatch(
   const systemPrompt = getSystemPrompt(period, historicalPeriod, analysisDate, hasMacroData);
 
   // 개별 종목 데이터 프롬프트 생성 함수
-  const buildStockPrompt = ({ symbol, marketData, selectedIndicators }: typeof stocksData[number]) => {
+  const buildStockPrompt = ({ symbol, marketData, selectedIndicators, historicalData }: typeof stocksData[number]) => {
       // 프롬프트에 포함될 지표 확인 로깅
       const includedIndicators = [];
       if (marketData.rsi !== undefined) includedIndicators.push("RSI");
@@ -290,7 +299,31 @@ ${
 `
     : ""
 }
+${
+  marketData.supplyDemand?.history && marketData.supplyDemand.history.length > 1
+    ? `
+**수급 추이 (최근 ${marketData.supplyDemand.history.length}거래일)**:
+| 날짜 | 기관 | 외국인 |
+|---|---|---|
+${marketData.supplyDemand.history
+  .map(h => `| ${h.date} | ${h.institutional > 0 ? "+" : ""}${h.institutional.toLocaleString()} | ${h.foreign > 0 ? "+" : ""}${h.foreign.toLocaleString()} |`)
+  .join("\n")}
+- 기관 ${marketData.supplyDemand.history.length}일 누적: ${marketData.supplyDemand.history.reduce((sum, h) => sum + h.institutional, 0) > 0 ? "+" : ""}${marketData.supplyDemand.history.reduce((sum, h) => sum + h.institutional, 0).toLocaleString()}
+- 외국인 ${marketData.supplyDemand.history.length}일 누적: ${marketData.supplyDemand.history.reduce((sum, h) => sum + h.foreign, 0) > 0 ? "+" : ""}${marketData.supplyDemand.history.reduce((sum, h) => sum + h.foreign, 0).toLocaleString()}
+`
+    : ""
+}
 ${marketData.vix !== undefined ? `**VIX 지수**: ${marketData.vix}` : ""}
+${
+  marketData.fearGreedDetail
+    ? `**시장 심리 (Fear & Greed Index)**: ${marketData.fearGreedDetail.value}/100 (${
+        marketData.fearGreedDetail.interpretation === 'extreme_fear' ? '극단적 공포' :
+        marketData.fearGreedDetail.interpretation === 'fear' ? '공포' :
+        marketData.fearGreedDetail.interpretation === 'neutral' ? '중립' :
+        marketData.fearGreedDetail.interpretation === 'greed' ? '탐욕' : '극단적 탐욕'
+      }) [${marketData.fearGreedDetail.source === 'cnn' ? 'CNN' : '자체계산'}]`
+    : ""
+}
 ${
   marketData.exchangeRate
     ? `**환율(USD/KRW)**: ${marketData.exchangeRate.toLocaleString()}`
@@ -301,7 +334,7 @@ ${
     ? `
 **참고 뉴스 헤드라인** (재료분석 시 검색 시작점으로 활용):
 ${marketData.news
-  .slice(0, 3)
+  .slice(0, 5)
   .map(
     (n, i) =>
       `${i + 1}. ${n.title}${
@@ -418,6 +451,70 @@ ${
 `
     : ""
 }
+${
+  (() => {
+    const hd = historicalData;
+    if (!hd || hd.length < 5) return "";
+
+    // 주간 요약 생성 (토큰 절약)
+    const weeklyData: Array<{ weekStart: string; open: number; high: number; low: number; close: number; avgVolume: number }> = [];
+    let weekBucket: typeof hd = [];
+    let currentWeek = "";
+
+    for (const d of hd) {
+      const dateObj = new Date(d.date);
+      const dayOfWeek = dateObj.getDay();
+      const monday = new Date(dateObj);
+      monday.setDate(dateObj.getDate() - ((dayOfWeek + 6) % 7));
+      const weekKey = monday.toISOString().split("T")[0];
+
+      if (weekKey !== currentWeek && weekBucket.length > 0) {
+        const opens = weekBucket.map(x => x.open || x.close);
+        const highs = weekBucket.map(x => x.high || x.close);
+        const lows = weekBucket.map(x => x.low || x.close);
+        const closes = weekBucket.map(x => x.close);
+        const volumes = weekBucket.map(x => x.volume);
+        weeklyData.push({
+          weekStart: currentWeek,
+          open: opens[0],
+          high: Math.max(...highs),
+          low: Math.min(...lows),
+          close: closes[closes.length - 1],
+          avgVolume: Math.round(volumes.reduce((a, b) => a + b, 0) / volumes.length),
+        });
+        weekBucket = [];
+      }
+      currentWeek = weekKey;
+      weekBucket.push(d);
+    }
+    if (weekBucket.length > 0) {
+      const opens = weekBucket.map(x => x.open || x.close);
+      const highs = weekBucket.map(x => x.high || x.close);
+      const lows = weekBucket.map(x => x.low || x.close);
+      const closes = weekBucket.map(x => x.close);
+      const volumes = weekBucket.map(x => x.volume);
+      weeklyData.push({
+        weekStart: currentWeek,
+        open: opens[0],
+        high: Math.max(...highs),
+        low: Math.min(...lows),
+        close: closes[closes.length - 1],
+        avgVolume: Math.round(volumes.reduce((a, b) => a + b, 0) / volumes.length),
+      });
+    }
+
+    const recentWeeks = weeklyData.slice(-20);
+    if (recentWeeks.length === 0) return "";
+
+    let result = `\n**과거 가격 데이터 (주간 요약, ${recentWeeks.length}주)**:\n`;
+    result += `| 주 시작 | 시가 | 고가 | 저가 | 종가 | 평균거래량 |\n`;
+    result += `|---|---|---|---|---|---|\n`;
+    for (const w of recentWeeks) {
+      result += `| ${w.weekStart} | ${w.open.toLocaleString()} | ${w.high.toLocaleString()} | ${w.low.toLocaleString()} | ${w.close.toLocaleString()} | ${w.avgVolume.toLocaleString()} |\n`;
+    }
+    return result;
+  })()
+}
 ---`;
   };
 
@@ -474,7 +571,7 @@ ${formatExample}
 
   // 거시 환경 데이터 프롬프트 섹션 추가
   const macroSection = macroData
-    ? generateMacroPromptSection(macroData)
+    ? generateMacroPromptSection(macroData, fredData)
     : '';
 
   const fullPrompt = systemPrompt + "\n\n" + macroSection + dataPrompt;
@@ -912,6 +1009,19 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Fear & Greed 수집
+    let fearGreedData: FearGreedData | null = null;
+    if (indicators.fearGreed) {
+      try {
+        fearGreedData = await fetchFearGreed(vix);
+        if (fearGreedData) {
+          console.log(`[FearGreed] 수집 완료: ${fearGreedData.value} (${fearGreedData.interpretation})`);
+        }
+      } catch (fgError) {
+        console.warn('[FearGreed] 수집 실패, 건너뜀:', fgError);
+      }
+    }
+
     // 단계 1: 데이터 수집 완료
     const dataCollectionEnd = Date.now();
     const dataCollectionTiming = stepTimings.find(
@@ -935,6 +1045,7 @@ export async function POST(request: NextRequest) {
       symbol: string;
       marketData: AnalyzeResult["marketData"];
       selectedIndicators?: AnalyzeRequest["indicators"];
+      historicalData?: Array<{ date: string; close: number; volume: number; high?: number; low?: number; open?: number }>;
     }> = [];
 
     // 각 종목별로 데이터 처리 (AI 리포트 생성 전에 모든 데이터 수집)
@@ -957,7 +1068,7 @@ export async function POST(request: NextRequest) {
       }
 
       // 뉴스 수집 (최신 3개, 필수 - 실패해도 계속 진행하되 빈 배열 반환)
-      const news = await fetchNews(symbol, 3).catch((err) => {
+      const news = await fetchNews(symbol, 5).catch((err) => {
         console.warn(`Failed to fetch news for ${symbol}:`, err);
         return [];
       });
@@ -1145,6 +1256,14 @@ export async function POST(request: NextRequest) {
         ...(indicators.disparity && disparity !== null && { disparity }),
         ...(supplyDemand && { supplyDemand }),
         ...(indicators.fearGreed && vix !== null && { vix }),
+        ...(fearGreedData && {
+          fearGreedIndex: fearGreedData.value,
+          fearGreedDetail: {
+            value: fearGreedData.value,
+            interpretation: fearGreedData.interpretation,
+            source: fearGreedData.source,
+          },
+        }),
         ...(indicators.exchangeRate &&
           exchangeRate !== null && { exchangeRate }),
         ...(news.length > 0 && { news }),
@@ -1190,6 +1309,7 @@ export async function POST(request: NextRequest) {
         symbol,
         marketData,
         selectedIndicators: indicators,
+        historicalData,
       });
     }
 
@@ -1228,6 +1348,19 @@ export async function POST(request: NextRequest) {
       macroData = null;
     }
 
+    // FRED 매크로 경제 지표 수집
+    let fredData: FredMacroData | null = null;
+    try {
+      console.log('[FRED] 매크로 경제 지표 수집 시작...');
+      fredData = await fetchMacroIndicators();
+      if (fredData && fredData._meta.apiKeyConfigured) {
+        console.log(`[FRED] 수집 완료: ${summarizeFredData(fredData)}`);
+      }
+    } catch (fredError) {
+      console.warn('[FRED] 매크로 지표 수집 실패, 건너뜀:', fredError);
+      fredData = null;
+    }
+
     // 모든 종목의 데이터를 모아서 한 번에 AI 리포트 생성 (단 1회 Gemini API 호출, fallback 지원)
     // 거시 환경 데이터가 있으면 함께 전달하여 종합 분석
     let aiReportsMap = new Map<string, string>();
@@ -1259,6 +1392,7 @@ export async function POST(request: NextRequest) {
               genAI,
               modelName || "gemini-2.5-flash",
               macroData, // 거시 환경 데이터 전달
+              fredData,  // FRED 매크로 지표 전달
             );
           },
           {

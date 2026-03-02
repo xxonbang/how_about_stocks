@@ -62,8 +62,10 @@ async function fetchFromCNN(): Promise<FearGreedData | null> {
 
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Accept': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        'Accept': 'application/json, text/plain, */*',
+        'Referer': 'https://edition.cnn.com/markets/fear-and-greed',
+        'Origin': 'https://edition.cnn.com',
       },
       signal: AbortSignal.timeout(10000), // 10초 타임아웃
     });
@@ -106,8 +108,10 @@ async function fetchFromCNNAlternative(): Promise<FearGreedData | null> {
 
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Accept': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        'Accept': 'application/json, text/plain, */*',
+        'Referer': 'https://edition.cnn.com/markets/fear-and-greed',
+        'Origin': 'https://edition.cnn.com',
       },
       signal: AbortSignal.timeout(10000),
     });

@@ -61,6 +61,11 @@ export interface AnalyzeResult {
       individual: number;
       isIndividualEstimated?: boolean; // 개인 수급이 추정값인 경우 true
       dataDate?: string; // 데이터 기준일 (YYYY-MM-DD)
+      history?: Array<{
+        date: string;
+        institutional: number;
+        foreign: number;
+      }>;
     };
     fearGreedIndex?: number;
     fearGreedDetail?: {

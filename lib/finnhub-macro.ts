@@ -96,10 +96,31 @@ export async function fetchMacroData(): Promise<MacroData | null> {
 /**
  * AI 프롬프트용 거시 환경 마크다운 섹션 생성
  */
-export function generateMacroPromptSection(macroData: MacroData): string {
+import type { FredMacroData } from './fred-client';
+import { summarizeFredData, generateMacroInsights } from './fred-client';
+
+export function generateMacroPromptSection(
+  macroData: MacroData,
+  fredData?: FredMacroData | null
+): string {
   const today = new Date().toISOString().split('T')[0];
 
   let section = `\n## 거시 환경 데이터 (${today})\n\n`;
+
+  // FRED 매크로 경제 지표
+  if (fredData && fredData._meta.apiKeyConfigured) {
+    section += `### 매크로 경제 지표\n`;
+    section += `${summarizeFredData(fredData)}\n\n`;
+
+    const insights = generateMacroInsights(fredData);
+    if (insights.length > 0) {
+      section += `**주요 시사점**:\n`;
+      for (const insight of insights) {
+        section += `- ${insight}\n`;
+      }
+      section += '\n';
+    }
+  }
 
   if (macroData.news.length > 0) {
     section += `### 주요 시장 뉴스\n`;

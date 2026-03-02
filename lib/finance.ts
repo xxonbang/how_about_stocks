@@ -34,6 +34,11 @@ export interface SupplyDemandData {
   individual: number;
   isIndividualEstimated?: boolean; // 개인 수급이 추정값인 경우 true
   dataDate?: string; // 데이터 기준일 (YYYY-MM-DD)
+  history?: Array<{
+    date: string;
+    institutional: number;
+    foreign: number;
+  }>;
 }
 
 export interface MarketSentiment {
@@ -835,34 +840,35 @@ async function fetchKoreaSupplyDemandNaver(symbol: string): Promise<SupplyDemand
     let foreign = 0;
     let individual = 0;
     let dataDate = '';
+    const historyRows: Array<{ date: string; institutional: number; foreign: number }> = [];
 
     // 외국인 기관 순매매 거래량 테이블 (type2 class)
-    // 첫 번째 데이터 행 찾기 (헤더 행 제외)
+    // 최대 5거래일 데이터 수집
     $('table.type2 tr').each((index, element) => {
       const cells = $(element).find('td');
 
-      // 최소 7개의 td가 있고, 첫 번째 데이터 행인 경우
-      if (cells.length >= 7) {
-        // 날짜 (index 0) - 형식: YYYY.MM.DD
+      if (cells.length >= 7 && historyRows.length < 5) {
         const dateText = $(cells[0]).text().trim();
-        // 기관 순매매량 (index 5)
         const institutionalText = $(cells[5]).text().trim().replace(/,/g, '').replace(/\+/g, '');
-        // 외국인 순매매량 (index 6)
         const foreignText = $(cells[6]).text().trim().replace(/,/g, '').replace(/\+/g, '');
 
         const institutionalParsed = parseInt(institutionalText.replace(/[^-\d]/g, ''), 10);
         const foreignParsed = parseInt(foreignText.replace(/[^-\d]/g, ''), 10);
 
         if (!isNaN(institutionalParsed) && !isNaN(foreignParsed)) {
-          institutional = institutionalParsed;
-          foreign = foreignParsed;
-          // 개인은 기관+외국인의 반대값으로 추정 (수급 합계 ≈ 0 가정)
-          // 주의: 이는 추정값이며 실제 개인 투자자 수급과 다를 수 있음
-          individual = -(institutional + foreign);
-          // 날짜 형식 변환 (YYYY.MM.DD -> YYYY-MM-DD)
-          dataDate = dateText.replace(/\./g, '-');
-          console.log(`[Naver Supply/Demand] Parsed for ${symbol}: date=${dataDate}, institutional=${institutional}, foreign=${foreign}, individual=${individual} (estimated)`);
-          return false; // 첫 번째 유효한 행만 사용
+          if (historyRows.length === 0) {
+            // 첫 번째 행 = 최신 데이터 (기존 로직 유지)
+            institutional = institutionalParsed;
+            foreign = foreignParsed;
+            individual = -(institutional + foreign);
+            dataDate = dateText.replace(/\./g, '-');
+            console.log(`[Naver Supply/Demand] Parsed for ${symbol}: date=${dataDate}, institutional=${institutional}, foreign=${foreign}, individual=${individual} (estimated)`);
+          }
+          historyRows.push({
+            date: dateText.replace(/\./g, '-'),
+            institutional: institutionalParsed,
+            foreign: foreignParsed,
+          });
         }
       }
     });
@@ -888,6 +894,7 @@ async function fetchKoreaSupplyDemandNaver(symbol: string): Promise<SupplyDemand
       individual,
       isIndividualEstimated: true, // 개인 수급은 항상 추정값
       dataDate: dataDate || undefined,
+      history: historyRows.length > 1 ? historyRows : undefined,
     };
     metrics.success(symbol, 'Naver Finance (Crawling)', responseTime);
     return result;
