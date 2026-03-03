@@ -1381,7 +1381,7 @@ export async function POST(request: NextRequest) {
 
         // Fallback 지원으로 Gemini API 호출
         const analysisDateStr =
-          analysisDate || new Date().toISOString().split("T")[0];
+          analysisDate || new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().split("T")[0];
         const result = await callGeminiWithFallback(
           async (genAI: GoogleGenerativeAI, modelName?: string) => {
             return await generateAIReportsBatch(
@@ -1508,7 +1508,7 @@ export async function POST(request: NextRequest) {
 
     // 분석 히스토리 Supabase 저장 (비동기, 비블로킹)
     const requestId = `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
-    const analysisDateStr = analysisDate || new Date().toISOString().split("T")[0];
+    const analysisDateStr = analysisDate || new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().split("T")[0];
 
     saveAnalysisHistoryToSupabase({
       request_id: requestId,

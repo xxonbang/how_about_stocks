@@ -33,6 +33,12 @@ function HomePageContent() {
   const searchParams = useSearchParams();
   const { isAuthenticated } = useAuth();
   const [stocks, setStocks] = useState<string[]>([""]);
+
+  // 리포트 페이지를 미리 프리페치하여 전환 속도 개선
+  useEffect(() => {
+    router.prefetch("/report");
+  }, [router]);
+
   // 종목명 -> 심볼 매핑 (분석 시 심볼로 변환하기 위해 사용)
   const [stockSymbolMap, setStockSymbolMap] = useState<Map<string, string>>(
     new Map()
@@ -59,10 +65,11 @@ function HomePageContent() {
   const [period, setPeriod] = useState<AnalysisPeriod>("1m"); // 향후 전망 분석 기간
   const [historicalPeriod, setHistoricalPeriod] =
     useState<AnalysisPeriod>("3m"); // 과거 이력 분석 기간
-  // 분석 기준일: 오늘 날짜 (YYYY-MM-DD 형식)
+  // 분석 기준일: 오늘 날짜 KST 기준 (YYYY-MM-DD 형식)
   const [analysisDate] = useState<string>(() => {
-    const today = new Date();
-    return today.toISOString().split("T")[0];
+    const now = new Date();
+    const kstDate = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+    return kstDate.toISOString().split("T")[0];
   });
   const [indicators, setIndicators] = useState({
     rsi: true,
@@ -310,7 +317,6 @@ function HomePageContent() {
           })
         );
         router.push("/report");
-        setIsLoading(false);
         return;
       }
 
@@ -362,7 +368,6 @@ function HomePageContent() {
           JSON.stringify({ error: data.error, results: [] })
         );
         router.push("/report");
-        setIsLoading(false);
         return;
       }
 
@@ -376,7 +381,6 @@ function HomePageContent() {
           })
         );
         router.push("/report");
-        setIsLoading(false);
         return;
       }
 
@@ -411,12 +415,13 @@ function HomePageContent() {
       // 결과를 sessionStorage에 저장하고 리포트 페이지로 이동
       sessionStorage.setItem("analysisResults", JSON.stringify(dataWithNames));
       router.push("/report");
+      // 주의: 성공 시 setIsLoading(false)를 호출하지 않음
+      // 로딩 오버레이가 페이지 전환 완료(컴포넌트 언마운트)까지 유지되어 매끄러운 전환 제공
     } catch (error) {
       console.error("Analysis error:", error);
       const errorMessage =
         error instanceof Error ? error.message : "분석 중 오류가 발생했습니다.";
       toast.error(errorMessage);
-    } finally {
       setIsLoading(false);
     }
   };

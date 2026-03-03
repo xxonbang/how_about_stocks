@@ -1899,6 +1899,9 @@ export default function ReportPage() {
                     className="group block p-3 rounded-lg border border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 hover:shadow-md"
                   >
                     <div className="flex items-start justify-between gap-3">
+                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center mt-0.5">
+                        {index + 1}
+                      </div>
                       <div className="flex-1 min-w-0">
                         <div className="font-medium text-gray-900 group-hover:text-blue-700 transition-colors line-clamp-2">
                           {item.title}
