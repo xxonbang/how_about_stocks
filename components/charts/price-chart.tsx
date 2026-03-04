@@ -127,7 +127,7 @@ export function PriceChart({
               tickFormatter={formatChartPrice}
               stroke="#6b7280"
               tick={{ fontSize: 10 }}
-              width={45}
+              width={55}
               domain={[minPrice - priceRange * 0.1, maxPrice + priceRange * 0.1]}
             />
           <Tooltip content={<CustomTooltip />} />
@@ -139,6 +139,7 @@ export function PriceChart({
             stroke="transparent"
             fill="url(#priceGradient)"
             fillOpacity={1}
+            legendType="none"
           />
 
           {/* 주가 라인 */}

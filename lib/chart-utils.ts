@@ -175,8 +175,5 @@ export function formatChartDate(dateString: string): string {
  * 가격 포맷팅 (차트 Y축용)
  */
 export function formatChartPrice(price: number): string {
-  if (price >= 1000) {
-    return (price / 1000).toFixed(1) + 'K';
-  }
-  return price.toFixed(0);
+  return Math.round(price).toLocaleString();
 }
