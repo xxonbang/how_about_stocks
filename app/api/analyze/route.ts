@@ -97,6 +97,33 @@ import {
   type FredMacroData,
 } from "@/lib/finance-adapter";
 
+/**
+ * Gemini Google Search 그라운딩 메타데이터를 응답 텍스트에서 제거
+ * - <br> 태그 이후의 인라인 인용/URL 블록
+ * - 그라운딩 참조 URL (네이버, FnGuide, Google 검색 등)
+ * - 인라인 인용 패턴 (": headline (source, date.)")
+ */
+function cleanGroundingMetadata(text: string): string {
+  // 1. 리포트 본문 뒤에 붙는 그라운딩 블록 제거
+  //    패턴: <br> 뒤에 ": 뉴스제목 (출처, 날짜)" 또는 ": https://..." 가 반복되는 블록
+  const groundingBlockPattern = /<br\s*\/?>\s*(?::[\s\S]*?)$/i;
+  let cleaned = text.replace(groundingBlockPattern, '');
+
+  // 2. 남은 <br> 태그 제거
+  cleaned = cleaned.replace(/<br\s*\/?>/gi, '\n');
+
+  // 3. 그라운딩 인용 라인 제거 (": https://..." 패턴)
+  cleaned = cleaned.replace(/^[ \t]*:[ \t]*https?:\/\/\S+.*$/gm, '');
+
+  // 4. 그라운딩 참조 URL 라인 제거 (단독 URL 라인)
+  cleaned = cleaned.replace(/^[ \t]*https?:\/\/(finance\.naver\.com|comp\.fnguide\.com|www\.google\.com\/search)\S*.*$/gm, '');
+
+  // 5. 끝에 남는 빈 줄 정리
+  cleaned = cleaned.replace(/\n{3,}/g, '\n\n').trimEnd();
+
+  return cleaned;
+}
+
 const getSystemPrompt = (
   period: string,
   historicalPeriod: string,
@@ -519,276 +546,81 @@ ${
 ---`;
   };
 
-  // 모든 종목의 데이터를 하나의 프롬프트로 구성
-  const stocksDataPrompt = stocksData.map(buildStockPrompt).join("\n");
-
-  const symbolsList = stocksData.map(({ symbol }) => symbol).join(", ");
-
-  // 응답 형식 예시 생성
-  const formatExample = stocksData
-    .map(({ symbol }, index) => {
-      return `[종목: ${symbol}]
----
-## ${symbol} 현재 시장 상황
-[${symbol}의 현재 시장 상황 분석]
-
-## ${symbol} 재료분석 (뉴스 기반)
-[Google 검색으로 수집한 뉴스 기반 재료분석]
-
-## ${symbol} 기술적 분석
-[${symbol}의 기술적 분석]
-
-## ${symbol} 수급 분석
-[${symbol}의 수급 분석]
-
-## ${symbol} 펀더멘털 분석
-[PER, PBR, PEG, ROE, OPM, EPS, 부채비율, 배당수익률 등 Google 검색 기반 분석]
-
-## ${symbol} 투자 의견
-- 단기 관점: [의견]
-- 장기 관점: [의견]
-- 재료분석 반영: [의견]
-
-`;
-    })
-    .join("\n");
-
-  const dataPrompt = `
-다음 ${stocksData.length}개 종목(${symbolsList})의 데이터를 각각 분석해주세요:
-
-${stocksDataPrompt}
-
-**중요 지침**:
-1. 각 종목에 대해 독립적인 분석 리포트를 작성하되, 응답 형식은 반드시 다음과 같이 해주세요:
-2. **재료분석 필수**: 시스템 프롬프트의 재료분석 프로세스(뉴스 수집 → 분류 → 평가)를 각 종목에 대해 반드시 수행하고, 결과를 "재료분석 (뉴스 기반)" 섹션에 정리하십시오.
-3. **펀더멘털 분석 필수**: 각 종목의 펀더멘털 지표(PER, PBR, PEG, ROE, OPM, EPS, 부채비율, 배당수익률 등)를 Google 검색하여 최신 수치를 확보하고, "펀더멘털 분석" 섹션에 밸류에이션 평가와 함께 정리하십시오.
-
-응답 형식:
-
-${formatExample}
-
-각 종목의 리포트는 위 형식을 정확히 따라주세요. 종목 심볼을 명확히 표시하고, 각 종목에 대해 완전한 분석 리포트를 작성해주세요.
-`;
-
-  // 거시 환경 데이터 프롬프트 섹션 추가
+  // 거시 환경 데이터 프롬프트 섹션 (전 종목 공통)
   const macroSection = macroData
     ? generateMacroPromptSection(macroData, fredData)
     : '';
 
-  const fullPrompt = systemPrompt + "\n\n" + macroSection + dataPrompt;
+  // 종목별 개별 API 호출 (Google Search 컨텍스트 격리)
+  const reportsMap = new Map<string, string>();
+  const totalTokenUsage = { promptTokenCount: 0, candidatesTokenCount: 0, totalTokenCount: 0 };
 
-  try {
-    const result = await model.generateContent(fullPrompt);
-    const response = await result.response;
-    const fullReport = response.text();
+  for (const stock of stocksData) {
+    const stockPrompt = buildStockPrompt(stock);
+    const displayName = stock.name ? `${stock.name} (${stock.symbol})` : stock.symbol;
+    const dataPrompt = `
+다음 종목(${displayName})의 데이터를 분석해주세요:
 
-    // finishReason 체크: MAX_TOKENS로 응답이 잘렸는지 감지
-    const finishReason = response.candidates?.[0]?.finishReason;
-    const isResponseTruncated = finishReason === 'MAX_TOKENS' || finishReason === 'RECITATION';
-    if (isResponseTruncated) {
-      console.warn(`[Gemini] Response truncated! finishReason: ${finishReason}, stocks: ${stocksData.map(s => s.symbol).join(', ')}`);
-    }
-
-    // 토큰 사용량 추출
-    const usageMetadata = response.usageMetadata;
-    const tokenUsage = usageMetadata
-      ? {
-          promptTokenCount: usageMetadata.promptTokenCount || 0,
-          candidatesTokenCount: usageMetadata.candidatesTokenCount || 0,
-          totalTokenCount: usageMetadata.totalTokenCount || 0,
-        }
-      : undefined;
-
-    if (tokenUsage) {
-      console.log('[Gemini] Token Usage:', tokenUsage, `finishReason: ${finishReason}`);
-    }
-
-    // 응답을 종목별로 파싱
-    const reportsMap = new Map<string, string>();
-
-    // 심볼 정규화 함수 (이스케이프 처리)
-    const escapeRegex = (str: string) =>
-      str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-    // 각 종목별로 리포트 분리
-    // 패턴: [종목: SYMBOL] 형식 우선, 그 외 다양한 형식 지원
-    for (const { symbol } of stocksData) {
-      const escapedSymbol = escapeRegex(symbol);
-
-      // 여러 패턴 시도 (우선순위 순)
-      const patterns = [
-        // [종목: SYMBOL] --- 형식 (가장 명확)
-        new RegExp(
-          `\\[종목:\\s*${escapedSymbol}\\s*\\]\\s*\\n---\\s*\\n([\\s\\S]*?)(?=\\[종목:|$)`,
-          "i",
-        ),
-        // [종목: SYMBOL] 형식 (--- 없음)
-        new RegExp(
-          `\\[종목:\\s*${escapedSymbol}\\s*\\]\\s*\\n([\\s\\S]*?)(?=\\[종목:|$)`,
-          "i",
-        ),
-        // ## SYMBOL 현재 시장 상황 형식
-        new RegExp(
-          `##\\s*${escapedSymbol}\\s+현재 시장 상황[\\s\\S]*?([\\s\\S]*?)(?=##\\s*[A-Z0-9]+(?:\\.KS|\\.KQ)?\\s+현재 시장 상황|\\[종목:|$)`,
-          "i",
-        ),
-        // 종목: SYMBOL 형식
-        new RegExp(
-          `종목:\\s*${escapedSymbol}\\s*\\n---\\s*\\n([\\s\\S]*?)(?=종목:|$)`,
-          "i",
-        ),
-        // ## SYMBOL 형식
-        new RegExp(
-          `##\\s*${escapedSymbol}[\\s\\S]*?\\n([\\s\\S]*?)(?=##\\s*[A-Z0-9]+(?:\\.KS|\\.KQ)?|\\[종목:|종목:|$)`,
-          "i",
-        ),
-      ];
-
-      let found = false;
-      for (const pattern of patterns) {
-        const match = fullReport.match(pattern);
-        if (match && match[1]) {
-          const report = match[1].trim();
-          // 최소 길이 체크 (너무 짧으면 무시)
-          if (report.length > 100) {
-            // 추가 검증: 매칭된 리포트에 다른 종목의 심볼이 헤더로 포함되어 있으면 제외
-            const otherSymbols = stocksData
-              .filter((s) => s.symbol !== symbol)
-              .map((s) => s.symbol);
-            const hasOtherSymbolHeader = otherSymbols.some((other) =>
-              new RegExp(`##\\s*${escapeRegex(other)}\\s`, "i").test(
-                report.slice(0, 200),
-              ),
-            );
-
-            if (!hasOtherSymbolHeader) {
-              reportsMap.set(symbol, report);
-              found = true;
-              console.log(
-                `[AI Report Parsing] Successfully matched report for ${symbol} (length: ${report.length})`,
-              );
-              break;
-            } else {
-              console.warn(
-                `[AI Report Parsing] Matched content for ${symbol} contains other symbol header, trying next pattern`,
-              );
-            }
-          }
-        }
-      }
-
-      if (!found) {
-        console.warn(
-          `[AI Report Parsing] Failed to find matching report for ${symbol}`,
-        );
-      }
-    }
-
-    // 단일 종목인데 파싱 실패 시 전체 리포트를 할당
-    if (reportsMap.size === 0 && stocksData.length === 1) {
-      reportsMap.set(stocksData[0].symbol, fullReport);
-    }
-
-    // 파싱 실패한 종목들을 개별 API 호출로 재시도
-    const failedStocks = stocksData.filter(s => !reportsMap.has(s.symbol));
-    if (failedStocks.length > 0 && stocksData.length > 1) {
-      console.log(`[AI Report Retry] ${failedStocks.length}개 종목 개별 재요청: ${failedStocks.map(s => s.symbol).join(', ')}`);
-
-      for (const failedStock of failedStocks) {
-        try {
-          const retryStockPrompt = buildStockPrompt(failedStock);
-          const retryDataPrompt = `
-다음 1개 종목(${failedStock.symbol})의 데이터를 분석해주세요:
-
-${retryStockPrompt}
+${stockPrompt}
 
 **중요 지침**:
-1. 해당 종목에 대해 독립적인 분석 리포트를 작성하되, 응답 형식은 반드시 다음과 같이 해주세요:
+1. 해당 종목에 대해 독립적인 분석 리포트를 작성하십시오.
 2. **재료분석 필수**: 시스템 프롬프트의 재료분석 프로세스(뉴스 수집 → 분류 → 평가)를 반드시 수행하고, 결과를 "재료분석 (뉴스 기반)" 섹션에 정리하십시오.
-
-응답 형식:
-
-[종목: ${failedStock.symbol}]
----
-## ${failedStock.symbol} 현재 시장 상황
-[분석]
-
-## ${failedStock.symbol} 재료분석 (뉴스 기반)
-[Google 검색으로 수집한 뉴스 기반 재료분석]
-
-## ${failedStock.symbol} 기술적 분석
-[분석]
-
-## ${failedStock.symbol} 수급 분석
-[분석]
-
-## ${failedStock.symbol} 펀더멘털 분석
-[PER, PBR, PEG, ROE, OPM, EPS, 부채비율, 배당수익률 등 Google 검색 기반 분석]
-
-## ${failedStock.symbol} 투자 의견
-- 단기 관점: [의견]
-- 장기 관점: [의견]
-- 재료분석 반영: [의견]
+3. **펀더멘털 분석 필수**: 펀더멘털 지표(PER, PBR, PEG, ROE, OPM, EPS, 부채비율, 배당수익률 등)를 Google 검색하여 최신 수치를 확보하고, "펀더멘털 분석" 섹션에 밸류에이션 평가와 함께 정리하십시오.
 `;
-          const retryResult = await model.generateContent(
-            systemPrompt + "\n\n" + macroSection + retryDataPrompt
-          );
-          const retryResponse = await retryResult.response;
-          const retryReport = retryResponse.text();
 
-          if (retryReport && retryReport.length > 100) {
-            // [종목: SYMBOL] 헤더 제거 후 본문만 추출
-            const cleaned = retryReport
-              .replace(/^\s*\[종목:\s*[^\]]+\]\s*\n---\s*\n/, '')
-              .trim();
-            reportsMap.set(failedStock.symbol, cleaned.length > 100 ? cleaned : retryReport);
-            console.log(`[AI Report Retry] ${failedStock.symbol} 개별 재요청 성공 (length: ${retryReport.length})`);
-          } else {
-            reportsMap.set(
-              failedStock.symbol,
-              `## ${failedStock.symbol} 분석 리포트\n\n⚠️ AI 리포트 파싱 중 오류가 발생했습니다. 전체 리포트를 확인해주세요.`,
-            );
-          }
-        } catch (retryError) {
-          console.error(`[AI Report Retry] ${failedStock.symbol} 개별 재요청 실패:`, retryError);
-          reportsMap.set(
-            failedStock.symbol,
-            `## ${failedStock.symbol} 분석 리포트\n\n⚠️ AI 리포트 생성 중 오류가 발생했습니다. 전체 리포트를 확인해주세요.`,
-          );
-        }
+    try {
+      console.log(`[Gemini] Generating report for ${displayName}...`);
+      const result = await model.generateContent(
+        systemPrompt + "\n\n" + macroSection + dataPrompt
+      );
+      const response = await result.response;
+      const report = cleanGroundingMetadata(response.text());
+
+      // finishReason 체크
+      const finishReason = response.candidates?.[0]?.finishReason;
+      if (finishReason === 'MAX_TOKENS' || finishReason === 'RECITATION') {
+        console.warn(`[Gemini] Response truncated for ${stock.symbol}! finishReason: ${finishReason}`);
       }
-    }
 
-    return { reports: reportsMap, tokenUsage };
-  } catch (error: unknown) {
-    const errRecord = error && typeof error === 'object' ? (error as Record<string, unknown>) : {};
-    console.error("Error generating AI reports:", error);
-    console.error("Error details:", {
-      message: errRecord.message ?? String(error),
-      status: errRecord.status,
-      code: errRecord.code,
-      statusCode: errRecord.statusCode,
-      errorType: error instanceof Error ? error.constructor.name : typeof error,
-      fullError: error,
-    });
+      // 토큰 사용량 누적
+      const usage = response.usageMetadata;
+      if (usage) {
+        totalTokenUsage.promptTokenCount += usage.promptTokenCount || 0;
+        totalTokenUsage.candidatesTokenCount += usage.candidatesTokenCount || 0;
+        totalTokenUsage.totalTokenCount += usage.totalTokenCount || 0;
+      }
 
-    // 원본 오류를 그대로 throw하여 fallback 로직이 오류 정보를 제대로 감지할 수 있도록 함
-    // (status, code 등의 속성이 유지되어야 fallback 로직이 재시도 가능한 오류인지 판단 가능)
-    if (error instanceof Error) {
-      throw error;
-    } else {
-      const errorMessage = String(errRecord.message ?? error ?? "알 수 없는 오류");
-      const wrappedError = new Error(errorMessage);
-      // 원본 오류의 속성들을 유지
-      if (errRecord.status !== undefined)
-        Object.assign(wrappedError, { status: errRecord.status });
-      if (errRecord.code !== undefined)
-        Object.assign(wrappedError, { code: errRecord.code });
-      if (errRecord.statusCode !== undefined)
-        Object.assign(wrappedError, { statusCode: errRecord.statusCode });
-      throw wrappedError;
+      if (report && report.length > 100) {
+        // [종목: SYMBOL] 헤더가 있으면 제거
+        const cleaned = report
+          .replace(/^\s*\[종목:\s*[^\]]+\]\s*\n---\s*\n/, '')
+          .trim();
+        reportsMap.set(stock.symbol, cleaned.length > 100 ? cleaned : report);
+        console.log(`[Gemini] Report for ${stock.symbol} generated (length: ${report.length})`);
+      } else {
+        reportsMap.set(
+          stock.symbol,
+          `## ${displayName} 분석 리포트\n\n⚠️ AI 리포트 생성 결과가 부족합니다.`,
+        );
+      }
+    } catch (stockError) {
+      console.error(`[Gemini] Failed to generate report for ${stock.symbol}:`, stockError);
+      reportsMap.set(
+        stock.symbol,
+        `## ${displayName} 분석 리포트\n\n⚠️ AI 리포트 생성 중 오류가 발생했습니다: ${stockError instanceof Error ? stockError.message : "알 수 없는 오류"}`,
+      );
     }
   }
+
+  if (totalTokenUsage.totalTokenCount > 0) {
+    console.log('[Gemini] Total Token Usage:', totalTokenUsage);
+  }
+
+  return {
+    reports: reportsMap,
+    tokenUsage: totalTokenUsage.totalTokenCount > 0 ? totalTokenUsage : undefined,
+  };
 }
 
 export async function POST(request: NextRequest) {
