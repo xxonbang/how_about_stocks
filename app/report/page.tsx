@@ -561,6 +561,7 @@ export default function ReportPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-1.5 text-xs sm:text-sm">
+                {marketData.movingAverages.ma5 !== undefined && (
                 <div className="flex items-center gap-1.5">
                   <span>📅</span>
                   <span className="font-medium">5일:</span>
@@ -568,6 +569,8 @@ export default function ReportPage() {
                     {marketData.movingAverages.ma5.toLocaleString()}
                   </span>
                 </div>
+                )}
+                {marketData.movingAverages.ma20 !== undefined && (
                 <div className="flex items-center gap-1.5">
                   <span>📅</span>
                   <span className="font-medium">20일:</span>
@@ -575,6 +578,8 @@ export default function ReportPage() {
                     {marketData.movingAverages.ma20.toLocaleString()}
                   </span>
                 </div>
+                )}
+                {marketData.movingAverages.ma60 !== undefined && (
                 <div className="flex items-center gap-1.5">
                   <span>📅</span>
                   <span className="font-medium">60일:</span>
@@ -582,6 +587,8 @@ export default function ReportPage() {
                     {marketData.movingAverages.ma60.toLocaleString()}
                   </span>
                 </div>
+                )}
+                {marketData.movingAverages.ma120 !== undefined && (
                 <div className="flex items-center gap-1.5">
                   <span>📅</span>
                   <span className="font-medium">120일:</span>
@@ -589,6 +596,7 @@ export default function ReportPage() {
                     {marketData.movingAverages.ma120.toLocaleString()}
                   </span>
                 </div>
+                )}
               </CardContent>
             </Card>
           )}
@@ -1667,7 +1675,7 @@ export default function ReportPage() {
                   <CardTitle>주가 차트 (이동평균선)</CardTitle>
                   <CardDescription>
                     {currentResult.name || currentResult.symbol}의 주가 추이 및
-                    5일/20일/60일 이동평균선
+                    이동평균선 / EMA(25)
                   </CardDescription>
                 </CardHeader>
                 <CardContent>

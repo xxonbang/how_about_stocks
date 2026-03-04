@@ -320,8 +320,16 @@ function HomePageContent() {
         return;
       }
 
+      // 심볼 → 종목명 매핑 생성 (Gemini 프롬프트에서 종목명 사용)
+      const stockNamesMap: Record<string, string> = {};
+      for (const sym of stockSymbols) {
+        const name = symbolToNameMap.get(sym);
+        if (name) stockNamesMap[sym] = name;
+      }
+
       const request: AnalyzeRequest = {
         stocks: stockSymbols,
+        stockNames: stockNamesMap,
         period,
         historicalPeriod,
         analysisDate,

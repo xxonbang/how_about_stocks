@@ -185,6 +185,15 @@ export function PriceChart({
                 strokeDasharray="5 5"
                 connectNulls
               />
+              <Line
+                type="monotone"
+                dataKey="ema25"
+                stroke="#ec4899"
+                strokeWidth={1.5}
+                dot={false}
+                name="EMA25"
+                connectNulls
+              />
             </>
           )}
 

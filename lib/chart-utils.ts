@@ -4,7 +4,7 @@
 
 import type { AnalyzeResult } from './types';
 import { calculateRSI, calculateMA } from './finance';
-import { calculateBollingerBands, calculateMACD, calculateStochastic } from './indicators';
+import { calculateBollingerBands, calculateMACD, calculateStochastic, calculateEMA } from './indicators';
 
 export interface ChartDataPoint {
   date: string;
@@ -17,6 +17,7 @@ export interface ChartDataPoint {
   ma20?: number;
   ma60?: number;
   ma120?: number;
+  ema25?: number;
   bbUpper?: number;
   bbMiddle?: number;
   bbLower?: number;
@@ -65,6 +66,9 @@ export function transformToChartData(
 
   // MACD 전체 계산 (한 번만 계산)
   const macdResult = closes.length >= 26 ? calculateMACD(closes) : null;
+
+  // EMA25 전체 계산 (한 번만 계산)
+  const ema25Array = closes.length >= 25 ? calculateEMA(closes, 25) : null;
 
   // Stochastic 전체 계산 (한 번만 계산)
   const highs = historicalData.map((d) => d.high || d.close);
@@ -141,6 +145,7 @@ export function transformToChartData(
       ma20: ma20Val,
       ma60: ma60Val,
       ma120: ma120Val,
+      ema25: ema25Array && index < ema25Array.length ? Math.round(ema25Array[index] * 100) / 100 : undefined,
       bbUpper,
       bbMiddle,
       bbLower,

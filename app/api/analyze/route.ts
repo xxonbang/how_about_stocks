@@ -184,6 +184,7 @@ ${hasMacroData ? `  - 거시 환경 반영 의견
 async function generateAIReportsBatch(
   stocksData: Array<{
     symbol: string;
+    name?: string;
     marketData: AnalyzeResult["marketData"];
     selectedIndicators?: AnalyzeRequest["indicators"];
     historicalData?: Array<{ date: string; close: number; volume: number; high?: number; low?: number; open?: number }>;
@@ -219,7 +220,7 @@ async function generateAIReportsBatch(
   const systemPrompt = getSystemPrompt(period, historicalPeriod, analysisDate, hasMacroData);
 
   // 개별 종목 데이터 프롬프트 생성 함수
-  const buildStockPrompt = ({ symbol, marketData, selectedIndicators, historicalData }: typeof stocksData[number]) => {
+  const buildStockPrompt = ({ symbol, name, marketData, selectedIndicators, historicalData }: typeof stocksData[number]) => {
       // 프롬프트에 포함될 지표 확인 로깅
       const includedIndicators = [];
       if (marketData.rsi !== undefined) includedIndicators.push("RSI");
@@ -253,7 +254,7 @@ async function generateAIReportsBatch(
       );
 
       return `
-## 종목 ${symbol}
+## 종목 ${name ? `${name} (${symbol})` : symbol}
 
 **현재가**: ${marketData.price.toLocaleString()}
 **변동률**: ${
@@ -271,10 +272,10 @@ ${
   marketData.movingAverages
     ? `
 **이동평균선**:
-- 5일선: ${marketData.movingAverages.ma5.toLocaleString()}
-- 20일선: ${marketData.movingAverages.ma20.toLocaleString()}
-- 60일선: ${marketData.movingAverages.ma60.toLocaleString()}
-- 120일선: ${marketData.movingAverages.ma120.toLocaleString()}
+${marketData.movingAverages.ma5 !== undefined ? `- 5일선: ${marketData.movingAverages.ma5.toLocaleString()}` : ""}
+${marketData.movingAverages.ma20 !== undefined ? `- 20일선: ${marketData.movingAverages.ma20.toLocaleString()}` : ""}
+${marketData.movingAverages.ma60 !== undefined ? `- 60일선: ${marketData.movingAverages.ma60.toLocaleString()}` : ""}
+${marketData.movingAverages.ma120 !== undefined ? `- 120일선: ${marketData.movingAverages.ma120.toLocaleString()}` : ""}
 `
     : ""
 }
@@ -801,7 +802,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body: AnalyzeRequest = await request.json();
-    const { stocks, period, historicalPeriod, analysisDate, indicators } = body;
+    const { stocks, stockNames, period, historicalPeriod, analysisDate, indicators } = body;
 
     // 인증 확인
     const session = await getSession();
@@ -1043,6 +1044,7 @@ export async function POST(request: NextRequest) {
     const results: AnalyzeResult[] = [];
     const stocksDataForAI: Array<{
       symbol: string;
+      name?: string;
       marketData: AnalyzeResult["marketData"];
       selectedIndicators?: AnalyzeRequest["indicators"];
       historicalData?: Array<{ date: string; close: number; volume: number; high?: number; low?: number; open?: number }>;
@@ -1242,15 +1244,12 @@ export async function POST(request: NextRequest) {
         marketCap: stockData.marketCap,
         ...(indicators.rsi && { rsi: rsiValue }),
         ...(indicators.movingAverages &&
-          ma5 !== null &&
-          ma20 !== null &&
-          ma60 !== null &&
-          ma120 !== null && {
+          (ma5 !== null || ma20 !== null || ma60 !== null || ma120 !== null) && {
             movingAverages: {
-              ma5,
-              ma20,
-              ma60,
-              ma120,
+              ...(ma5 !== null && { ma5 }),
+              ...(ma20 !== null && { ma20 }),
+              ...(ma60 !== null && { ma60 }),
+              ...(ma120 !== null && { ma120 }),
             },
           }),
         ...(indicators.disparity && disparity !== null && { disparity }),
@@ -1307,6 +1306,7 @@ export async function POST(request: NextRequest) {
 
       stocksDataForAI.push({
         symbol,
+        name: stockNames?.[symbol],
         marketData,
         selectedIndicators: indicators,
         historicalData,
