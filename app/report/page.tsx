@@ -22,7 +22,7 @@ import { transformToChartData } from "@/lib/chart-utils";
 import { IndicatorInfoButton } from "@/components/indicator-info-button";
 import { LegendTooltip } from "@/components/legend-tooltip";
 import { PDFExportButton } from "@/components/pdf-export-button";
-import { BarChart3, Lightbulb, Lock, DollarSign, TrendingUp, TrendingDown, Circle, Calendar, Ruler, AlertTriangle, ArrowLeftRight, Flame, MapPin, Target, RefreshCw, Package, Shield, Star } from 'lucide-react';
+import { BarChart3, Lightbulb, Lock, DollarSign, TrendingUp, TrendingDown, Circle, Calendar, Ruler, AlertTriangle, ArrowLeftRight, Flame, MapPin, Target, RefreshCw, Package, Shield, Star, ChevronDown } from 'lucide-react';
 
 // 토큰 사용량 타입
 interface TokenUsage {
@@ -55,6 +55,7 @@ export default function ReportPage() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [metadata, setMetadata] = useState<AnalysisMetadata | null>(null);
   const [dataSource, setDataSource] = useState<DataSourceInfo | null>(null);
+  const [tokenExpanded, setTokenExpanded] = useState(false);
 
   // Admin 상태 확인
   useEffect(() => {
@@ -370,78 +371,47 @@ export default function ReportPage() {
           </div>
         </div>
 
-        {/* Admin 전용: 토큰 사용량 정보 */}
+        {/* Admin 전용: 토큰 사용량 정보 (컴팩트) */}
         {isAdmin && metadata?.tokenUsage && (
-          <div className="mb-4 relative overflow-hidden rounded-xl bg-slate-900/95 backdrop-blur-sm border border-slate-700/50 shadow-lg animate-fade-in">
-            {/* 상단 그라디언트 액센트 라인 */}
-            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-500" />
+          <div className="mb-3 rounded-lg bg-slate-900 border border-slate-700/50 animate-fade-in">
+            <button
+              onClick={() => setTokenExpanded(!tokenExpanded)}
+              className="w-full flex items-center justify-between px-3 py-2 text-left"
+            >
+              <div className="flex items-center gap-2 text-xs text-slate-400">
+                <Lock className="w-3 h-3 text-emerald-400" />
+                <span className="font-medium text-emerald-400">Token</span>
+                <span className="text-slate-600">·</span>
+                <span className="font-mono tabular-nums text-white">{metadata.tokenUsage.totalTokenCount.toLocaleString()}</span>
+                <span className="text-slate-600">|</span>
+                <span className="font-mono tabular-nums text-blue-400">{metadata.tokenUsage.promptTokenCount.toLocaleString()}</span>
+                <span className="text-slate-600">/</span>
+                <span className="font-mono tabular-nums text-amber-400">{metadata.tokenUsage.candidatesTokenCount.toLocaleString()}</span>
+                {metadata.macroDataIncluded && metadata.macroDataSummary && (
+                  <>
+                    <span className="text-slate-600">·</span>
+                    <span className="text-purple-400">Macro {metadata.macroDataSummary.newsCount}</span>
+                  </>
+                )}
+              </div>
+              <ChevronDown className={`w-3.5 h-3.5 text-slate-500 transition-transform ${tokenExpanded ? 'rotate-180' : ''}`} />
+            </button>
 
-            <div className="p-3 sm:p-4">
-              {/* 헤더 */}
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="flex items-center justify-center w-6 h-6 rounded-md bg-emerald-500/15 border border-emerald-500/25">
-                    <Lock className="w-3 h-3 text-emerald-400" />
+            {tokenExpanded && (
+              <div className="px-3 pb-2.5 pt-0 space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-400"
+                      style={{ width: `${(metadata.tokenUsage.promptTokenCount / metadata.tokenUsage.totalTokenCount) * 100}%` }}
+                    />
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[11px] sm:text-xs md:text-sm font-medium tracking-widest text-slate-500 uppercase">Admin</span>
-                    <span className="text-slate-700">·</span>
-                    <span className="text-xs sm:text-sm font-semibold text-emerald-400 tracking-wide">Gemini Token</span>
-                  </div>
-                </div>
-                {/* Total 뱃지 */}
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.04] border border-white/[0.08]">
-                  <span className="text-[11px] text-slate-500 uppercase tracking-wider font-medium">Total</span>
-                  <span className="font-mono text-sm font-bold text-white tabular-nums">
-                    {metadata.tokenUsage.totalTokenCount.toLocaleString()}
+                  <span className="text-[11px] text-slate-500 font-mono tabular-nums">
+                    Input {Math.round((metadata.tokenUsage.promptTokenCount / metadata.tokenUsage.totalTokenCount) * 100)}%
                   </span>
                 </div>
               </div>
-
-              {/* 토큰 메트릭 카드 */}
-              <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                <div className="relative rounded-lg bg-slate-800/50 border border-slate-700/30 p-2.5 sm:p-3 overflow-hidden">
-                  <div className="absolute top-0 left-0 w-[3px] h-full bg-blue-500/80" />
-                  <span className="text-[11px] sm:text-xs md:text-sm text-slate-500 uppercase tracking-wider font-medium">Input</span>
-                  <div className="mt-0.5 font-mono text-base sm:text-lg font-semibold text-blue-400 tabular-nums">
-                    {metadata.tokenUsage.promptTokenCount.toLocaleString()}
-                  </div>
-                </div>
-                <div className="relative rounded-lg bg-slate-800/50 border border-slate-700/30 p-2.5 sm:p-3 overflow-hidden">
-                  <div className="absolute top-0 left-0 w-[3px] h-full bg-amber-500/80" />
-                  <span className="text-[11px] sm:text-xs md:text-sm text-slate-500 uppercase tracking-wider font-medium">Output</span>
-                  <div className="mt-0.5 font-mono text-base sm:text-lg font-semibold text-amber-400 tabular-nums">
-                    {metadata.tokenUsage.candidatesTokenCount.toLocaleString()}
-                  </div>
-                </div>
-              </div>
-
-              {/* 사용량 비율 바 */}
-              <div className="mt-3 flex items-center gap-2">
-                <div className="flex-1 h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-400"
-                    style={{
-                      width: `${(metadata.tokenUsage.promptTokenCount / metadata.tokenUsage.totalTokenCount) * 100}%`,
-                    }}
-                  />
-                </div>
-                <span className="text-[11px] text-slate-600 font-mono tabular-nums">
-                  {Math.round((metadata.tokenUsage.promptTokenCount / metadata.tokenUsage.totalTokenCount) * 100)}%
-                </span>
-              </div>
-
-              {/* 거시 환경 데이터 */}
-              {metadata.macroDataIncluded && metadata.macroDataSummary && (
-                <div className="mt-3 pt-3 border-t border-slate-800/80 flex items-center gap-2">
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-500/[0.08] border border-purple-500/20">
-                    <div className="w-1.5 h-1.5 rounded-full bg-purple-400" />
-                    <span className="text-[11px] sm:text-xs text-purple-300 font-medium">Macro</span>
-                    <span className="text-[11px] sm:text-xs text-purple-400/70">{metadata.macroDataSummary.newsCount} news</span>
-                  </div>
-                </div>
-              )}
-            </div>
+            )}
           </div>
         )}
 
