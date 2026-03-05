@@ -90,6 +90,7 @@ function HomePageContent() {
     macd: true,
     stochastic: true,
   });
+  const [holdingStatus, setHoldingStatus] = useState<Record<number, { isHolding: boolean; avgBuyPrice?: number }>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [showLoginAlert, setShowLoginAlert] = useState(false);
   const [showRateLimitAlert, setShowRateLimitAlert] = useState(false);
@@ -113,6 +114,15 @@ function HomePageContent() {
         newMap.delete(removedStock);
         setStockSymbolMap(newMap);
       }
+
+      // holdingStatus 인덱스 재조정
+      const newHolding: Record<number, { isHolding: boolean; avgBuyPrice?: number }> = {};
+      Object.entries(holdingStatus).forEach(([key, val]) => {
+        const k = Number(key);
+        if (k < index) newHolding[k] = val;
+        else if (k > index) newHolding[k - 1] = val;
+      });
+      setHoldingStatus(newHolding);
     }
   };
 
@@ -327,6 +337,21 @@ function HomePageContent() {
         if (name) stockNamesMap[sym] = name;
       }
 
+      // holdingStatus를 심볼 기반으로 변환
+      const holdingStatusMap: Record<string, { isHolding: boolean; avgBuyPrice?: number }> = {};
+      validStocks.forEach((name, index) => {
+        const status = holdingStatus[index];
+        if (status?.isHolding) {
+          const symbol = stockSymbols[index];
+          if (symbol) {
+            holdingStatusMap[symbol] = {
+              isHolding: true,
+              avgBuyPrice: status.avgBuyPrice,
+            };
+          }
+        }
+      });
+
       const request: AnalyzeRequest = {
         stocks: stockSymbols,
         stockNames: stockNamesMap,
@@ -334,6 +359,7 @@ function HomePageContent() {
         historicalPeriod,
         analysisDate,
         indicators,
+        ...(Object.keys(holdingStatusMap).length > 0 && { holdingStatus: holdingStatusMap }),
       };
 
       // 지표 선택 상태 로깅 (디버깅용)
@@ -480,31 +506,73 @@ function HomePageContent() {
                 )}
               </div>
               {stocks.map((stock, index) => (
-                <div key={index} className="flex gap-2">
-                  <StockAutocomplete
-                    value={stock}
-                    onChange={(value) => updateStock(index, value)}
-                    onSelect={(suggestion) => {
-                      // 종목명으로 저장하고, 심볼 매핑도 함께 저장
-                      updateStock(index, suggestion.name);
-                      const newMap = new Map(stockSymbolMap);
-                      newMap.set(suggestion.name, suggestion.symbol);
-                      setStockSymbolMap(newMap);
-                    }}
-                    disabled={isLoading}
-                    placeholder="종목 입력"
-                    className="flex-1"
-                  />
-                  {stocks.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={() => removeStockInput(index)}
+                <div key={index} className="space-y-1.5">
+                  <div className="flex gap-2">
+                    <StockAutocomplete
+                      value={stock}
+                      onChange={(value) => updateStock(index, value)}
+                      onSelect={(suggestion) => {
+                        // 종목명으로 저장하고, 심볼 매핑도 함께 저장
+                        updateStock(index, suggestion.name);
+                        const newMap = new Map(stockSymbolMap);
+                        newMap.set(suggestion.name, suggestion.symbol);
+                        setStockSymbolMap(newMap);
+                      }}
                       disabled={isLoading}
-                    >
-                      ➖
-                    </Button>
+                      placeholder="종목 입력"
+                      className="flex-1"
+                    />
+                    <label className="flex items-center gap-1.5 cursor-pointer flex-shrink-0 select-none">
+                      <Checkbox
+                        checked={holdingStatus[index]?.isHolding ?? false}
+                        onCheckedChange={(checked) => {
+                          setHoldingStatus(prev => ({
+                            ...prev,
+                            [index]: {
+                              isHolding: !!checked,
+                              ...(checked ? {} : { avgBuyPrice: undefined }),
+                            },
+                          }));
+                        }}
+                        disabled={isLoading}
+                      />
+                      <span className="text-xs sm:text-sm text-gray-600 whitespace-nowrap">보유중</span>
+                    </label>
+                    {stocks.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => removeStockInput(index)}
+                        disabled={isLoading}
+                      >
+                        ➖
+                      </Button>
+                    )}
+                  </div>
+                  {holdingStatus[index]?.isHolding && (
+                    <div className="flex items-center gap-2 pl-1">
+                      <label className="text-[11px] sm:text-xs text-gray-500 whitespace-nowrap">평균매입가</label>
+                      <input
+                        type="number"
+                        placeholder="선택 입력"
+                        value={holdingStatus[index]?.avgBuyPrice ?? ''}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setHoldingStatus(prev => ({
+                            ...prev,
+                            [index]: {
+                              ...prev[index],
+                              isHolding: true,
+                              avgBuyPrice: val === '' ? undefined : Number(val),
+                            },
+                          }));
+                        }}
+                        disabled={isLoading}
+                        className="w-28 sm:w-32 h-7 px-2 text-xs sm:text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-primary"
+                      />
+                      <span className="text-[11px] sm:text-xs text-gray-400">원</span>
+                    </div>
                   )}
                 </div>
               ))}

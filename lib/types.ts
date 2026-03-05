@@ -31,6 +31,10 @@ export interface AnalyzeRequest {
     macd?: boolean; // MACD
     stochastic?: boolean; // 스토캐스틱
   };
+  holdingStatus?: Record<string, {
+    isHolding: boolean;
+    avgBuyPrice?: number;
+  }>;
 }
 
 /**

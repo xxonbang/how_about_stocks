@@ -223,6 +223,7 @@ async function generateAIReportsBatch(
   modelName: string = "gemini-2.5-flash",
   macroData?: MacroData | null,
   fredData?: FredMacroData | null,
+  holdingStatus?: AnalyzeRequest["holdingStatus"],
 ): Promise<{
   reports: Map<string, string>;
   tokenUsage?: {
@@ -543,6 +544,36 @@ ${
     return result;
   })()
 }
+${(() => {
+    const status = holdingStatus?.[symbol];
+    if (!status?.isHolding) {
+      return `
+## 투자자 포지션: 미보유 (매수 검토 중)
+투자의견에서 다음을 중심으로 분석하세요:
+- 현재 진입 적정성 (매수 타이밍인지)
+- 적정 매수가 제시 (현재가 대비)
+- 분할매수 전략 (1차/2차/3차 매수 구간)
+- 진입 시 리스크 대비 예상 수익률`;
+    }
+    if (status.avgBuyPrice) {
+      const currentPrice = marketData.price;
+      const profitRate = ((currentPrice - status.avgBuyPrice) / status.avgBuyPrice * 100).toFixed(2);
+      return `
+## 투자자 포지션: 보유 중 (평균 매입가: ${status.avgBuyPrice.toLocaleString()}원, 현재 손익률: ${Number(profitRate) >= 0 ? '+' : ''}${profitRate}%)
+투자의견에서 다음을 중심으로 분석하세요:
+- 현재 포지션 평가 (보유 유지 적정성)
+- 익절 라인 제시 (목표 수익률 및 목표가)
+- 손절 라인 제시 (손절 기준가)
+- 추가매수(물타기) 적정성 및 추가매수 구간
+- 비중 조절 전략`;
+    }
+    return `
+## 투자자 포지션: 보유 중
+투자의견에서 다음을 중심으로 분석하세요:
+- 현재 포지션 평가 (보유 유지 적정성)
+- 보유 유지 / 추가매수 / 비중축소 / 매도 판단
+- 목표가 및 손절 기준가 제시`;
+  })()}
 ---`;
   };
 
@@ -634,7 +665,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body: AnalyzeRequest = await request.json();
-    const { stocks, stockNames, period, historicalPeriod, analysisDate, indicators } = body;
+    const { stocks, stockNames, period, historicalPeriod, analysisDate, indicators, holdingStatus } = body;
 
     // 인증 확인
     const session = await getSession();
@@ -1225,6 +1256,7 @@ export async function POST(request: NextRequest) {
               modelName || "gemini-2.5-flash",
               macroData, // 거시 환경 데이터 전달
               fredData,  // FRED 매크로 지표 전달
+              holdingStatus, // 보유 상태 전달
             );
           },
           {
