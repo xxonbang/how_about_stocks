@@ -15,6 +15,7 @@ import {
 } from 'recharts';
 import type { ChartDataPoint } from '@/lib/chart-utils';
 import { formatChartDate } from '@/lib/chart-utils';
+import { Star, AlertTriangle } from 'lucide-react';
 
 interface MACDChartProps {
   data: ChartDataPoint[];
@@ -150,7 +151,7 @@ export function MACDChart({ data }: MACDChartProps) {
           'bg-gray-100 text-gray-700'
         }`}>
           {currentSignal.crossover !== 'none' && (
-            <span className="mr-1">{currentSignal.crossover === 'golden' ? '🌟' : '⚠️'}</span>
+            <span className="mr-1 inline-flex">{currentSignal.crossover === 'golden' ? <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" /> : <AlertTriangle className="w-4 h-4 text-orange-500" />}</span>
           )}
           {currentSignal.label}
         </div>

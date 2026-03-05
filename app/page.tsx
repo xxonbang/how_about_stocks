@@ -27,6 +27,7 @@ import type { AnalyzeRequest } from "@/lib/types";
 import type { StockSuggestion } from "@/lib/stock-search";
 
 import type { AnalysisPeriod } from "@/lib/types";
+import { Search } from "lucide-react";
 
 function HomePageContent() {
   const router = useRouter();
@@ -466,10 +467,10 @@ function HomePageContent() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <LoadingOverlay isLoading={isLoading} stocks={validStocks} />
 
-      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-12 max-w-4xl">
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 md:py-12 max-w-4xl">
         <div className="text-center mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 flex items-center justify-center gap-3">
-            <Image src="/logo.svg" alt="" width={40} height={40} className="rounded-xl" />
+            <Image src="/logo.png" alt="" width={40} height={40} className="rounded-xl" />
             종목어때.ai
           </h1>
           <p className="text-sm sm:text-base text-gray-600">
@@ -525,11 +526,12 @@ function HomePageContent() {
                     <label className="flex items-center gap-1.5 cursor-pointer flex-shrink-0 select-none">
                       <Checkbox
                         checked={holdingStatus[index]?.isHolding ?? false}
-                        onCheckedChange={(checked) => {
+                        onChange={(e) => {
+                          const checked = e.target.checked;
                           setHoldingStatus(prev => ({
                             ...prev,
                             [index]: {
-                              isHolding: !!checked,
+                              isHolding: checked,
                               ...(checked ? {} : { avgBuyPrice: undefined }),
                             },
                           }));
@@ -569,7 +571,7 @@ function HomePageContent() {
                           }));
                         }}
                         disabled={isLoading}
-                        className="w-28 sm:w-32 h-7 px-2 text-xs sm:text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-primary"
+                        className="w-28 sm:w-32 h-7 px-2 text-xs sm:text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary"
                       />
                       <span className="text-[11px] sm:text-xs text-gray-400">원</span>
                     </div>
@@ -577,11 +579,11 @@ function HomePageContent() {
                 </div>
               ))}
               {/* 안내 문구 */}
-              <div className="mt-0 px-0.5 py-0 bg-gray-50/50 rounded-md space-y-0.5">
-                <p className="text-[10px] sm:text-xs text-gray-500 leading-relaxed">
+              <div className="mt-0 px-0.5 py-0 bg-gray-50/50 rounded-lg space-y-0.5">
+                <p className="text-xs text-gray-500 leading-relaxed">
                   1회 분석 시 최대 2개 종목까지 입력 가능합니다.
                 </p>
-                <p className="text-[10px] sm:text-xs text-gray-500 leading-relaxed">
+                <p className="text-xs text-gray-500 leading-relaxed">
                   검색이 끝나지 않았더라도 종목명, 종목코드, 티커 등을 정확히 입력한 상태라면 바로 분석 가능합니다.
                 </p>
               </div>
@@ -598,7 +600,7 @@ function HomePageContent() {
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2">
-                <div className="px-3 py-2.5 sm:py-2 bg-gray-50 border border-gray-200 rounded-md text-base sm:text-sm text-gray-700 min-h-[44px] sm:min-h-0 flex items-center">
+                <div className="px-3 py-2.5 sm:py-2 bg-gray-50 border border-gray-200 rounded-lg text-base sm:text-sm text-gray-700 min-h-[44px] sm:min-h-0 flex items-center">
                   {(() => {
                     const [y, m, d] = analysisDate.split("-");
                     return `${y}년 ${Number(m)}월 ${Number(d)}일 (오늘)`;
@@ -638,7 +640,7 @@ function HomePageContent() {
                         disabled={isLoading}
                         aria-pressed={historicalPeriod === p}
                         aria-label={`과거 데이터 기간 ${labels[p]}`}
-                        className={`min-h-[44px] sm:min-h-0 px-3 sm:px-3 py-2.5 sm:py-2 text-sm rounded-md font-medium transition-colors touch-manipulation ${
+                        className={`min-h-[44px] sm:min-h-0 px-3 sm:px-3 py-2.5 sm:py-2 text-sm rounded-lg font-medium transition-colors touch-manipulation ${
                           historicalPeriod === p
                             ? "bg-primary text-primary-foreground active:bg-primary/80"
                             : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 active:bg-gray-100"
@@ -683,7 +685,7 @@ function HomePageContent() {
                         disabled={isLoading}
                         aria-pressed={period === p}
                         aria-label={`전망 기간 ${labels[p]}`}
-                        className={`min-h-[44px] sm:min-h-0 px-3 sm:px-3 py-2.5 sm:py-2 text-sm rounded-md font-medium transition-colors touch-manipulation ${
+                        className={`min-h-[44px] sm:min-h-0 px-3 sm:px-3 py-2.5 sm:py-2 text-sm rounded-lg font-medium transition-colors touch-manipulation ${
                           period === p
                             ? "bg-primary text-primary-foreground active:bg-primary/80"
                             : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 active:bg-gray-100"
@@ -711,7 +713,7 @@ function HomePageContent() {
             <CardContent>
               {/* 지표 그리드 - 모바일 터치 최적화 */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-2">
-                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
+                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-lg hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
                   <Checkbox
                     checked={indicators.rsi}
                     onChange={(e) =>
@@ -722,7 +724,7 @@ function HomePageContent() {
                   <span className="text-sm sm:text-sm flex-1">RSI</span>
                   <IndicatorInfoButton indicatorKey="rsi" />
                 </label>
-                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
+                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-lg hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
                   <Checkbox
                     checked={indicators.movingAverages}
                     onChange={(e) =>
@@ -736,7 +738,7 @@ function HomePageContent() {
                   <span className="text-sm sm:text-sm flex-1">이동평균선</span>
                   <IndicatorInfoButton indicatorKey="movingAverages" />
                 </label>
-                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
+                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-lg hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
                   <Checkbox
                     checked={indicators.disparity}
                     onChange={(e) =>
@@ -750,7 +752,7 @@ function HomePageContent() {
                   <span className="text-sm sm:text-sm flex-1">이격도</span>
                   <IndicatorInfoButton indicatorKey="disparity" />
                 </label>
-                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
+                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-lg hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
                   <Checkbox
                     checked={indicators.supplyDemand}
                     onChange={(e) =>
@@ -764,7 +766,7 @@ function HomePageContent() {
                   <span className="text-sm sm:text-sm flex-1">수급 (기관/외인)</span>
                   <IndicatorInfoButton indicatorKey="supplyDemand" />
                 </label>
-                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
+                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-lg hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
                   <Checkbox
                     checked={indicators.fearGreed}
                     onChange={(e) =>
@@ -778,7 +780,7 @@ function HomePageContent() {
                   <span className="text-sm sm:text-sm flex-1">공포/탐욕 지수</span>
                   <IndicatorInfoButton indicatorKey="fearGreed" />
                 </label>
-                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
+                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-lg hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
                   <Checkbox
                     checked={indicators.exchangeRate}
                     onChange={(e) =>
@@ -793,7 +795,7 @@ function HomePageContent() {
                   <IndicatorInfoButton indicatorKey="exchangeRate" />
                 </label>
                 {/* Phase 1 지표 */}
-                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
+                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-lg hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
                   <Checkbox
                     checked={indicators.etfPremium || false}
                     onChange={(e) =>
@@ -807,7 +809,7 @@ function HomePageContent() {
                   <span className="text-sm sm:text-sm flex-1">ETF 괴리율</span>
                   <IndicatorInfoButton indicatorKey="etfPremium" />
                 </label>
-                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
+                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-lg hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
                   <Checkbox
                     checked={indicators.bollingerBands || false}
                     onChange={(e) =>
@@ -821,7 +823,7 @@ function HomePageContent() {
                   <span className="text-sm sm:text-sm flex-1">볼린저 밴드</span>
                   <IndicatorInfoButton indicatorKey="bollingerBands" />
                 </label>
-                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
+                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-lg hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
                   <Checkbox
                     checked={indicators.volatility || false}
                     onChange={(e) =>
@@ -835,7 +837,7 @@ function HomePageContent() {
                   <span className="text-sm sm:text-sm flex-1">변동성 지표</span>
                   <IndicatorInfoButton indicatorKey="volatility" />
                 </label>
-                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
+                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-lg hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
                   <Checkbox
                     checked={indicators.volumeIndicators || false}
                     onChange={(e) =>
@@ -850,7 +852,7 @@ function HomePageContent() {
                   <IndicatorInfoButton indicatorKey="volumeIndicators" />
                 </label>
                 {/* Phase 2 지표 */}
-                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
+                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-lg hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
                   <Checkbox
                     checked={indicators.supportLevel || false}
                     onChange={(e) =>
@@ -864,7 +866,7 @@ function HomePageContent() {
                   <span className="text-sm sm:text-sm flex-1">눌림목 여부</span>
                   <IndicatorInfoButton indicatorKey="supportLevel" />
                 </label>
-                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
+                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-lg hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
                   <Checkbox
                     checked={indicators.supportResistance || false}
                     onChange={(e) =>
@@ -879,7 +881,7 @@ function HomePageContent() {
                   <IndicatorInfoButton indicatorKey="supportResistance" />
                 </label>
                 {/* Phase 3 지표 */}
-                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
+                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-lg hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
                   <Checkbox
                     checked={indicators.macd || false}
                     onChange={(e) =>
@@ -893,7 +895,7 @@ function HomePageContent() {
                   <span className="text-sm sm:text-sm flex-1">MACD</span>
                   <IndicatorInfoButton indicatorKey="macd" />
                 </label>
-                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-md hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
+                <label className="flex items-center space-x-2.5 py-2 sm:py-1.5 px-1 rounded-lg hover:bg-gray-50 active:bg-gray-100 cursor-pointer touch-manipulation min-h-[44px] sm:min-h-0">
                   <Checkbox
                     checked={indicators.stochastic || false}
                     onChange={(e) =>
@@ -943,7 +945,7 @@ function HomePageContent() {
               </span>
             ) : (
               <span className="flex items-center justify-center gap-2">
-                <span className="text-xl">🔍</span>
+                <Search className="w-5 h-5" />
                 <span>분석 시작</span>
               </span>
             )}

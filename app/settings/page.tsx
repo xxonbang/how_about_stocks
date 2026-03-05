@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Building2, Landmark, BarChart3, LineChart, TrendingUp, TrendingDown, Bot, Link2, CheckCircle2, XCircle, AlertTriangle, Circle, Settings } from 'lucide-react';
 
 interface APIStatus {
   name: string;
@@ -43,44 +44,55 @@ const API_CATEGORIES = {
 // API별 추가 정보
 const API_INFO: Record<string, { icon: string; docUrl: string; rateLimit?: string }> = {
   krx: {
-    icon: '🏛️',
+    icon: 'building2',
     docUrl: 'https://openapi.krx.co.kr/',
     rateLimit: '10,000회/일',
   },
   kis: {
-    icon: '🏦',
+    icon: 'landmark',
     docUrl: 'https://apiportal.koreainvestment.com/',
     rateLimit: '20회/초',
   },
   publicdata: {
-    icon: '📊',
+    icon: 'barchart3',
     docUrl: 'https://www.data.go.kr/',
     rateLimit: '무제한 (권장)',
   },
   fmp: {
-    icon: '💹',
+    icon: 'linechart',
     docUrl: 'https://financialmodelingprep.com/',
     rateLimit: '250회/일',
   },
   finnhub: {
-    icon: '📈',
+    icon: 'trendingup',
     docUrl: 'https://finnhub.io/',
     rateLimit: '60회/분',
   },
   twelvedata: {
-    icon: '📉',
+    icon: 'trendingdown',
     docUrl: 'https://twelvedata.com/',
     rateLimit: '800회/일',
   },
   gemini: {
-    icon: '🤖',
+    icon: 'bot',
     docUrl: 'https://aistudio.google.com/app/apikey',
     rateLimit: '변동 (티어별)',
   },
 };
 
+const ICON_MAP: Record<string, React.ReactNode> = {
+  building2: <Building2 className="w-5 h-5" />,
+  landmark: <Landmark className="w-5 h-5" />,
+  barchart3: <BarChart3 className="w-5 h-5" />,
+  linechart: <LineChart className="w-5 h-5" />,
+  trendingup: <TrendingUp className="w-5 h-5" />,
+  trendingdown: <TrendingDown className="w-5 h-5" />,
+  bot: <Bot className="w-5 h-5" />,
+  link2: <Link2 className="w-5 h-5" />,
+};
+
 function APIStatusCard({ apiKey, status }: { apiKey: string; status: APIStatus }) {
-  const info = API_INFO[apiKey] || { icon: '🔗', docUrl: '#' };
+  const info = API_INFO[apiKey] || { icon: 'link2', docUrl: '#' };
 
   const getStatusColor = () => {
     if (!status.configured) return 'bg-gray-50 border-gray-300';
@@ -89,11 +101,11 @@ function APIStatusCard({ apiKey, status }: { apiKey: string; status: APIStatus }
     return 'bg-yellow-50 border-yellow-500';
   };
 
-  const getStatusIcon = () => {
-    if (!status.configured) return '⚪';
-    if (status.valid === true) return '✅';
-    if (status.valid === false) return '❌';
-    return '⚠️';
+  const getStatusIcon = (): React.ReactNode => {
+    if (!status.configured) return <Circle className="w-4 h-4 text-gray-400" />;
+    if (status.valid === true) return <CheckCircle2 className="w-4 h-4 text-green-500" />;
+    if (status.valid === false) return <XCircle className="w-4 h-4 text-red-500" />;
+    return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
   };
 
   const getStatusText = () => {
@@ -108,10 +120,10 @@ function APIStatusCard({ apiKey, status }: { apiKey: string; status: APIStatus }
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1">
-            <span className="text-lg sm:text-xl">{info.icon}</span>
+            <span className="text-lg sm:text-xl">{ICON_MAP[info.icon] || <Link2 className="w-5 h-5" />}</span>
             <h4 className="font-semibold text-sm sm:text-base">{status.name}</h4>
             <span
-              className={`px-2 py-0.5 text-xs rounded-full font-medium ${
+              className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full font-medium ${
                 status.valid === true
                   ? 'bg-green-100 text-green-700'
                   : status.valid === false
@@ -205,7 +217,7 @@ export default function SettingsPage() {
         {/* 헤더 */}
         <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-            ⚙️ 설정
+            <Settings className="w-6 h-6 inline-block mr-1" /> 설정
           </h1>
           <p className="text-sm sm:text-base text-gray-600">시스템 설정 및 API 키 관리</p>
         </div>

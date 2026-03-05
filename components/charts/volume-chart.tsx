@@ -15,6 +15,7 @@ import {
 } from 'recharts';
 import type { ChartDataPoint } from '@/lib/chart-utils';
 import { formatChartDate } from '@/lib/chart-utils';
+import { Flame } from 'lucide-react';
 
 interface SupplyDemandData {
   institutional: number;
@@ -66,7 +67,7 @@ export function VolumeChart({ data, averageVolume, supplyDemand }: VolumeChartPr
               <span className="text-gray-600">거래량</span>
               <span className={`font-bold ${isHighVolume ? 'text-orange-600' : ''}`}>
                 {d.volume.toLocaleString()}
-                {isHighVolume && ' 🔥'}
+                {isHighVolume && <Flame className="w-3.5 h-3.5 inline-block ml-1 text-orange-500" />}
               </span>
             </div>
             {averageVolume && (
@@ -111,8 +112,8 @@ export function VolumeChart({ data, averageVolume, supplyDemand }: VolumeChartPr
       {/* 고거래량 안내 배지 - 모바일 최적화 */}
       {averageVolume && displayData.some(d => d.volume > highVolumeThreshold) && (
         <div className="flex justify-end">
-          <div className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-orange-100 text-orange-700 text-[10px] sm:text-xs rounded-md flex items-center gap-1">
-            <span>🔥</span>
+          <div className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-orange-100 text-orange-700 text-[11px] sm:text-xs rounded-lg flex items-center gap-1">
+            <Flame className="w-3.5 h-3.5 text-orange-500" />
             <span className="hidden sm:inline">고거래량 = 평균의 150% 이상</span>
             <span className="sm:hidden">고거래량</span>
           </div>
@@ -181,18 +182,18 @@ export function VolumeChart({ data, averageVolume, supplyDemand }: VolumeChartPr
           {/* 커스텀 범례 - 모바일 최적화 */}
           <Legend
             content={() => (
-              <ul className="flex flex-wrap justify-center gap-2 sm:gap-3 mt-1.5 sm:mt-2 text-[10px] sm:text-xs">
-                <li className="flex items-center gap-1 sm:gap-1.5">
-                  <span className="inline-block w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-sm bg-red-500" />
+              <ul className="flex flex-wrap justify-center gap-2.5 sm:gap-4 mt-1.5 sm:mt-2 text-xs sm:text-sm">
+                <li className="flex items-center gap-1.5 sm:gap-2">
+                  <span className="inline-block w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-sm bg-red-500" />
                   <span className="text-gray-600">상승일</span>
                 </li>
-                <li className="flex items-center gap-1 sm:gap-1.5">
-                  <span className="inline-block w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-sm bg-blue-500" />
+                <li className="flex items-center gap-1.5 sm:gap-2">
+                  <span className="inline-block w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-sm bg-blue-500" />
                   <span className="text-gray-600">하락일</span>
                 </li>
                 {averageVolume && (
-                  <li className="flex items-center gap-1 sm:gap-1.5">
-                    <span className="inline-block w-2.5 sm:w-3 h-0.5 bg-amber-500" style={{ borderStyle: 'dashed' }} />
+                  <li className="flex items-center gap-1.5 sm:gap-2">
+                    <span className="inline-block w-3 sm:w-3.5 h-0.5 bg-amber-500" style={{ borderStyle: 'dashed' }} />
                     <span className="text-gray-600">평균</span>
                   </li>
                 )}
@@ -212,7 +213,7 @@ export function VolumeChart({ data, averageVolume, supplyDemand }: VolumeChartPr
             </div>
             {isSsangkkeuli && (
               <div className="flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs font-bold rounded-full animate-pulse">
-                <span>🔥</span>
+                <Flame className="w-3.5 h-3.5 text-orange-500" />
                 <span>쌍끌이</span>
               </div>
             )}

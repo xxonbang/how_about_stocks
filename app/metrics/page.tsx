@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { BarChart3, RefreshCw, Pause } from 'lucide-react';
 
 interface DataSourceMetrics {
   source: string;
@@ -160,7 +161,7 @@ export default function MetricsDashboard() {
         {/* 헤더 */}
         <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
           <div className="flex-1">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">📊 데이터 품질 메트릭</h1>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2"><BarChart3 className="w-7 h-7 inline-block mr-1.5" /> 데이터 품질 메트릭</h1>
             <p className="text-sm sm:text-base text-gray-600">실시간 데이터 수집 품질 모니터링</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-stretch sm:items-center">
@@ -181,7 +182,7 @@ export default function MetricsDashboard() {
               variant={autoRefresh ? 'default' : 'outline'}
               className="w-full sm:w-auto text-sm sm:text-base"
             >
-              {autoRefresh ? '🔄 자동 갱신 중' : '⏸️ 일시정지'}
+              {autoRefresh ? <><RefreshCw className="w-4 h-4 inline-block mr-1" /> 자동 갱신 중</> : <><Pause className="w-4 h-4 inline-block mr-1" /> 일시정지</>}
             </Button>
             <Button 
               onClick={fetchMetrics}

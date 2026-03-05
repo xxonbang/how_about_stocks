@@ -14,6 +14,7 @@ import {
 } from 'recharts';
 import type { ChartDataPoint } from '@/lib/chart-utils';
 import { formatChartDate } from '@/lib/chart-utils';
+import { Circle } from 'lucide-react';
 
 interface StochasticChartProps {
   data: ChartDataPoint[];
@@ -126,7 +127,7 @@ export function StochasticChart({ data }: StochasticChartProps) {
                 <div className="flex justify-between gap-4">
                   <span className="text-gray-600">신호</span>
                   <span className={`font-medium ${signal.color}`}>
-                    {signal.signal === 'buy' ? '🟢 매수' : '🔴 매도'}
+                    {signal.signal === 'buy' ? <><Circle className="w-3 h-3 text-green-500 fill-green-500 inline-block" /> 매수</> : <><Circle className="w-3 h-3 text-red-500 fill-red-500 inline-block" /> 매도</>}
                   </span>
                 </div>
               )}
@@ -150,7 +151,7 @@ export function StochasticChart({ data }: StochasticChartProps) {
           'bg-gray-100 text-gray-700'
         }`}>
           {currentSignal.signal !== 'none' && (
-            <span className="mr-1">{currentSignal.signal === 'buy' ? '🟢' : '🔴'}</span>
+            <span className="mr-1 inline-flex">{currentSignal.signal === 'buy' ? <Circle className="w-4 h-4 text-green-500 fill-green-500" /> : <Circle className="w-4 h-4 text-red-500 fill-red-500" />}</span>
           )}
           %K {latest.k.toFixed(0)} ({currentSignal.label})
         </div>

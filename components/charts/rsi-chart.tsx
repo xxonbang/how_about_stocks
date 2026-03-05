@@ -115,7 +115,7 @@ export function RSIChart({ data, currentRSI }: RSIChartProps) {
       {/* 현재 RSI 상태 배지 - 모바일 최적화 */}
       {latestRSI && rsiZone && (
         <div className="absolute top-0 right-0 z-10 flex items-center gap-2">
-          <div className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md sm:rounded-lg text-xs sm:text-sm font-bold ${
+          <div className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-lg text-xs sm:text-sm font-bold ${
             rsiZone.zone === 'overbought' ? 'bg-red-100 text-red-700' :
             rsiZone.zone === 'oversold' ? 'bg-green-100 text-green-700' :
             'bg-gray-100 text-gray-700'

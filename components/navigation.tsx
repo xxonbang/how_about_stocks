@@ -77,7 +77,7 @@ export function Navigation() {
               href="/"
               className="flex items-center gap-2 text-lg sm:text-xl font-bold text-gray-900 flex-shrink-0"
             >
-              <Image src="/logo.svg" alt="" width={28} height={28} className="rounded-md" />
+              <Image src="/logo.png" alt="" width={28} height={28} className="rounded-lg" />
               종목어때.ai
             </Link>
 
@@ -134,7 +134,7 @@ export function Navigation() {
             {/* 모바일 햄버거 메뉴 버튼 (로그인 상태에서만 표시) */}
             {isAuthenticated && (
               <button
-                className="sm:hidden p-2 rounded-md hover:bg-gray-100 transition-colors"
+                className="sm:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 aria-label="메뉴 열기"
               >

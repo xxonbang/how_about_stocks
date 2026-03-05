@@ -46,18 +46,18 @@ function LoginForm() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-gray-50 to-white">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-gray-50 to-white">
       <div className="w-full max-w-md px-4">
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
+        <div className="bg-white rounded-xl shadow-lg p-8">
           <div className="text-center mb-8">
-            <Image src="/logo.svg" alt="종목어때.ai" width={64} height={64} className="mx-auto mb-4 rounded-2xl" />
+            <Image src="/logo.png" alt="종목어때.ai" width={64} height={64} className="mx-auto mb-4 rounded-2xl" />
             <h1 className="text-2xl font-bold text-gray-900">종목어때.ai</h1>
             <p className="text-gray-500 mt-2">멀티 리소스 기반 AI 주식 분석</p>
           </div>
@@ -167,8 +167,8 @@ function LoginForm() {
 
 function LoginLoading() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-gray-50 to-white">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
     </div>
   );
 }

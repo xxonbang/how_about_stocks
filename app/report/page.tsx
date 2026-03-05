@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import {
   Card,
@@ -22,6 +22,7 @@ import { transformToChartData } from "@/lib/chart-utils";
 import { IndicatorInfoButton } from "@/components/indicator-info-button";
 import { LegendTooltip } from "@/components/legend-tooltip";
 import { PDFExportButton } from "@/components/pdf-export-button";
+import { BarChart3, Lightbulb, Lock, DollarSign, TrendingUp, TrendingDown, Circle, Calendar, Ruler, AlertTriangle, ArrowLeftRight, Flame, MapPin, Target, RefreshCw, Package, Shield, Star } from 'lucide-react';
 
 // 토큰 사용량 타입
 interface TokenUsage {
@@ -177,7 +178,7 @@ export default function ReportPage() {
         <div className="container mx-auto px-4 py-12 max-w-6xl">
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">
-              📊 분석 결과
+              <BarChart3 className="w-7 h-7 inline-block mr-1" /> 분석 결과
             </h1>
             <p className="text-lg text-gray-600 mb-8">
               AI가 {periodText} 분석 중입니다...
@@ -226,7 +227,7 @@ export default function ReportPage() {
               ))}
             </div>
             <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <p className="text-blue-800 text-sm font-medium mb-1">💡 입력 방법:</p>
+              <p className="text-blue-800 text-sm font-medium mb-1"><Lightbulb className="w-3 h-3 inline-block" /> 입력 방법:</p>
               <ul className="text-blue-700 text-sm space-y-1 list-disc list-inside">
                 <li>정확한 종목명을 입력하세요 (예: "삼성전자")</li>
                 <li>또는 6자리 종목코드를 입력하세요 (예: "005930")</li>
@@ -323,11 +324,11 @@ export default function ReportPage() {
 
   const { marketData, aiReport } = currentResult;
 
-  const getRSIStatus = (rsi?: number) => {
+  const getRSIStatus = (rsi?: number): { text: ReactNode, color: string } => {
     if (!rsi) return { text: "N/A", color: "text-gray-500" };
-    if (rsi >= 70) return { text: "🔴 과매수", color: "text-red-600" };
-    if (rsi <= 30) return { text: "🟢 과매도", color: "text-green-600" };
-    return { text: "🟡 중립", color: "text-yellow-600" };
+    if (rsi >= 70) return { text: <><Circle className="w-3 h-3 text-red-500 fill-red-500 inline-block" /> 과매수</>, color: "text-red-600" };
+    if (rsi <= 30) return { text: <><Circle className="w-3 h-3 text-green-500 fill-green-500 inline-block" /> 과매도</>, color: "text-green-600" };
+    return { text: <><Circle className="w-3 h-3 text-yellow-500 fill-yellow-500 inline-block" /> 중립</>, color: "text-yellow-600" };
   };
 
   const rsiStatus = getRSIStatus(marketData.rsi);
@@ -338,7 +339,7 @@ export default function ReportPage() {
         <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
           <div className="flex-1">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-              📊 분석 결과
+              <BarChart3 className="w-7 h-7 inline-block mr-1" /> 분석 결과
             </h1>
             {(currentResult.period || currentResult.historicalPeriod) && (
               <div className="text-xs sm:text-sm text-gray-600 mt-1 space-y-0.5 sm:space-y-1">
@@ -380,17 +381,17 @@ export default function ReportPage() {
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2.5">
                   <div className="flex items-center justify-center w-6 h-6 rounded-md bg-emerald-500/15 border border-emerald-500/25">
-                    <span className="text-[10px]">🔐</span>
+                    <Lock className="w-3 h-3 text-emerald-400" />
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[10px] sm:text-xs font-medium tracking-widest text-slate-500 uppercase">Admin</span>
+                    <span className="text-[11px] sm:text-xs md:text-sm font-medium tracking-widest text-slate-500 uppercase">Admin</span>
                     <span className="text-slate-700">·</span>
                     <span className="text-xs sm:text-sm font-semibold text-emerald-400 tracking-wide">Gemini Token</span>
                   </div>
                 </div>
                 {/* Total 뱃지 */}
                 <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.04] border border-white/[0.08]">
-                  <span className="text-[10px] text-slate-500 uppercase tracking-wider font-medium">Total</span>
+                  <span className="text-[11px] text-slate-500 uppercase tracking-wider font-medium">Total</span>
                   <span className="font-mono text-sm font-bold text-white tabular-nums">
                     {metadata.tokenUsage.totalTokenCount.toLocaleString()}
                   </span>
@@ -401,14 +402,14 @@ export default function ReportPage() {
               <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 <div className="relative rounded-lg bg-slate-800/50 border border-slate-700/30 p-2.5 sm:p-3 overflow-hidden">
                   <div className="absolute top-0 left-0 w-[3px] h-full bg-blue-500/80" />
-                  <span className="text-[10px] sm:text-xs text-slate-500 uppercase tracking-wider font-medium">Input</span>
+                  <span className="text-[11px] sm:text-xs md:text-sm text-slate-500 uppercase tracking-wider font-medium">Input</span>
                   <div className="mt-0.5 font-mono text-base sm:text-lg font-semibold text-blue-400 tabular-nums">
                     {metadata.tokenUsage.promptTokenCount.toLocaleString()}
                   </div>
                 </div>
                 <div className="relative rounded-lg bg-slate-800/50 border border-slate-700/30 p-2.5 sm:p-3 overflow-hidden">
                   <div className="absolute top-0 left-0 w-[3px] h-full bg-amber-500/80" />
-                  <span className="text-[10px] sm:text-xs text-slate-500 uppercase tracking-wider font-medium">Output</span>
+                  <span className="text-[11px] sm:text-xs md:text-sm text-slate-500 uppercase tracking-wider font-medium">Output</span>
                   <div className="mt-0.5 font-mono text-base sm:text-lg font-semibold text-amber-400 tabular-nums">
                     {metadata.tokenUsage.candidatesTokenCount.toLocaleString()}
                   </div>
@@ -425,7 +426,7 @@ export default function ReportPage() {
                     }}
                   />
                 </div>
-                <span className="text-[10px] text-slate-600 font-mono tabular-nums">
+                <span className="text-[11px] text-slate-600 font-mono tabular-nums">
                   {Math.round((metadata.tokenUsage.promptTokenCount / metadata.tokenUsage.totalTokenCount) * 100)}%
                 </span>
               </div>
@@ -460,7 +461,7 @@ export default function ReportPage() {
                 {result.name || result.symbol}
               </span>
               {(result.period || result.historicalPeriod) && (
-                <span className={`ml-1.5 sm:ml-2 text-[10px] sm:text-xs hidden sm:inline ${
+                <span className={`ml-1.5 sm:ml-2 text-[11px] sm:text-xs md:text-sm sm:inline ${
                   selectedIndex === index ? "text-slate-400" : "text-slate-400"
                 }`}>
                   {result.historicalPeriod &&
@@ -481,9 +482,9 @@ export default function ReportPage() {
               href={`https://stock.naver.com/domestic/stock/${currentResult.symbol.replace(/\.(KS|KQ)$/, '')}/price`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-[10px] sm:text-xs text-blue-600 hover:text-blue-800 bg-white border border-blue-200 hover:border-blue-400 hover:bg-blue-50 rounded px-2 py-1.5 transition-all group w-fit"
+              className="flex items-center gap-1.5 text-[11px] sm:text-xs md:text-sm text-blue-600 hover:text-blue-800 bg-white border border-blue-200 hover:border-blue-400 hover:bg-blue-50 rounded px-2 py-1.5 transition-all group w-fit"
             >
-              <span className="text-sm">📊</span>
+              <BarChart3 className="w-3 h-3 inline-block" />
               <span className="font-medium">
                 네이버 증권에서 {currentResult.name || currentResult.symbol} 상세 정보 보기
               </span>
@@ -498,8 +499,8 @@ export default function ReportPage() {
             </a>
           )}
           {/* 범례 안내 텍스트 */}
-          <div className="flex items-center gap-1 text-[10px] sm:text-xs text-gray-600 bg-blue-50 border border-blue-100 rounded px-2 py-1">
-            <span className="text-sm">💡</span>
+          <div className="flex items-center gap-1 text-[11px] sm:text-xs md:text-sm text-gray-600 bg-blue-50 border border-blue-100 rounded px-2 py-1">
+            <Lightbulb className="w-3 h-3 inline-block" />
             <span>
               각 지표의 범례를 클릭하면 의미 또는 시사점 확인 가능합니다
             </span>
@@ -512,7 +513,7 @@ export default function ReportPage() {
           <Card>
             <CardHeader className="pb-2 sm:pb-3">
               <CardTitle className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-1">
-                💰 현재가
+                <DollarSign className="w-4 h-4 inline-block" /> 현재가
                 <IndicatorInfoButton indicatorKey="price" />
               </CardTitle>
             </CardHeader>
@@ -540,7 +541,7 @@ export default function ReportPage() {
             <Card>
               <CardHeader className="pb-2 sm:pb-3">
                 <CardTitle className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-1">
-                  📈 RSI(14)
+                  <TrendingUp className="w-4 h-4 inline-block" /> RSI(14)
                   <IndicatorInfoButton indicatorKey="rsi" />
                 </CardTitle>
               </CardHeader>
@@ -555,7 +556,7 @@ export default function ReportPage() {
                 </div>
                 {/* 범례 */}
                 <div className="mt-3 pt-2 border-t border-gray-200">
-                  <div className="text-[10px] text-gray-500">
+                  <div className="text-[11px] text-gray-500">
                     <div className="flex flex-wrap gap-x-2 gap-y-1 items-center">
                       <span className="font-medium text-gray-600">
                         상태 범례:
@@ -564,19 +565,19 @@ export default function ReportPage() {
                         label="과매수 (≥70)"
                         description="주가가 너무 많이 올라서 매도 압력이 커질 수 있는 상태입니다. 상승 추세가 약해질 가능성이 있습니다."
                       >
-                        🔴 과매수 (≥70)
+                        <Circle className="w-3 h-3 text-red-500 fill-red-500 inline-block" /> 과매수 (≥70)
                       </LegendTooltip>
                       <LegendTooltip
                         label="중립 (30-70)"
                         description="주가가 적정 수준에 있는 상태입니다. 과도한 매수나 매도 압력이 없는 균형 상태입니다."
                       >
-                        🟡 중립 (30-70)
+                        <Circle className="w-3 h-3 text-yellow-500 fill-yellow-500 inline-block" /> 중립 (30-70)
                       </LegendTooltip>
                       <LegendTooltip
                         label="과매도 (≤30)"
                         description="주가가 너무 많이 내려서 매수 기회가 생길 수 있는 상태입니다. 반등 가능성이 있습니다."
                       >
-                        🟢 과매도 (≤30)
+                        <Circle className="w-3 h-3 text-green-500 fill-green-500 inline-block" /> 과매도 (≤30)
                       </LegendTooltip>
                     </div>
                   </div>
@@ -590,14 +591,14 @@ export default function ReportPage() {
             <Card>
               <CardHeader className="pb-2 sm:pb-3">
                 <CardTitle className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-1">
-                  📉 이동평균선
+                  <TrendingDown className="w-4 h-4 inline-block" /> 이동평균선
                   <IndicatorInfoButton indicatorKey="movingAverages" />
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-1.5 text-xs sm:text-sm">
                 {marketData.movingAverages.ma5 !== undefined && (
                 <div className="flex items-center gap-1.5">
-                  <span>📅</span>
+                  <Calendar className="w-3 h-3 inline-block" />
                   <span className="font-medium">5일:</span>
                   <span className="font-semibold text-gray-900">
                     {marketData.movingAverages.ma5.toLocaleString()}
@@ -606,7 +607,7 @@ export default function ReportPage() {
                 )}
                 {marketData.movingAverages.ma20 !== undefined && (
                 <div className="flex items-center gap-1.5">
-                  <span>📅</span>
+                  <Calendar className="w-3 h-3 inline-block" />
                   <span className="font-medium">20일:</span>
                   <span className="font-semibold text-gray-900">
                     {marketData.movingAverages.ma20.toLocaleString()}
@@ -615,7 +616,7 @@ export default function ReportPage() {
                 )}
                 {marketData.movingAverages.ma60 !== undefined && (
                 <div className="flex items-center gap-1.5">
-                  <span>📅</span>
+                  <Calendar className="w-3 h-3 inline-block" />
                   <span className="font-medium">60일:</span>
                   <span className="font-semibold text-gray-900">
                     {marketData.movingAverages.ma60.toLocaleString()}
@@ -624,7 +625,7 @@ export default function ReportPage() {
                 )}
                 {marketData.movingAverages.ma120 !== undefined && (
                 <div className="flex items-center gap-1.5">
-                  <span>📅</span>
+                  <Calendar className="w-3 h-3 inline-block" />
                   <span className="font-medium">120일:</span>
                   <span className="font-semibold text-gray-900">
                     {marketData.movingAverages.ma120.toLocaleString()}
@@ -640,7 +641,7 @@ export default function ReportPage() {
             <Card>
               <CardHeader className="pb-2 sm:pb-3">
                 <CardTitle className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-1">
-                  📏 이격도 (20일 기준)
+                  <Ruler className="w-4 h-4 inline-block" /> 이격도 (20일 기준)
                   <IndicatorInfoButton indicatorKey="disparity" />
                 </CardTitle>
               </CardHeader>
@@ -658,14 +659,14 @@ export default function ReportPage() {
                   }`}
                 >
                   {marketData.disparity > 105
-                    ? "🔴 과열 구간"
+                    ? <><Circle className="w-3 h-3 text-red-500 fill-red-500 inline-block" /> 과열 구간</>
                     : marketData.disparity < 95
-                    ? "🔵 침체 구간"
-                    : "🟢 정상 구간"}
+                    ? <><Circle className="w-3 h-3 text-blue-500 fill-blue-500 inline-block" /> 침체 구간</>
+                    : <><Circle className="w-3 h-3 text-green-500 fill-green-500 inline-block" /> 정상 구간</>}
                 </div>
                 {/* 범례 */}
                 <div className="mt-3 pt-2 border-t border-gray-200">
-                  <div className="text-[10px] text-gray-500">
+                  <div className="text-[11px] text-gray-500">
                     <div className="flex flex-wrap gap-x-2 gap-y-1 items-center">
                       <span className="font-medium text-gray-600">
                         상태 범례:
@@ -674,19 +675,19 @@ export default function ReportPage() {
                         label="과열 구간 (>105%)"
                         description="현재가가 20일 이동평균선보다 5% 이상 높은 상태입니다. 주가가 과도하게 상승했을 수 있어 하락 위험이 있습니다."
                       >
-                        🔴 과열 구간 (&gt;105%)
+                        <Circle className="w-3 h-3 text-red-500 fill-red-500 inline-block" /> 과열 구간 (&gt;105%)
                       </LegendTooltip>
                       <LegendTooltip
                         label="정상 구간 (95-105%)"
                         description="현재가가 20일 이동평균선 근처에 있는 상태입니다. 주가가 적정 수준에 있어 안정적입니다."
                       >
-                        🟢 정상 구간 (95-105%)
+                        <Circle className="w-3 h-3 text-green-500 fill-green-500 inline-block" /> 정상 구간 (95-105%)
                       </LegendTooltip>
                       <LegendTooltip
                         label="침체 구간 (<95%)"
                         description="현재가가 20일 이동평균선보다 5% 이상 낮은 상태입니다. 주가가 과도하게 하락했을 수 있어 반등 기회가 있을 수 있습니다."
                       >
-                        🔵 침체 구간 (&lt;95%)
+                        <Circle className="w-3 h-3 text-blue-500 fill-blue-500 inline-block" /> 침체 구간 (&lt;95%)
                       </LegendTooltip>
                     </div>
                   </div>
@@ -700,7 +701,7 @@ export default function ReportPage() {
             <Card>
               <CardHeader className="pb-2 sm:pb-3">
                 <CardTitle className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-1">
-                  🔄 수급 (주)
+                  <RefreshCw className="w-4 h-4 inline-block" /> 수급 (주)
                   <IndicatorInfoButton indicatorKey="supplyDemand" />
                 </CardTitle>
               </CardHeader>
@@ -746,7 +747,7 @@ export default function ReportPage() {
                 </div>
                 {/* 범례 */}
                 <div className="mt-3 pt-2 border-t border-gray-200">
-                  <div className="text-[10px] text-gray-500">
+                  <div className="text-[11px] text-gray-500">
                     <div className="flex flex-wrap gap-x-2 gap-y-1 items-center">
                       <span className="font-medium text-gray-600">
                         상태 범례:
@@ -755,13 +756,13 @@ export default function ReportPage() {
                         label="매수 (+)"
                         description="해당 투자자 집단(기관, 외국인, 개인)이 주식을 사들인 상태입니다. 매수세가 강하면 주가 상승에 도움이 될 수 있습니다."
                       >
-                        🔴 매수 (+)
+                        <Circle className="w-3 h-3 text-red-500 fill-red-500 inline-block" /> 매수 (+)
                       </LegendTooltip>
                       <LegendTooltip
                         label="매도 (-)"
                         description="해당 투자자 집단(기관, 외국인, 개인)이 주식을 팔아치운 상태입니다. 매도세가 강하면 주가 하락 압력이 있을 수 있습니다."
                       >
-                        🔵 매도 (-)
+                        <Circle className="w-3 h-3 text-blue-500 fill-blue-500 inline-block" /> 매도 (-)
                       </LegendTooltip>
                     </div>
                   </div>
@@ -775,7 +776,7 @@ export default function ReportPage() {
             <Card>
               <CardHeader className="pb-2 sm:pb-3">
                 <CardTitle className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-1">
-                  😰 VIX 지수
+                  <AlertTriangle className="w-4 h-4 inline-block" /> VIX 지수
                   <IndicatorInfoButton indicatorKey="fearGreed" />
                 </CardTitle>
               </CardHeader>
@@ -792,7 +793,7 @@ export default function ReportPage() {
                 </div>
                 {/* 범례 */}
                 <div className="mt-3 pt-2 border-t border-gray-200">
-                  <div className="text-[10px] text-gray-500">
+                  <div className="text-[11px] text-gray-500">
                     <div className="flex flex-wrap gap-x-2 gap-y-1 items-center">
                       <span className="font-medium text-gray-600">
                         상태 범례:
@@ -801,19 +802,19 @@ export default function ReportPage() {
                         label="공포 구간 (>30)"
                         description="시장 참여자들이 공포 상태에 있어 주가가 더 하락할 수 있습니다. 하지만 과도한 하락 후 반등 기회가 생길 수도 있습니다."
                       >
-                        🔴 공포 구간 (&gt;30)
+                        <Circle className="w-3 h-3 text-red-500 fill-red-500 inline-block" /> 공포 구간 (&gt;30)
                       </LegendTooltip>
                       <LegendTooltip
                         label="중립 (20-30)"
                         description="시장 심리가 균형 상태입니다. 공포나 탐욕이 과도하지 않은 정상적인 시장 상황입니다."
                       >
-                        🟡 중립 (20-30)
+                        <Circle className="w-3 h-3 text-yellow-500 fill-yellow-500 inline-block" /> 중립 (20-30)
                       </LegendTooltip>
                       <LegendTooltip
                         label="탐욕 구간 (<20)"
                         description="시장 참여자들이 탐욕 상태에 있어 주가가 더 상승할 수 있습니다. 하지만 과도한 상승 후 하락 위험이 있을 수 있습니다."
                       >
-                        🟢 탐욕 구간 (&lt;20)
+                        <Circle className="w-3 h-3 text-green-500 fill-green-500 inline-block" /> 탐욕 구간 (&lt;20)
                       </LegendTooltip>
                     </div>
                   </div>
@@ -827,7 +828,7 @@ export default function ReportPage() {
             <Card>
               <CardHeader className="pb-2 sm:pb-3">
                 <CardTitle className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-1">
-                  💱 환율 (USD/KRW)
+                  <ArrowLeftRight className="w-4 h-4 inline-block" /> 환율 (USD/KRW)
                   <IndicatorInfoButton indicatorKey="exchangeRate" />
                 </CardTitle>
               </CardHeader>
@@ -847,7 +848,7 @@ export default function ReportPage() {
             <Card>
               <CardHeader className="pb-2 sm:pb-3">
                 <CardTitle className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-1">
-                  📊 ETF 괴리율
+                  <BarChart3 className="w-4 h-4 inline-block" /> ETF 괴리율
                   <IndicatorInfoButton indicatorKey="etfPremium" />
                 </CardTitle>
               </CardHeader>
@@ -875,7 +876,7 @@ export default function ReportPage() {
                     </div>
                     {/* 범례 */}
                     <div className="mt-3 pt-2 border-t border-gray-200">
-                      <div className="text-[10px] text-gray-500">
+                      <div className="text-[11px] text-gray-500">
                         <div className="flex flex-wrap gap-x-2 gap-y-1 items-center">
                           <span className="font-medium text-gray-600">
                             상태 범례:
@@ -884,19 +885,19 @@ export default function ReportPage() {
                             label="프리미엄 (>0%)"
                             description="ETF 시장 가격이 실제 가치(NAV)보다 높은 상태입니다. ETF를 비싸게 사는 것이므로 매수 시 주의가 필요합니다."
                           >
-                            🔴 프리미엄 (&gt;0%)
+                            <Circle className="w-3 h-3 text-red-500 fill-red-500 inline-block" /> 프리미엄 (&gt;0%)
                           </LegendTooltip>
                           <LegendTooltip
                             label="정상 (=0%)"
                             description="ETF 시장 가격이 실제 가치(NAV)와 거의 같은 상태입니다. 공정한 가격으로 거래되고 있습니다."
                           >
-                            ⚪ 정상 (=0%)
+                            <Circle className="w-3 h-3 text-gray-400 inline-block" /> 정상 (=0%)
                           </LegendTooltip>
                           <LegendTooltip
                             label="할인 (<0%)"
                             description="ETF 시장 가격이 실제 가치(NAV)보다 낮은 상태입니다. ETF를 싸게 살 수 있는 기회일 수 있습니다."
                           >
-                            🔵 할인 (&lt;0%)
+                            <Circle className="w-3 h-3 text-blue-500 fill-blue-500 inline-block" /> 할인 (&lt;0%)
                           </LegendTooltip>
                         </div>
                       </div>
@@ -904,7 +905,7 @@ export default function ReportPage() {
                   </>
                 ) : (
                   <div className="text-sm text-gray-600 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                    ⚠️ ETF 괴리율 데이터를 조회할 수 없습니다. 일반 종목이거나,
+                    <AlertTriangle className="w-3 h-3 text-yellow-500 inline-block" /> ETF 괴리율 데이터를 조회할 수 없습니다. 일반 종목이거나,
                     ETF 시장 데이터가 일시적으로 제공되지 않고 있습니다.
                   </div>
                 )}
@@ -917,7 +918,7 @@ export default function ReportPage() {
             <Card>
               <CardHeader className="pb-2 sm:pb-3">
                 <CardTitle className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-1">
-                  📊 볼린저 밴드
+                  <BarChart3 className="w-4 h-4 inline-block" /> 볼린저 밴드
                   <IndicatorInfoButton indicatorKey="bollingerBands" />
                 </CardTitle>
               </CardHeader>
@@ -933,25 +934,25 @@ export default function ReportPage() {
                 </div>
                 <div className="mt-2 pt-2 border-t border-gray-200">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-sm">📍</span>
+                    <MapPin className="w-3 h-3 inline-block" />
                     <span className="text-xs sm:text-sm font-medium text-gray-700">
                       현재 위치:
                     </span>
                     <span className="text-sm sm:text-base font-bold text-gray-900">
                       {(marketData.bollingerBands.position * 100).toFixed(1)}%
                     </span>
-                    <span className="text-xs sm:text-sm text-gray-600">
+                    <span className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
                       {marketData.bollingerBands.position >= 0.8
-                        ? "🔴 상단 근처"
+                        ? <><Circle className="w-3 h-3 text-red-500 fill-red-500 inline-block" /> 상단 근처</>
                         : marketData.bollingerBands.position >= 0.2
-                        ? "🟡 중간 구간"
-                        : "🔵 하단 근처"}
+                        ? <><Circle className="w-3 h-3 text-yellow-500 fill-yellow-500 inline-block" /> 중간 구간</>
+                        : <><Circle className="w-3 h-3 text-blue-500 fill-blue-500 inline-block" /> 하단 근처</>}
                     </span>
                   </div>
                 </div>
                 {/* 범례 */}
                 <div className="mt-3 pt-2 border-t border-gray-200">
-                  <div className="text-[10px] text-gray-500">
+                  <div className="text-[11px] text-gray-500">
                     <div className="flex flex-wrap gap-x-2 gap-y-1 items-center">
                       <span className="font-medium text-gray-600">
                         위치 범례:
@@ -960,19 +961,19 @@ export default function ReportPage() {
                         label="상단 근처 (80-100%)"
                         description="주가가 볼린저 밴드 상단선 근처에 있습니다. 주가가 높은 수준이므로 하락 압력이 있을 수 있습니다."
                       >
-                        🔴 상단 근처 (80-100%)
+                        <Circle className="w-3 h-3 text-red-500 fill-red-500 inline-block" /> 상단 근처 (80-100%)
                       </LegendTooltip>
                       <LegendTooltip
                         label="중간 구간 (20-80%)"
                         description="주가가 볼린저 밴드 중간 구간에 있습니다. 주가가 적정 수준에 있어 안정적인 상태입니다."
                       >
-                        🟡 중간 구간 (20-80%)
+                        <Circle className="w-3 h-3 text-yellow-500 fill-yellow-500 inline-block" /> 중간 구간 (20-80%)
                       </LegendTooltip>
                       <LegendTooltip
                         label="하단 근처 (0-20%)"
                         description="주가가 볼린저 밴드 하단선 근처에 있습니다. 주가가 낮은 수준이므로 반등 기회가 있을 수 있습니다."
                       >
-                        🔵 하단 근처 (0-20%)
+                        <Circle className="w-3 h-3 text-blue-500 fill-blue-500 inline-block" /> 하단 근처 (0-20%)
                       </LegendTooltip>
                     </div>
                   </div>
@@ -986,7 +987,7 @@ export default function ReportPage() {
             <Card>
               <CardHeader className="pb-2 sm:pb-3">
                 <CardTitle className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-1">
-                  📊 변동성
+                  <BarChart3 className="w-4 h-4 inline-block" /> 변동성
                   <IndicatorInfoButton indicatorKey="volatility" />
                 </CardTitle>
               </CardHeader>
@@ -1005,13 +1006,13 @@ export default function ReportPage() {
                   }`}
                 >
                   {marketData.volatility.volatilityRank === "low"
-                    ? "🟢 낮음"
+                    ? <><Circle className="w-3 h-3 text-green-500 fill-green-500 inline-block" /> 낮음</>
                     : marketData.volatility.volatilityRank === "medium"
-                    ? "🟡 보통"
-                    : "🔴 높음"}
+                    ? <><Circle className="w-3 h-3 text-yellow-500 fill-yellow-500 inline-block" /> 보통</>
+                    : <><Circle className="w-3 h-3 text-red-500 fill-red-500 inline-block" /> 높음</>}
                 </div>
                 <div className="text-xs sm:text-sm text-gray-600 mt-1.5 flex items-center gap-1">
-                  <span>📊</span>
+                  <BarChart3 className="w-3 h-3 inline-block" />
                   <span>
                     일일 변동률:{" "}
                     <span className="font-semibold text-gray-900">
@@ -1021,7 +1022,7 @@ export default function ReportPage() {
                 </div>
                 {/* 범례 */}
                 <div className="mt-3 pt-2 border-t border-gray-200">
-                  <div className="text-[10px] text-gray-500">
+                  <div className="text-[11px] text-gray-500">
                     <div className="flex flex-wrap gap-x-2 gap-y-1 items-center">
                       <span className="font-medium text-gray-600">
                         등급 범례:
@@ -1030,19 +1031,19 @@ export default function ReportPage() {
                         label="낮음 (<15%)"
                         description="주가 변동이 작아 안정적인 상태입니다. 큰 손실 위험은 낮지만 큰 수익 기회도 제한적일 수 있습니다."
                       >
-                        🟢 낮음 (&lt;15%)
+                        <Circle className="w-3 h-3 text-green-500 fill-green-500 inline-block" /> 낮음 (&lt;15%)
                       </LegendTooltip>
                       <LegendTooltip
                         label="보통 (15-30%)"
                         description="주가 변동이 적정 수준입니다. 일반적인 시장 상황으로 보이며, 적절한 리스크와 수익 기회가 공존합니다."
                       >
-                        🟡 보통 (15-30%)
+                        <Circle className="w-3 h-3 text-yellow-500 fill-yellow-500 inline-block" /> 보통 (15-30%)
                       </LegendTooltip>
                       <LegendTooltip
                         label="높음 (≥30%)"
                         description="주가 변동이 매우 큽니다. 큰 수익 기회가 있지만 동시에 큰 손실 위험도 있습니다. 신중한 투자가 필요합니다."
                       >
-                        🔴 높음 (≥30%)
+                        <Circle className="w-3 h-3 text-red-500 fill-red-500 inline-block" /> 높음 (≥30%)
                       </LegendTooltip>
                     </div>
                   </div>
@@ -1056,14 +1057,14 @@ export default function ReportPage() {
             <Card>
               <CardHeader className="pb-2 sm:pb-3">
                 <CardTitle className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-1">
-                  📦 거래량 지표
+                  <Package className="w-4 h-4 inline-block" /> 거래량 지표
                   <IndicatorInfoButton indicatorKey="volumeIndicators" />
                   {/* 쌍끌이 표시 */}
                   {marketData.supplyDemand &&
                     marketData.supplyDemand.foreign > 0 &&
                     marketData.supplyDemand.institutional > 0 && (
                       <span className="ml-2 px-2 py-0.5 bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs font-bold rounded-full animate-pulse">
-                        🔥 쌍끌이
+                        <Flame className="w-3 h-3 text-orange-500 inline-block" /> 쌍끌이
                       </span>
                     )}
                 </CardTitle>
@@ -1071,7 +1072,7 @@ export default function ReportPage() {
               <CardContent className="space-y-3 text-xs sm:text-sm">
                 {/* 핵심 정보 영역 - 더 강조 */}
                 <div className="font-medium text-gray-700 flex items-center gap-1.5">
-                  <span>📅</span>
+                  <Calendar className="w-3 h-3 inline-block" />
                   <span>
                     {new Date().getFullYear()}.
                     {String(new Date().getMonth() + 1).padStart(2, "0")}.
@@ -1110,19 +1111,19 @@ export default function ReportPage() {
                     <span className="font-medium text-gray-700">상태:</span>{" "}
                     <span className="font-bold">
                       {marketData.volumeIndicators.isHighVolume
-                        ? "🔴 고거래량"
-                        : "⚪ 정상"}
+                        ? <><Circle className="w-3 h-3 text-red-500 fill-red-500 inline-block" /> 고거래량</>
+                        : <><Circle className="w-3 h-3 text-gray-400 inline-block" /> 정상</>}
                     </span>
                   </div>
                   <div className="font-semibold text-gray-700">
                     <span className="font-medium">추세:</span>{" "}
                     <span className="font-bold">
                       {marketData.volumeIndicators.volumeTrend === "increasing"
-                        ? "📈 증가"
+                        ? <><TrendingUp className="w-3 h-3 inline-block" /> 증가</>
                         : marketData.volumeIndicators.volumeTrend ===
                           "decreasing"
-                        ? "📉 감소"
-                        : "➡️ 안정"}
+                        ? <><TrendingDown className="w-3 h-3 inline-block" /> 감소</>
+                        : <>→ 안정</>}
                     </span>
                   </div>
                 </div>
@@ -1164,7 +1165,7 @@ export default function ReportPage() {
                 )}
                 {/* 범례 */}
                 <div className="mt-3 pt-2 border-t border-gray-200">
-                  <div className="text-[10px] text-gray-500">
+                  <div className="text-[11px] text-gray-500">
                     <div className="flex flex-wrap gap-x-2 gap-y-1 items-center mb-1.5">
                       <span className="font-medium text-gray-600">
                         상태 범례:
@@ -1173,13 +1174,13 @@ export default function ReportPage() {
                         label="고거래량 (≥1.5배)"
                         description="현재 거래량이 평균보다 1.5배 이상 많습니다. 많은 투자자들이 관심을 보이고 있어 주가 변동이 클 수 있습니다."
                       >
-                        🔴 고거래량 (≥1.5배)
+                        <Circle className="w-3 h-3 text-red-500 fill-red-500 inline-block" /> 고거래량 (≥1.5배)
                       </LegendTooltip>
                       <LegendTooltip
                         label="정상 (<1.5배)"
                         description="현재 거래량이 평균 수준입니다. 일반적인 거래 활동이 이루어지고 있는 상태입니다."
                       >
-                        ⚪ 정상 (&lt;1.5배)
+                        <Circle className="w-3 h-3 text-gray-400 inline-block" /> 정상 (&lt;1.5배)
                       </LegendTooltip>
                     </div>
                     <div className="flex flex-wrap gap-x-2 gap-y-1 items-center">
@@ -1190,19 +1191,19 @@ export default function ReportPage() {
                         label="증가"
                         description="최근 거래량이 증가하고 있습니다. 관심이 높아지고 있어 주가 변동이 커질 수 있습니다."
                       >
-                        📈 증가
+                        <TrendingUp className="w-3 h-3 inline-block" /> 증가
                       </LegendTooltip>
                       <LegendTooltip
                         label="안정"
                         description="거래량이 안정적인 상태입니다. 큰 변화 없이 일정한 수준을 유지하고 있습니다."
                       >
-                        ➡️ 안정
+                        → 안정
                       </LegendTooltip>
                       <LegendTooltip
                         label="감소"
                         description="최근 거래량이 감소하고 있습니다. 관심이 줄어들고 있어 주가 변동이 작아질 수 있습니다."
                       >
-                        📉 감소
+                        <TrendingDown className="w-3 h-3 inline-block" /> 감소
                       </LegendTooltip>
                     </div>
                   </div>
@@ -1217,7 +1218,7 @@ export default function ReportPage() {
             <Card>
               <CardHeader className="pb-2 sm:pb-3">
                 <CardTitle className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-1">
-                  🛡️ 눌림목 여부
+                  <Shield className="w-4 h-4 inline-block" /> 눌림목 여부
                   <IndicatorInfoButton indicatorKey="supportLevel" />
                 </CardTitle>
               </CardHeader>
@@ -1230,8 +1231,8 @@ export default function ReportPage() {
                   }`}
                 >
                   {marketData.supportLevel.isNearSupport
-                    ? "🟢 지지선 근처"
-                    : "⚪ 일반 구간"}
+                    ? <><Circle className="w-3 h-3 text-green-500 fill-green-500 inline-block" /> 지지선 근처</>
+                    : <><Circle className="w-3 h-3 text-gray-400 inline-block" /> 일반 구간</>}
                 </div>
                 <div className="text-xs sm:text-sm mt-1 text-gray-600">
                   지지선:{" "}
@@ -1245,7 +1246,7 @@ export default function ReportPage() {
                 </div>
                 {/* 범례 */}
                 <div className="mt-3 pt-2 border-t border-gray-200">
-                  <div className="text-[10px] text-gray-500">
+                  <div className="text-[11px] text-gray-500">
                     <div className="flex flex-wrap gap-x-2 gap-y-1 items-center">
                       <span className="font-medium text-gray-600">
                         상태 범례:
@@ -1254,13 +1255,13 @@ export default function ReportPage() {
                         label="지지선 근처 (±5% 이내)"
                         description="주가가 과거 저점(지지선) 근처에 있습니다. 지지선에서 반등할 가능성이 있어 매수 기회일 수 있습니다."
                       >
-                        🟢 지지선 근처 (±5% 이내)
+                        <Circle className="w-3 h-3 text-green-500 fill-green-500 inline-block" /> 지지선 근처 (±5% 이내)
                       </LegendTooltip>
                       <LegendTooltip
                         label="일반 구간 (5% 초과)"
                         description="주가가 지지선에서 멀리 떨어져 있습니다. 지지선의 영향을 받지 않는 일반적인 구간입니다."
                       >
-                        ⚪ 일반 구간 (5% 초과)
+                        <Circle className="w-3 h-3 text-gray-400 inline-block" /> 일반 구간 (5% 초과)
                       </LegendTooltip>
                     </div>
                   </div>
@@ -1274,7 +1275,7 @@ export default function ReportPage() {
             <Card>
               <CardHeader className="pb-2 sm:pb-3">
                 <CardTitle className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-1">
-                  🎯 저항선/지지선
+                  <Target className="w-4 h-4 inline-block" /> 저항선/지지선
                   <IndicatorInfoButton indicatorKey="supportResistance" />
                 </CardTitle>
               </CardHeader>
@@ -1437,11 +1438,10 @@ export default function ReportPage() {
                       : "text-gray-600"
                   }`}
                 >
-                  <span>📍</span>
+                  <MapPin className="w-3 h-3 inline-block" />
                   <span>현재:</span>
                   {(() => {
                     const currentPrice = marketData.price;
-                    let positionText = "";
                     let levelIndex = -1;
 
                     if (
@@ -1460,7 +1460,7 @@ export default function ReportPage() {
                         curr.distance < min.distance ? curr : min
                       );
                       levelIndex = nearest.index;
-                      positionText = `🔴 ${levelIndex + 1}차 저항선 근처`;
+                      return <span className="flex items-center gap-1"><Circle className="w-3 h-3 text-red-500 fill-red-500 inline-block" /> {levelIndex + 1}차 저항선 근처</span>;
                     } else if (
                       marketData.supportResistance?.currentPosition ===
                       "near_support"
@@ -1477,17 +1477,15 @@ export default function ReportPage() {
                         curr.distance < min.distance ? curr : min
                       );
                       levelIndex = nearest.index;
-                      positionText = `🟢 ${levelIndex + 1}차 지지선 근처`;
+                      return <span className="flex items-center gap-1"><Circle className="w-3 h-3 text-green-500 fill-green-500 inline-block" /> {levelIndex + 1}차 지지선 근처</span>;
                     } else {
-                      positionText = "⚪ 중간";
+                      return <span className="flex items-center gap-1"><Circle className="w-3 h-3 text-gray-400 inline-block" /> 중간</span>;
                     }
-
-                    return <span>{positionText}</span>;
                   })()}
                 </div>
                 {/* 범례 */}
                 <div className="mt-3 pt-2 border-t border-gray-200">
-                  <div className="text-[10px] text-gray-500">
+                  <div className="text-[11px] text-gray-500">
                     <div className="flex flex-wrap gap-x-2 gap-y-1 items-center">
                       <span className="font-medium text-gray-600">
                         위치 범례:
@@ -1496,19 +1494,19 @@ export default function ReportPage() {
                         label="저항선 근처 (3% 이내)"
                         description="주가가 과거 고점(저항선) 근처에 있습니다. 저항선에서 하락 압력을 받을 수 있어 주의가 필요합니다."
                       >
-                        🔴 저항선 근처 (3% 이내)
+                        <Circle className="w-3 h-3 text-red-500 fill-red-500 inline-block" /> 저항선 근처 (3% 이내)
                       </LegendTooltip>
                       <LegendTooltip
                         label="지지선 근처 (3% 이내)"
                         description="주가가 과거 저점(지지선) 근처에 있습니다. 지지선에서 반등할 가능성이 있어 매수 기회일 수 있습니다."
                       >
-                        🟢 지지선 근처 (3% 이내)
+                        <Circle className="w-3 h-3 text-green-500 fill-green-500 inline-block" /> 지지선 근처 (3% 이내)
                       </LegendTooltip>
                       <LegendTooltip
                         label="중간 구간"
                         description="주가가 저항선과 지지선 중간에 있습니다. 특별한 압력 없이 자유롭게 움직일 수 있는 구간입니다."
                       >
-                        ⚪ 중간 구간
+                        <Circle className="w-3 h-3 text-gray-400 inline-block" /> 중간 구간
                       </LegendTooltip>
                     </div>
                   </div>
@@ -1522,7 +1520,7 @@ export default function ReportPage() {
             <Card>
               <CardHeader className="pb-2 sm:pb-3">
                 <CardTitle className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-1">
-                  📊 MACD
+                  <BarChart3 className="w-4 h-4 inline-block" /> MACD
                   <IndicatorInfoButton indicatorKey="macd" />
                 </CardTitle>
               </CardHeader>
@@ -1562,14 +1560,14 @@ export default function ReportPage() {
                       : "text-gray-600"
                   }`}>
                     {marketData.macd.crossover === "golden"
-                      ? "🔴 골든 크로스 (매수 신호)"
+                      ? <><Circle className="w-3 h-3 text-red-500 fill-red-500 inline-block" /> 골든 크로스 (매수 신호)</>
                       : marketData.macd.crossover === "death"
-                      ? "🔵 데드 크로스 (매도 신호)"
+                      ? <><Circle className="w-3 h-3 text-blue-500 fill-blue-500 inline-block" /> 데드 크로스 (매도 신호)</>
                       : marketData.macd.trend === "bullish"
-                      ? "🔴 상승 추세"
+                      ? <><Circle className="w-3 h-3 text-red-500 fill-red-500 inline-block" /> 상승 추세</>
                       : marketData.macd.trend === "bearish"
-                      ? "🔵 하락 추세"
-                      : "⚪ 중립"}
+                      ? <><Circle className="w-3 h-3 text-blue-500 fill-blue-500 inline-block" /> 하락 추세</>
+                      : <><Circle className="w-3 h-3 text-gray-400 inline-block" /> 중립</>}
                   </div>
                 </div>
                 <div className="mt-3 pt-2 border-t border-gray-100">
@@ -1583,19 +1581,19 @@ export default function ReportPage() {
                         label="골든 크로스"
                         description="MACD Line이 Signal Line을 아래에서 위로 돌파하면 상승 추세 전환 신호입니다. 매수 타이밍으로 볼 수 있습니다."
                       >
-                        🔴 골든 크로스
+                        <Circle className="w-3 h-3 text-red-500 fill-red-500 inline-block" /> 골든 크로스
                       </LegendTooltip>
                       <LegendTooltip
                         label="데드 크로스"
                         description="MACD Line이 Signal Line을 위에서 아래로 돌파하면 하락 추세 전환 신호입니다. 매도 타이밍으로 볼 수 있습니다."
                       >
-                        🔵 데드 크로스
+                        <Circle className="w-3 h-3 text-blue-500 fill-blue-500 inline-block" /> 데드 크로스
                       </LegendTooltip>
                       <LegendTooltip
                         label="중립"
                         description="특별한 크로스오버 신호가 없는 상태입니다. 추세 방향을 확인하세요."
                       >
-                        ⚪ 중립
+                        <Circle className="w-3 h-3 text-gray-400 inline-block" /> 중립
                       </LegendTooltip>
                     </div>
                   </div>
@@ -1609,7 +1607,7 @@ export default function ReportPage() {
             <Card>
               <CardHeader className="pb-2 sm:pb-3">
                 <CardTitle className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-1">
-                  📈 스토캐스틱
+                  <TrendingUp className="w-4 h-4 inline-block" /> 스토캐스틱
                   <IndicatorInfoButton indicatorKey="stochastic" />
                 </CardTitle>
               </CardHeader>
@@ -1641,14 +1639,14 @@ export default function ReportPage() {
                       : "text-gray-600"
                   }`}>
                     {marketData.stochastic.signal === "buy"
-                      ? "🔴 매수 신호 (%K↑%D 돌파)"
+                      ? <><Circle className="w-3 h-3 text-red-500 fill-red-500 inline-block" /> 매수 신호 (%K↑%D 돌파)</>
                       : marketData.stochastic.signal === "sell"
-                      ? "🔵 매도 신호 (%K↓%D 돌파)"
+                      ? <><Circle className="w-3 h-3 text-blue-500 fill-blue-500 inline-block" /> 매도 신호 (%K↓%D 돌파)</>
                       : marketData.stochastic.zone === "overbought"
-                      ? "🔴 과매수 구간 (≥80)"
+                      ? <><Circle className="w-3 h-3 text-red-500 fill-red-500 inline-block" /> 과매수 구간 (≥80)</>
                       : marketData.stochastic.zone === "oversold"
-                      ? "🟢 과매도 구간 (≤20)"
-                      : "⚪ 중립 구간"}
+                      ? <><Circle className="w-3 h-3 text-green-500 fill-green-500 inline-block" /> 과매도 구간 (≤20)</>
+                      : <><Circle className="w-3 h-3 text-gray-400 inline-block" /> 중립 구간</>}
                   </div>
                 </div>
                 <div className="mt-3 pt-2 border-t border-gray-100">
@@ -1662,19 +1660,19 @@ export default function ReportPage() {
                         label="과매수 (≥80)"
                         description="주가가 최근 범위의 상단에 위치합니다. 하락 반전 가능성이 있어 매도 타이밍을 고려해볼 수 있습니다."
                       >
-                        🔴 과매수 (≥80)
+                        <Circle className="w-3 h-3 text-red-500 fill-red-500 inline-block" /> 과매수 (≥80)
                       </LegendTooltip>
                       <LegendTooltip
                         label="중립 (20-80)"
                         description="주가가 최근 범위의 중간에 위치합니다. 특별한 과매수/과매도 신호가 없는 상태입니다."
                       >
-                        ⚪ 중립 (20-80)
+                        <Circle className="w-3 h-3 text-gray-400 inline-block" /> 중립 (20-80)
                       </LegendTooltip>
                       <LegendTooltip
                         label="과매도 (≤20)"
                         description="주가가 최근 범위의 하단에 위치합니다. 상승 반전 가능성이 있어 매수 타이밍을 고려해볼 수 있습니다."
                       >
-                        🟢 과매도 (≤20)
+                        <Circle className="w-3 h-3 text-green-500 fill-green-500 inline-block" /> 과매도 (≤20)
                       </LegendTooltip>
                     </div>
                   </div>

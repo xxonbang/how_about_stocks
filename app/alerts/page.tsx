@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { AlertOctagon, Circle, AlertTriangle, Info, Pin, RefreshCw, Pause } from 'lucide-react';
 
 interface Alert {
   id: string;
@@ -106,18 +107,18 @@ export default function AlertsPage() {
     }
   };
 
-  const getSeverityEmoji = (severity: string): string => {
+  const getSeverityIcon = (severity: string): React.ReactNode => {
     switch (severity) {
       case 'critical':
-        return '🚨';
+        return <AlertOctagon className="w-5 h-5 text-red-600" />;
       case 'high':
-        return '🔴';
+        return <Circle className="w-5 h-5 text-red-500 fill-red-500" />;
       case 'medium':
-        return '⚠️';
+        return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
       case 'low':
-        return 'ℹ️';
+        return <Info className="w-5 h-5 text-blue-500" />;
       default:
-        return '📌';
+        return <Pin className="w-5 h-5 text-gray-500" />;
     }
   };
 
@@ -180,7 +181,7 @@ export default function AlertsPage() {
         {/* 헤더 */}
         <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
           <div className="flex-1">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">🚨 알림 시스템</h1>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2"><AlertOctagon className="w-7 h-7 inline-block mr-1.5" /> 알림 시스템</h1>
             <p className="text-sm sm:text-base text-gray-600">데이터 품질 문제 모니터링 및 알림</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-stretch sm:items-center">
@@ -209,7 +210,7 @@ export default function AlertsPage() {
               variant={autoRefresh ? 'default' : 'outline'}
               className="w-full sm:w-auto text-sm sm:text-base"
             >
-              {autoRefresh ? '🔄 자동 갱신 중' : '⏸️ 일시정지'}
+              {autoRefresh ? <><RefreshCw className="w-4 h-4 inline-block mr-1" /> 자동 갱신 중</> : <><Pause className="w-4 h-4 inline-block mr-1" /> 일시정지</>}
             </Button>
             <Button 
               onClick={fetchAlerts}
@@ -275,7 +276,7 @@ export default function AlertsPage() {
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-0">
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2 mb-2">
-                          <span className="text-xl sm:text-2xl">{getSeverityEmoji(alert.severity)}</span>
+                          <span className="text-xl sm:text-2xl">{getSeverityIcon(alert.severity)}</span>
                           <h3 className="font-bold text-base sm:text-lg break-words">{alert.title}</h3>
                           <span className="text-xs px-2 py-1 bg-white/50 rounded whitespace-nowrap">
                             {getTypeLabel(alert.type)}
@@ -337,7 +338,7 @@ export default function AlertsPage() {
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-0">
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2 mb-1">
-                          <span>{getSeverityEmoji(alert.severity)}</span>
+                          <span>{getSeverityIcon(alert.severity)}</span>
                           <span className="font-semibold text-xs sm:text-sm break-words">{alert.title}</span>
                           {alert.resolved && (
                             <span className="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded whitespace-nowrap">

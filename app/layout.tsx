@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Noto_Sans_KR } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import { Navigation } from "@/components/navigation";
@@ -8,7 +8,7 @@ import { PageTracker } from "@/components/page-tracker";
 import { Toaster } from "sonner";
 import { ApiKeyAlertBanner } from "@/components/api-key-alert-banner";
 
-const inter = Inter({ subsets: ["latin"] });
+const notoSansKR = Noto_Sans_KR({ subsets: ["latin"], weight: ["300", "400", "500", "700"] });
 
 export const metadata: Metadata = {
   title: "종목어때.ai - AI 주식 분석",
@@ -28,7 +28,6 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/icon.svg", type: "image/svg+xml" },
       { url: "/icon.png", sizes: "32x32", type: "image/png" },
     ],
     apple: [
@@ -44,7 +43,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
-      <body className={inter.className}>
+      <body className={notoSansKR.className}>
         <AuthProvider>
           <ApiKeyAlertBanner />
           <Navigation />

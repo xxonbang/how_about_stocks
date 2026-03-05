@@ -285,7 +285,7 @@ export function StockAutocomplete({
         />
         <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
           {isLoading && (
-            <div className="flex items-center gap-1.5 px-2 py-1 bg-blue-50 rounded-md border border-blue-200">
+            <div className="flex items-center gap-1.5 px-2 py-1 bg-blue-50 rounded-lg border border-blue-200">
               <svg
                 className="animate-spin h-5 w-5 text-blue-600"
                 xmlns="http://www.w3.org/2000/svg"
@@ -341,7 +341,7 @@ export function StockAutocomplete({
         <div
           ref={suggestionsRef}
           id="stock-suggestions"
-          className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto"
+          className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto"
           role="listbox"
         >
           {suggestions.map((suggestion, index) => (
@@ -376,7 +376,7 @@ export function StockAutocomplete({
       {showNoResults && !isLoading && suggestions.length === 0 && debouncedValue.trim().length >= 2 && (
         <div
           ref={noResultsRef}
-          className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-4 text-sm text-gray-500 text-center animate-in fade-in duration-200"
+          className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-sm text-gray-500 text-center animate-in fade-in duration-200"
           onClick={() => {
             setShowNoResults(false);
             if (noResultsTimerRef.current) {

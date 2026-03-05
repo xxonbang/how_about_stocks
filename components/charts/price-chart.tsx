@@ -92,7 +92,7 @@ export function PriceChart({
     <div className="relative">
       {/* 현재가 표시 배지 - 모바일 최적화 */}
       <div className="absolute top-0 right-0 z-10 flex items-center gap-2">
-        <div className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md sm:rounded-lg text-xs sm:text-sm font-bold ${
+        <div className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-lg text-xs sm:text-sm font-bold ${
           isUp ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
         }`}>
           {isUp ? '▲' : '▼'} {latestData.close.toLocaleString()}원
@@ -250,18 +250,18 @@ export function PriceChart({
               });
 
               return (
-                <ul className="flex flex-wrap justify-center gap-2 sm:gap-3 mt-2 sm:mt-3 text-[10px] sm:text-xs">
+                <ul className="flex flex-wrap justify-center gap-2.5 sm:gap-4 mt-2 sm:mt-3 text-xs sm:text-sm">
                   {sortedPayload.map((entry, index) => (
-                    <li key={`item-${index}`} className="flex items-center gap-1 sm:gap-1.5">
+                    <li key={`item-${index}`} className="flex items-center gap-1.5 sm:gap-2">
                       <span
                         style={{
                           display: 'inline-block',
-                          width: '10px',
-                          height: '2px',
+                          width: '12px',
+                          height: '3px',
                           backgroundColor: entry.color,
                           borderRadius: '1px',
                         }}
-                        className="sm:!w-3 sm:!h-[3px]"
+                        className="sm:!w-3.5 sm:!h-[3px]"
                       />
                       <span style={{ color: '#4b5563' }}>
                         {entry.value}
