@@ -2,6 +2,9 @@
 const nextConfig = {
   // Docker 배포를 위한 standalone 출력 모드
   output: 'standalone',
+  images: {
+    unoptimized: true,
+  },
   experimental: {
     serverActions: {
       bodySizeLimit: '2mb',
