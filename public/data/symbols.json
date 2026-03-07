@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-03-06T17:33:13.232493",
+  "generated_at": "2026-03-07T01:25:51.727599",
   "korea": {
     "count": 4287,
     "stocks": [
@@ -25729,7 +25729,7 @@
     ]
   },
   "us": {
-    "count": 30114,
+    "count": 30113,
     "stocks": [
       {
         "code": "BTOT",
@@ -236348,13 +236348,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "IMG",
-        "name": "IMG",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "AHL",
         "name": "AHL",
         "market": "NYSE",
@@ -236531,5 +236524,5 @@
       }
     ]
   },
-  "total": 34401
+  "total": 34400
 }
