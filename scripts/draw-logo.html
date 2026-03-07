@@ -47,23 +47,33 @@ async function draw() {
   const fontSize = 168;
   ctx.font = `800 ${fontSize}px Pretendard`;
   ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
+  ctx.textBaseline = 'alphabetic';
 
   const line1 = '종목';
   const line2 = '어때';
   const lineGap = 20;
-  const totalH = fontSize * 2 + lineGap;
-  const startY = (W - totalH) / 2 + fontSize / 2;
+
+  // Measure actual glyph bounds for precise vertical centering
+  const m1 = ctx.measureText(line1);
+  const m2 = ctx.measureText(line2);
+  const asc1 = m1.actualBoundingBoxAscent;
+  const desc1 = m1.actualBoundingBoxDescent;
+  const asc2 = m2.actualBoundingBoxAscent;
+  const desc2 = m2.actualBoundingBoxDescent;
+  const blockH = asc1 + desc1 + lineGap + asc2 + desc2;
+  const topOffset = (W - blockH) / 2;
+  const y1 = topOffset + asc1;
+  const y2 = topOffset + asc1 + desc1 + lineGap + asc2;
 
   // Text shadow
   ctx.fillStyle = 'rgba(0,0,0,0.25)';
-  ctx.fillText(line1, W/2 + 2, startY + 3);
-  ctx.fillText(line2, W/2 + 2, startY + fontSize + lineGap + 3);
+  ctx.fillText(line1, W/2 + 2, y1 + 3);
+  ctx.fillText(line2, W/2 + 2, y2 + 3);
 
   // Main text
   ctx.fillStyle = '#FFFFFF';
-  ctx.fillText(line1, W/2, startY);
-  ctx.fillText(line2, W/2, startY + fontSize + lineGap);
+  ctx.fillText(line1, W/2, y1);
+  ctx.fillText(line2, W/2, y2);
 
   // ===== OUTER BORDER =====
   rr(0,0,W,W,96);
