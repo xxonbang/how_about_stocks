@@ -13,6 +13,7 @@ export function usePageTracker() {
   const { isAuthenticated } = useAuth();
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     if (isAuthenticated) {
       logActivity('page_view', { page: pathname });
     }
