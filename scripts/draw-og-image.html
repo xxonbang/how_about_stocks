@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><style>*{margin:0;padding:0}body{background:transparent}</style></head>
+<body>
+<canvas id="c" width="1200" height="630"></canvas>
+<script>
+async function draw() {
+  const font = new FontFace('Pretendard', 'url(./Pretendard-ExtraBold.woff2)', {
+    weight: '800',
+    style: 'normal',
+  });
+  await font.load();
+  document.fonts.add(font);
+
+  const c = document.getElementById('c');
+  const ctx = c.getContext('2d');
+  const W = 1200, H = 630;
+
+  // ===== BACKGROUND =====
+  const bg = ctx.createLinearGradient(0, H, W, 0);
+  bg.addColorStop(0, '#060D1F');
+  bg.addColorStop(0.3, '#0C1A3D');
+  bg.addColorStop(0.6, '#1E3A8A');
+  bg.addColorStop(1, '#2563EB');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Subtle radial glow
+  const rd = ctx.createRadialGradient(W * 0.5, H * 0.45, 0, W * 0.5, H * 0.45, W * 0.4);
+  rd.addColorStop(0, 'rgba(59,130,246,0.10)');
+  rd.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = rd;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  // ===== LOGO ICON (small rounded rect with text) =====
+  const iconSize = 120;
+  const iconX = W / 2 - iconSize / 2;
+  const iconY = 100;
+  const iconR = 28;
+
+  // Icon background
+  ctx.beginPath();
+  ctx.moveTo(iconX + iconR, iconY);
+  ctx.arcTo(iconX + iconSize, iconY, iconX + iconSize, iconY + iconSize, iconR);
+  ctx.arcTo(iconX + iconSize, iconY + iconSize, iconX, iconY + iconSize, iconR);
+  ctx.arcTo(iconX, iconY + iconSize, iconX, iconY, iconR);
+  ctx.arcTo(iconX, iconY, iconX + iconSize, iconY, iconR);
+  ctx.closePath();
+  const iconBg = ctx.createLinearGradient(iconX, iconY + iconSize, iconX + iconSize, iconY);
+  iconBg.addColorStop(0, '#040A18');
+  iconBg.addColorStop(0.5, '#122460');
+  iconBg.addColorStop(1, '#1D4ED8');
+  ctx.fillStyle = iconBg;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Icon text
+  ctx.font = '800 38px Pretendard';
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillText('종목', W / 2, iconY + iconSize * 0.35);
+  ctx.fillText('어때', W / 2, iconY + iconSize * 0.7);
+
+  // ===== MAIN TITLE =====
+  ctx.font = '800 72px Pretendard';
+  ctx.fillStyle = 'rgba(0,0,0,0.2)';
+  ctx.fillText('종목어때.ai', W / 2 + 2, 320 + 2);
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillText('종목어때.ai', W / 2, 320);
+
+  // ===== SUBTITLE =====
+  ctx.font = '800 32px Pretendard';
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.fillText('AI 기반 실시간 주식 분석 리포트', W / 2, 400);
+
+  // ===== BOTTOM TAGS =====
+  ctx.font = '800 20px Pretendard';
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.fillText('RSI  ·  MACD  ·  볼린저밴드  ·  14개 기술적 지표 분석', W / 2, 530);
+
+  document.title = 'DONE';
+}
+
+draw().catch(e => { console.error(e); document.title = 'DONE'; });
+</script>
+</body>
+</html>

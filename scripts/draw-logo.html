@@ -4,170 +4,78 @@
 <body>
 <canvas id="c" width="512" height="512"></canvas>
 <script>
-const c = document.getElementById('c');
-const ctx = c.getContext('2d');
-const W = 512;
+async function draw() {
+  // Load Pretendard ExtraBold
+  const font = new FontFace('Pretendard', 'url(./Pretendard-ExtraBold.woff2)', {
+    weight: '800',
+    style: 'normal',
+  });
+  await font.load();
+  document.fonts.add(font);
 
-function rr(x,y,w,h,r){
-  ctx.beginPath();
-  ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);
-  ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
-}
+  const c = document.getElementById('c');
+  const ctx = c.getContext('2d');
+  const W = 512;
 
-rr(0,0,W,W,96);
-ctx.save();
-ctx.clip();
+  function rr(x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
+  }
 
-// ===== BG =====
-const bg = ctx.createLinearGradient(0, W, W, 0);
-bg.addColorStop(0, '#060D1F');
-bg.addColorStop(0.3, '#0C1A3D');
-bg.addColorStop(0.6, '#1E3A8A');
-bg.addColorStop(1, '#2563EB');
-ctx.fillStyle = bg;
-ctx.fillRect(0,0,W,W);
-
-const rd = ctx.createRadialGradient(W*0.45, W*0.5, 0, W*0.45, W*0.5, W*0.55);
-rd.addColorStop(0, 'rgba(59,130,246,0.08)');
-rd.addColorStop(1, 'rgba(0,0,0,0)');
-ctx.fillStyle = rd;
-ctx.fillRect(0,0,W,W);
-
-// ===== CROSSHAIR: premium reticle =====
-const chCx = 260, chCy = 256;
-const R = 178;
-const chC = '55,145,215';
-
-// --- Primary ring: gradient sweep arc (310°) ---
-const arcStart = -Math.PI * 0.2;
-const arcEnd = Math.PI * 1.72;
-const segs = 80;
-for (let i = 0; i < segs; i++) {
-  const t = i / segs;
-  const a1 = arcStart + (arcEnd - arcStart) * t;
-  const a2 = arcStart + (arcEnd - arcStart) * (t + 1/segs);
-  const fade = Math.sin(t * Math.PI);
-  const alpha = 0.1 + fade * 0.3;
-  ctx.beginPath();
-  ctx.arc(chCx, chCy, R, a1, a2 + 0.015);
-  ctx.strokeStyle = `rgba(${chC},${alpha})`;
-  ctx.lineWidth = 3.5;
-  ctx.lineCap = 'butt';
-  ctx.stroke();
-}
-
-// --- Inner ring: thinner, offset ---
-const R2 = 144;
-const a2s = Math.PI * 0.25, a2e = Math.PI * 1.35;
-const seg2 = 50;
-for (let i = 0; i < seg2; i++) {
-  const t = i / seg2;
-  const a1 = a2s + (a2e - a2s) * t;
-  const a2 = a2s + (a2e - a2s) * (t + 1/seg2);
-  const fade = Math.sin(t * Math.PI);
-  ctx.beginPath();
-  ctx.arc(chCx, chCy, R2, a1, a2 + 0.015);
-  ctx.strokeStyle = `rgba(${chC},${0.05 + fade * 0.14})`;
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-}
-
-// --- Cross lines: bold, through center, gradient fade outward ---
-const crossInner = 24;
-const crossOuter = R + 30;
-
-[[1,0],[-1,0],[0,1],[0,-1]].forEach(([dx,dy]) => {
-  const x1 = chCx + dx * crossInner;
-  const y1 = chCy + dy * crossInner;
-  const x2 = chCx + dx * crossOuter;
-  const y2 = chCy + dy * crossOuter;
-
-  const g = ctx.createLinearGradient(x1, y1, x2, y2);
-  g.addColorStop(0, `rgba(${chC},0.5)`);
-  g.addColorStop(0.4, `rgba(${chC},0.35)`);
-  g.addColorStop(0.75, `rgba(${chC},0.15)`);
-  g.addColorStop(1, `rgba(${chC},0.02)`);
-
-  ctx.beginPath();
-  ctx.moveTo(x1, y1);
-  ctx.lineTo(x2, y2);
-  ctx.strokeStyle = g;
-  ctx.lineWidth = 4;
-  ctx.lineCap = 'round';
-  ctx.stroke();
-});
-
-// ===== THREE ASCENDING BARS =====
-const barW = 78;
-const barR = 18;
-const baseY = 396;
-const gap = 20;
-const startX = 124;
-
-const bars = [
-  { x: startX, h: 150 },
-  { x: startX + barW + gap, h: 224 },
-  { x: startX + (barW + gap)*2, h: 304 },
-];
-
-bars.forEach((b, i) => {
-  const topY = baseY - b.h;
-  const opacity = 0.55 + i * 0.2;
-
-  // Shadow
+  rr(0,0,W,W,96);
   ctx.save();
-  ctx.shadowColor = 'rgba(0,0,0,0.3)';
-  ctx.shadowBlur = 20;
-  ctx.shadowOffsetY = 6;
-  rr(b.x, topY, barW, b.h, barR);
-  ctx.fillStyle = 'rgba(0,0,0,0.01)';
-  ctx.fill();
-  ctx.restore();
-
-  // Bar fill
-  rr(b.x, topY, barW, b.h, barR);
-  const fg = ctx.createLinearGradient(b.x, topY, b.x, baseY);
-  fg.addColorStop(0, `rgba(255,255,255,${opacity})`);
-  fg.addColorStop(0.6, `rgba(226,232,240,${opacity * 0.85})`);
-  fg.addColorStop(1, `rgba(203,213,225,${opacity * 0.7})`);
-  ctx.fillStyle = fg;
-  ctx.fill();
-
-  // Top glossy
-  ctx.save();
-  rr(b.x, topY, barW, b.h * 0.35, barR);
   ctx.clip();
-  const hl = ctx.createLinearGradient(b.x, topY, b.x, topY + b.h*0.35);
-  hl.addColorStop(0, `rgba(255,255,255,${0.15 + i*0.05})`);
-  hl.addColorStop(1, 'rgba(255,255,255,0)');
-  ctx.fillStyle = hl;
-  ctx.fillRect(b.x, topY, barW, b.h*0.35);
-  ctx.restore();
 
-  // Border
-  rr(b.x, topY, barW, b.h, barR);
-  ctx.strokeStyle = `rgba(255,255,255,${0.08 + i*0.04})`;
+  // ===== BACKGROUND =====
+  const bg = ctx.createLinearGradient(0, W, W, 0);
+  bg.addColorStop(0, '#060D1F');
+  bg.addColorStop(0.3, '#0C1A3D');
+  bg.addColorStop(0.6, '#1E3A8A');
+  bg.addColorStop(1, '#2563EB');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0,0,W,W);
+
+  // Subtle radial glow
+  const rd = ctx.createRadialGradient(W*0.5, W*0.48, 0, W*0.5, W*0.48, W*0.55);
+  rd.addColorStop(0, 'rgba(59,130,246,0.10)');
+  rd.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = rd;
+  ctx.fillRect(0,0,W,W);
+
+  // ===== TEXT =====
+  const fontSize = 168;
+  ctx.font = `800 ${fontSize}px Pretendard`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  const line1 = '종목';
+  const line2 = '어때';
+  const lineGap = 20;
+  const totalH = fontSize * 2 + lineGap;
+  const startY = (W - totalH) / 2 + fontSize / 2;
+
+  // Text shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.25)';
+  ctx.fillText(line1, W/2 + 2, startY + 3);
+  ctx.fillText(line2, W/2 + 2, startY + fontSize + lineGap + 3);
+
+  // Main text
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillText(line1, W/2, startY);
+  ctx.fillText(line2, W/2, startY + fontSize + lineGap);
+
+  // ===== OUTER BORDER =====
+  rr(0,0,W,W,96);
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
   ctx.lineWidth = 1;
   ctx.stroke();
-});
 
-// ===== BASELINE =====
-ctx.beginPath();
-ctx.moveTo(104, baseY + 10);
-ctx.lineTo(408, baseY + 10);
-ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-ctx.lineWidth = 1.5;
-ctx.lineCap = 'round';
-ctx.stroke();
+  ctx.restore();
+  document.title = 'DONE';
+}
 
-// ===== OUTER =====
-rr(0,0,W,W,96);
-ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-ctx.lineWidth = 1;
-ctx.stroke();
-
-ctx.restore();
-document.title = 'DONE';
+draw().catch(e => { console.error(e); document.title = 'DONE'; });
 </script>
 </body>
 </html>

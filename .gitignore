@@ -63,6 +63,9 @@ Thumbs.db
 # cache
 .cache/
 
+# build-time fonts
+scripts/*.woff2
+
 # docs / markdown (CLAUDE.MD 제외)
 docs/
 *.md

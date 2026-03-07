@@ -26,6 +26,7 @@ export const metadata: Metadata = {
     title: "종목어때.ai - AI 주식 분석",
     description: "AI 기반 실시간 주식 분석 리포트",
   },
+  manifest: "/manifest.json",
   icons: {
     icon: [
       { url: "/icon.svg", type: "image/svg+xml" },
