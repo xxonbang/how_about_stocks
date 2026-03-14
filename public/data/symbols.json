@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-03-13T17:33:23.243987",
+  "generated_at": "2026-03-14T01:28:19.531384",
   "korea": {
     "count": 4287,
     "stocks": [
@@ -25729,7 +25729,7 @@
     ]
   },
   "us": {
-    "count": 30160,
+    "count": 30159,
     "stocks": [
       {
         "code": "WENNU",
@@ -236691,13 +236691,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "ALEX",
-        "name": "ALEX",
-        "market": "NYSE",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "ANG",
         "name": "ANG",
         "market": "NYSE",
@@ -236853,5 +236846,5 @@
       }
     ]
   },
-  "total": 34447
+  "total": 34446
 }
