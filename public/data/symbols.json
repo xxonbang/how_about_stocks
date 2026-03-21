@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-03-20T17:34:37.417843",
+  "generated_at": "2026-03-21T01:26:45.287554",
   "korea": {
     "count": 4286,
     "stocks": [
@@ -25723,7 +25723,7 @@
     ]
   },
   "us": {
-    "count": 30198,
+    "count": 30197,
     "stocks": [
       {
         "code": "OFS",
@@ -236930,13 +236930,6 @@
         "type": "PUBLIC"
       },
       {
-        "code": "UOKA",
-        "name": "UOKA",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "AHL",
         "name": "AHL",
         "market": "NYSE",
@@ -237113,5 +237106,5 @@
       }
     ]
   },
-  "total": 34484
+  "total": 34483
 }
