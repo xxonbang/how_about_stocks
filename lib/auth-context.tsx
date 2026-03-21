@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSessionExpiredReason(reason);
     sessionManagerRef.current.stop();
     try {
-      await supabaseRef.current.auth.signOut();
+      await supabaseRef.current?.auth.signOut();
     } catch (error) {
       console.error('Session expired signOut error:', error);
     }
@@ -57,6 +57,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const supabase = supabaseRef.current;
     const sm = sessionManagerRef.current;
     sm.onExpired = handleSessionExpired;
+
+    if (!supabase) {
+      setIsLoading(false);
+      return;
+    }
 
     const checkAuthStatus = async () => {
       try {
@@ -120,6 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
+      if (!supabaseRef.current) return { success: false, error: 'Supabase 미설정' };
       const { data, error } = await supabaseRef.current.auth.signInWithPassword({
         email,
         password,
@@ -150,6 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signup = async (email: string, password: string, usernameInput: string): Promise<{ success: boolean; error?: string }> => {
     try {
+      if (!supabaseRef.current) return { success: false, error: 'Supabase 미설정' };
       const { error } = await supabaseRef.current.auth.signUp({
         email,
         password,
@@ -174,6 +181,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginWithOAuth = async (provider: OAuthProvider): Promise<{ success: boolean; error?: string }> => {
     try {
+      if (!supabaseRef.current) return { success: false, error: 'Supabase 미설정' };
       const { error } = await supabaseRef.current.auth.signInWithOAuth({
         provider,
         options: {
@@ -198,7 +206,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSessionExpiredReason(null);
 
     try {
-      await supabaseRef.current.auth.signOut();
+      await supabaseRef.current?.auth.signOut();
     } catch (error) {
       console.error('Logout error:', error);
     }

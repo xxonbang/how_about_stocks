@@ -8,11 +8,11 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseServiceRoleKey = process.env.SUPASECRET_KEY;
 
 if (!supabaseUrl || !supabaseServiceRoleKey) {
   console.warn(
-    '[Supabase Server] Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY. Supabase features will be disabled.'
+    '[Supabase Server] Missing SUPABASE_URL or SUPASECRET_KEY. Supabase features will be disabled.'
   );
 }
 
