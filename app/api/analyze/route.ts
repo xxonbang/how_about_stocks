@@ -762,12 +762,7 @@ export async function POST(request: NextRequest) {
 
     let stockDataMap: Map<string, StockData>;
 
-    // Python fallback 사용 가능 여부 확인
-    const pythonFallbackEnabled =
-      process.env.USE_PYTHON_SCRIPT === "true" ||
-      process.env.DATA_SOURCE === "vercel";
-
-    // 1차 시도: finance-adapter 사용 (듀얼소스 또는 기본 소스)
+    // finance-adapter 사용 (듀얼소스 또는 기본 소스)
     console.log(
       `[DataCollection] Primary: finance-adapter (USE_DUAL_SOURCE=${process.env.USE_DUAL_SOURCE || 'false'})`,
     );
@@ -779,73 +774,21 @@ export async function POST(request: NextRequest) {
         `[DataCollection] Success via finance-adapter: ${Array.from(stockDataMap.keys()).join(", ")}`,
       );
 
-      // 데이터가 비어있으면 Python fallback 시도
-      if (stockDataMap.size === 0 && pythonFallbackEnabled) {
-        console.warn(
-          "[DataCollection] finance-adapter returned no data, trying Python fallback...",
-        );
-        const { fetchStocksDataBatchVercel } =
-          await import("@/lib/finance-vercel");
-        stockDataMap = await fetchStocksDataBatchVercel(
-          stocks,
-          historicalAnalysisPeriod,
-        );
-        console.log(
-          `[DataCollection] Python fallback result: ${Array.from(stockDataMap.keys()).join(", ")}`,
-        );
+      if (stockDataMap.size === 0) {
+        throw new Error("finance-adapter returned no data");
       }
     } catch (primaryError) {
       console.error(
         "[DataCollection] finance-adapter failed:",
         primaryError instanceof Error ? primaryError.message : primaryError,
       );
-
-      // 2차 시도: Python 스크립트 fallback
-      if (pythonFallbackEnabled) {
-        console.log(
-          `[DataCollection] Fallback: Python script (historical period: ${historicalAnalysisPeriod})`,
-        );
-        try {
-          const { fetchStocksDataBatchVercel } =
-            await import("@/lib/finance-vercel");
-          stockDataMap = await fetchStocksDataBatchVercel(
-            stocks,
-            historicalAnalysisPeriod,
-          );
-          console.log(
-            `[DataCollection] Python fallback success: ${Array.from(stockDataMap.keys()).join(", ")}`,
-          );
-
-          if (stockDataMap.size === 0) {
-            throw new Error("Python fallback also returned no data");
-          }
-        } catch (fallbackError) {
-          console.error(
-            "[DataCollection] Python fallback also failed:",
-            fallbackError,
-          );
-          throw new Error(
-            `모든 종목 데이터 수집에 실패했습니다: Primary(${
-              primaryError instanceof Error
-                ? primaryError.message
-                : String(primaryError)
-            }), Fallback(${
-              fallbackError instanceof Error
-                ? fallbackError.message
-                : String(fallbackError)
-            })`,
-          );
-        }
-      } else {
-        // Python fallback 비활성화 상태면 원래 에러 throw
-        throw new Error(
-          `종목 데이터 수집에 실패했습니다: ${
-            primaryError instanceof Error
-              ? primaryError.message
-              : String(primaryError)
-          }`,
-        );
-      }
+      throw new Error(
+        `종목 데이터 수집에 실패했습니다: ${
+          primaryError instanceof Error
+            ? primaryError.message
+            : String(primaryError)
+        }`,
+      );
     }
 
     // 환율 및 VIX 조회 (통합 배치 또는 개별 캐시)

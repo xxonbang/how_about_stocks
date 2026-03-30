@@ -239,15 +239,12 @@ export function invalidateKISCredentialsCache(): void {
 
 // 토큰 캐시 파일 경로 결정
 // - 로컬 개발: .cache 디렉토리 (영구 보존)
-// - 프로덕션 (Render/Docker): /tmp 디렉토리 (컨테이너 내 쓰기 가능)
-// - 서버리스 (Vercel): /tmp 디렉토리 (유일하게 쓰기 가능한 경로)
+// - 프로덕션 (Docker/Cloud Run): /tmp 디렉토리 (컨테이너 내 쓰기 가능)
 function getTokenCachePath(): { dir: string; file: string } {
   const isProduction = process.env.NODE_ENV === 'production';
-  const isVercel = !!process.env.VERCEL;
-  const isRender = !!process.env.RENDER;
 
-  // 프로덕션 또는 클라우드 환경에서는 /tmp 사용
-  if (isProduction || isVercel || isRender) {
+  // 프로덕션 환경에서는 /tmp 사용
+  if (isProduction) {
     const dir = '/tmp/kis-cache';
     return { dir, file: join(dir, 'kis-token.json') };
   }
@@ -332,7 +329,7 @@ function saveTokenToFile(tokenData: CachedTokenData): void {
  * Supabase에서 유효 토큰 로드 (DB 레벨 만료 필터링)
  *
  * DB의 expires_at 컬럼으로 만료 토큰을 쿼리 시점에 필터링.
- * 서버리스 환경(Vercel)에서 메모리/파일 캐시가 초기화되어도 토큰 재사용 가능.
+ * 컨테이너 재시작 시 메모리/파일 캐시가 초기화되어도 토큰 재사용 가능.
  */
 async function loadTokenFromSupabase(): Promise<CachedTokenData | null> {
   try {

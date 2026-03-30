@@ -43,8 +43,8 @@ async function initAgenticCrawler() {
   if (agenticInitialized) return agenticCrawler;
   agenticInitialized = true;
 
-  // Vercel/서버리스 환경 감지
-  const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
+  // 서버리스 환경 감지
+  const isServerless = !!process.env.AWS_LAMBDA_FUNCTION_NAME;
 
   if (!isServerless) {
     try {

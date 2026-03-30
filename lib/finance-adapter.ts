@@ -44,10 +44,6 @@ import {
 } from './finance-finnhub';
 
 import {
-  fetchStocksDataBatchVercel,
-} from './finance-vercel';
-
-import {
   isTwelveDataAvailable,
   fetchStocksDataBatchTwelveData,
   fetchTwelveDataExchangeRate,
@@ -86,7 +82,7 @@ import {
   fetchRssNewsForSymbol,
 } from './rss-client';
 
-export type DataSource = 'dual-source' | 'finnhub' | 'yahoo' | 'vercel' | 'auto';
+export type DataSource = 'dual-source' | 'finnhub' | 'yahoo' | 'auto';
 
 const DEFAULT_DATA_SOURCE: DataSource =
   (process.env.DATA_SOURCE as DataSource) || 'auto';
@@ -426,18 +422,6 @@ export async function fetchStocksData(
   const dataSource = selectDataSource(symbols);
 
   console.log(`[DataAdapter] Processing ${symbols.length} symbols (mode: ${dataSource})`);
-
-  // DATA_SOURCE=vercel 명시적 설정 시 Vercel 함수 사용 (실패 시 Fallback)
-  if (dataSource === 'vercel') {
-    try {
-      const result = await fetchStocksDataBatchVercel(symbols);
-      if (result.size > 0) {
-        return result;
-      }
-    } catch (error) {
-      console.warn('[DataAdapter] Vercel failed, using fallback chain');
-    }
-  }
 
   // DATA_SOURCE=dual-source 명시적 설정 시 DualSource 우선 시도 (실패 시 Fallback)
   if (dataSource === 'dual-source') {

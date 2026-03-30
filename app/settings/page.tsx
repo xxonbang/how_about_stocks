@@ -323,7 +323,7 @@ GEMINI_API_KEY_02=your_backup_gemini_key
               </pre>
             </div>
             <p className="text-xs text-gray-500 mt-3">
-              설정 후 서버를 재시작하거나 Vercel에서 재배포하세요.
+              설정 후 서버를 재시작하거나 재배포하세요.
             </p>
           </CardContent>
         </Card>
