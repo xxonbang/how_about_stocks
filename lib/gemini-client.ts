@@ -153,6 +153,7 @@ export async function callGeminiWithFallback<T>(
   }
 
   const MAX_SAME_KEY_RETRIES = 2;
+  const MAX_503_RETRIES = 4; // 503(과부하)는 서버 전역 장애 — 더 오래 기다리며 재시도
 
   // 각 키로 순차적으로 시도 (외부: 키 순회, 내부: 같은 키 재시도)
   for (let ki = 0; ki < keyIndicesToTry.length; ki++) {
@@ -161,8 +162,10 @@ export async function callGeminiWithFallback<T>(
     const keyLabel = `Key ${keyIndex + 1}`;
     const isLastSuccess = keyIndex === keyState.lastSuccessKeyIndex;
     let retryCount = 0;
+    let maxRetriesHit = false;
+    let maxRetriesHitWas503 = false;
 
-    while (retryCount <= MAX_SAME_KEY_RETRIES) {
+    while (true) {
       try {
         if (retryCount === 0) {
           if (isLastSuccess) {
@@ -171,7 +174,7 @@ export async function callGeminiWithFallback<T>(
             console.log(`[Gemini] ${keyLabel} + ${modelName} 시도...`);
           }
         } else {
-          console.log(`[Gemini] ${keyLabel} 재시도 ${retryCount}/${MAX_SAME_KEY_RETRIES}...`);
+          console.log(`[Gemini] ${keyLabel} 재시도 ${retryCount}...`);
         }
 
         const genAI = new GoogleGenerativeAI(apiKey);
@@ -201,12 +204,25 @@ export async function callGeminiWithFallback<T>(
         }
 
         // 2. 500/503 서버 오류 → 같은 키로 백오프 재시도 (서버 전체 문제, 키 전환 무의미)
-        if ((isServerInternalError(error) || isServiceUnavailableError(error)) && retryCount < MAX_SAME_KEY_RETRIES) {
+        //    503(과부하)는 MAX_503_RETRIES까지, 그 외 서버 오류는 MAX_SAME_KEY_RETRIES까지
+        const is503 = isServiceUnavailableError(error);
+        const is500 = isServerInternalError(error);
+        const maxRetriesForThisError = is503 ? MAX_503_RETRIES : MAX_SAME_KEY_RETRIES;
+
+        if ((is500 || is503) && retryCount < maxRetriesForThisError) {
           const delay = parseRetryDelay(error) || getBackoffDelay(retryCount);
-          console.log(`[Gemini] ${keyLabel} 서버 오류. ${delay}ms 대기 후 같은 키로 재시도...`);
+          const errorLabel = is503 ? '503 과부하' : '500 내부오류';
+          console.log(`[Gemini] ${keyLabel} 서버 오류(${errorLabel}). ${delay}ms 대기 후 재시도 (${retryCount + 1}/${maxRetriesForThisError})...`);
           await sleep(delay);
           retryCount++;
           continue;
+        }
+
+        // 2-1. 서버 오류 재시도 소진 → 다음 키로 (503이면 키를 failed로 마킹하지 않음)
+        if (is500 || is503) {
+          maxRetriesHit = true;
+          maxRetriesHitWas503 = is503;
+          break;
         }
 
         // 3. 429 Rate Limit (프로젝트별 할당량) → 즉시 다음 키 전환 (다른 프로젝트 = 독립 할당량)
@@ -221,10 +237,16 @@ export async function callGeminiWithFallback<T>(
       }
     }
 
-    // MAX_SAME_KEY_RETRIES 초과 시 다음 키로
-    if (retryCount > MAX_SAME_KEY_RETRIES) {
-      console.log(`[Gemini] ${keyLabel} 최대 재시도 초과. 다음 키로 전환...`);
-      keyState.failedKeyIndices.add(keyIndex);
+    // 서버 오류 재시도 소진 시 다음 키로
+    // - 503(과부하)은 서버 전역 문제이므로 키를 실패로 마킹하지 않음 (다음 요청에서 정상 사용)
+    // - 500(내부오류)은 일시적일 수 있어 마킹
+    if (maxRetriesHit) {
+      if (maxRetriesHitWas503) {
+        console.log(`[Gemini] ${keyLabel} 503 재시도 소진. 다음 키 시도 (키 상태 유지 — 서버 전역 문제)...`);
+      } else {
+        console.log(`[Gemini] ${keyLabel} 최대 재시도 초과. 다음 키로 전환...`);
+        keyState.failedKeyIndices.add(keyIndex);
+      }
     }
   }
 

@@ -1211,13 +1211,21 @@ export async function POST(request: NextRequest) {
       } catch (error) {
         console.error("Failed to generate AI reports:", error);
 
-        // AI 리포트 생성 실패 시 에러 메시지로 채움
+        // AI 리포트 생성 실패 시 사용자 친화 메시지로 채움
         const errorMessage =
           error instanceof Error ? error.message : "알 수 없는 오류";
+
+        // Google AI 서버 과부하(503) 판별 — 일시적 외부 장애이므로 별도 안내
+        const isOverloaded = /503|overloaded|service unavailable|high demand/i.test(errorMessage);
+
+        const userFacingMessage = isOverloaded
+          ? `⚠️ **Google AI 서비스가 일시적으로 과부하 상태입니다.**\n\n잠시 후(보통 몇 분 내) 다시 시도해 주세요. 데이터 수집은 정상적으로 완료되었습니다.`
+          : `⚠️ AI 리포트 생성 중 오류가 발생했습니다: ${errorMessage}\n\n데이터 수집은 성공적으로 완료되었습니다.`;
+
         for (const { symbol } of stocksDataForAI) {
           aiReportsMap.set(
             symbol,
-            `## ${symbol} 분석 리포트\n\n⚠️ AI 리포트 생성 중 오류가 발생했습니다: ${errorMessage}\n\n데이터 수집은 성공적으로 완료되었습니다.`,
+            `## ${symbol} 분석 리포트\n\n${userFacingMessage}`,
           );
         }
       }
