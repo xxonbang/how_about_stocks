@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-04-17T17:48:18.598265",
+  "generated_at": "2026-04-18T01:53:25.800909",
   "korea": {
     "count": 4282,
     "stocks": [
@@ -25699,7 +25699,7 @@
     ]
   },
   "us": {
-    "count": 30291,
+    "count": 30290,
     "stocks": [
       {
         "code": "RF",
@@ -237697,13 +237697,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "PSTG",
-        "name": "PSTG",
-        "market": "NYSE",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "SCE",
         "name": "SCE",
         "market": "NYSE",
@@ -237740,5 +237733,5 @@
       }
     ]
   },
-  "total": 34573
+  "total": 34572
 }
