@@ -630,9 +630,21 @@ ${stockPrompt}
         reportsMap.set(stock.symbol, cleaned.length > 100 ? cleaned : report);
         console.log(`[Gemini] Report for ${stock.symbol} generated (length: ${report.length})`);
       } else {
+        // 진단 로그: 응답이 부족한 원인 추적
+        const rawText = response.text();
+        const blockReason = response.candidates?.[0]?.finishReason || 'unknown';
+        const safetyRatings = response.candidates?.[0]?.safetyRatings
+          ?.map((r: { category: string; probability: string }) => `${r.category}:${r.probability}`)
+          .join(', ') || 'none';
+        console.warn(
+          `[Gemini] Insufficient report for ${stock.symbol}: ` +
+          `rawLength=${rawText.length}, cleanedLength=${report?.length ?? 0}, ` +
+          `finishReason=${blockReason}, safety=[${safetyRatings}], ` +
+          `preview="${(report || rawText).substring(0, 200)}"`
+        );
         reportsMap.set(
           stock.symbol,
-          `## ${displayName} 분석 리포트\n\n⚠️ AI 리포트 생성 결과가 부족합니다.`,
+          `## ${displayName} 분석 리포트\n\n⚠️ AI 리포트 생성 결과가 부족합니다. 잠시 후 다시 시도해 주세요.`,
         );
       }
     } catch (stockError) {

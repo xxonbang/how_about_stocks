@@ -188,6 +188,15 @@ export function PriceChart({
               />
               <Line
                 type="monotone"
+                dataKey="ema5"
+                stroke="#06b6d4"
+                strokeWidth={1.5}
+                dot={false}
+                name="EMA5"
+                connectNulls
+              />
+              <Line
+                type="monotone"
                 dataKey="ema25"
                 stroke="#ec4899"
                 strokeWidth={1.5}
@@ -239,8 +248,10 @@ export function PriceChart({
             content={({ payload }) => {
               if (!payload || payload.length === 0) return null;
 
-              const order = ['주가', '5일선', '20일선', '60일선', '상단선', '중심선', '하단선'];
-              const sortedPayload = [...payload].sort((a, b) => {
+              // legendType="none" 항목 제거 (Area의 close 등)
+              const visiblePayload = payload.filter((entry) => entry.type !== 'none');
+              const order = ['주가', '5일선', '20일선', '60일선', 'EMA5', 'EMA25', '상단선', '중심선', '하단선'];
+              const sortedPayload = [...visiblePayload].sort((a, b) => {
                 const aIndex = order.findIndex(name => a.value === name);
                 const bIndex = order.findIndex(name => b.value === name);
                 if (aIndex === -1 && bIndex === -1) return 0;
