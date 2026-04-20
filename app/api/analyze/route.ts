@@ -600,64 +600,85 @@ ${stockPrompt}
 3. **펀더멘털 분석 필수**: 펀더멘털 지표(PER, PBR, PEG, ROE, OPM, EPS, 부채비율, 배당수익률 등)를 Google 검색하여 최신 수치를 확보하고, "펀더멘털 분석" 섹션에 밸류에이션 평가와 함께 정리하십시오.
 `;
 
-    try {
-      console.log(`[Gemini] Generating report for ${displayName}...`);
-      const result = await model.generateContent(
-        systemPrompt + "\n\n" + macroSection + dataPrompt
-      );
-      const response = await result.response;
-      const report = cleanGroundingMetadata(response.text());
+    // 503(과부하) 재시도: 지수 백오프로 최대 3회 (2s, 4s, 8s ≈ 14s)
+    const MAX_503_RETRIES = 3;
+    for (let attempt = 0; attempt <= MAX_503_RETRIES; attempt++) {
+      try {
+        if (attempt > 0) {
+          const delay = Math.min(2000 * Math.pow(2, attempt - 1), 15000);
+          console.log(`[Gemini] ${stock.symbol} 503 재시도 ${attempt}/${MAX_503_RETRIES} (${delay}ms 대기)...`);
+          await new Promise(r => setTimeout(r, delay));
+        } else {
+          console.log(`[Gemini] Generating report for ${displayName}...`);
+        }
 
-      // finishReason 체크
-      const finishReason = response.candidates?.[0]?.finishReason;
-      if (finishReason === 'MAX_TOKENS' || finishReason === 'RECITATION') {
-        console.warn(`[Gemini] Response truncated for ${stock.symbol}! finishReason: ${finishReason}`);
-      }
-
-      // 토큰 사용량 누적
-      const usage = response.usageMetadata;
-      if (usage) {
-        totalTokenUsage.promptTokenCount += usage.promptTokenCount || 0;
-        totalTokenUsage.candidatesTokenCount += usage.candidatesTokenCount || 0;
-        totalTokenUsage.totalTokenCount += usage.totalTokenCount || 0;
-      }
-
-      if (report && report.length > 100) {
-        // [종목: SYMBOL] 헤더가 있으면 제거
-        const cleaned = report
-          .replace(/^\s*\[종목:\s*[^\]]+\]\s*\n---\s*\n/, '')
-          .trim();
-        reportsMap.set(stock.symbol, cleaned.length > 100 ? cleaned : report);
-        console.log(`[Gemini] Report for ${stock.symbol} generated (length: ${report.length})`);
-      } else {
-        // 진단 로그: 응답이 부족한 원인 추적
-        const rawText = response.text();
-        const blockReason = response.candidates?.[0]?.finishReason || 'unknown';
-        const safetyRatings = response.candidates?.[0]?.safetyRatings
-          ?.map((r: { category: string; probability: string }) => `${r.category}:${r.probability}`)
-          .join(', ') || 'none';
-        console.warn(
-          `[Gemini] Insufficient report for ${stock.symbol}: ` +
-          `rawLength=${rawText.length}, cleanedLength=${report?.length ?? 0}, ` +
-          `finishReason=${blockReason}, safety=[${safetyRatings}], ` +
-          `preview="${(report || rawText).substring(0, 200)}"`
+        const result = await model.generateContent(
+          systemPrompt + "\n\n" + macroSection + dataPrompt
         );
+        const response = await result.response;
+        const report = cleanGroundingMetadata(response.text());
+
+        // finishReason 체크
+        const finishReason = response.candidates?.[0]?.finishReason;
+        if (finishReason === 'MAX_TOKENS' || finishReason === 'RECITATION') {
+          console.warn(`[Gemini] Response truncated for ${stock.symbol}! finishReason: ${finishReason}`);
+        }
+
+        // 토큰 사용량 누적
+        const usage = response.usageMetadata;
+        if (usage) {
+          totalTokenUsage.promptTokenCount += usage.promptTokenCount || 0;
+          totalTokenUsage.candidatesTokenCount += usage.candidatesTokenCount || 0;
+          totalTokenUsage.totalTokenCount += usage.totalTokenCount || 0;
+        }
+
+        if (report && report.length > 100) {
+          const cleaned = report
+            .replace(/^\s*\[종목:\s*[^\]]+\]\s*\n---\s*\n/, '')
+            .trim();
+          reportsMap.set(stock.symbol, cleaned.length > 100 ? cleaned : report);
+          console.log(`[Gemini] Report for ${stock.symbol} generated (length: ${report.length})`);
+        } else {
+          // 진단 로그: 응답이 부족한 원인 추적
+          const rawText = response.text();
+          const blockReason = response.candidates?.[0]?.finishReason || 'unknown';
+          const safetyRatings = response.candidates?.[0]?.safetyRatings
+            ?.map((r: { category: string; probability: string }) => `${r.category}:${r.probability}`)
+            .join(', ') || 'none';
+          console.warn(
+            `[Gemini] Insufficient report for ${stock.symbol}: ` +
+            `rawLength=${rawText.length}, cleanedLength=${report?.length ?? 0}, ` +
+            `finishReason=${blockReason}, safety=[${safetyRatings}], ` +
+            `preview="${(report || rawText).substring(0, 200)}"`
+          );
+          reportsMap.set(
+            stock.symbol,
+            `## ${displayName} 분석 리포트\n\n⚠️ AI 리포트 생성 결과가 부족합니다. 잠시 후 다시 시도해 주세요.`,
+          );
+        }
+        break; // API 호출 성공 → 재시도 루프 종료
+
+      } catch (stockError) {
+        const stockErrorMsg = stockError instanceof Error ? stockError.message : String(stockError);
+        const is503 = /503|overloaded|service unavailable|high demand/i.test(stockErrorMsg);
+
+        // 503이고 재시도 가능하면 continue
+        if (is503 && attempt < MAX_503_RETRIES) {
+          console.warn(`[Gemini] ${stock.symbol} 503 과부하 감지, 재시도 예정...`);
+          continue;
+        }
+
+        // 최종 실패 (503 재시도 소진 또는 다른 에러)
+        console.error(`[Gemini] Failed to generate report for ${stock.symbol} (attempt ${attempt}):`, stockError);
+        const userMsg = is503
+          ? `⚠️ **Google AI 서비스가 일시적으로 과부하 상태입니다.**\n\n잠시 후(보통 몇 분 내) 다시 시도해 주세요.`
+          : `⚠️ AI 리포트 생성 중 오류가 발생했습니다: ${stockErrorMsg}`;
         reportsMap.set(
           stock.symbol,
-          `## ${displayName} 분석 리포트\n\n⚠️ AI 리포트 생성 결과가 부족합니다. 잠시 후 다시 시도해 주세요.`,
+          `## ${displayName} 분석 리포트\n\n${userMsg}`,
         );
+        break;
       }
-    } catch (stockError) {
-      console.error(`[Gemini] Failed to generate report for ${stock.symbol}:`, stockError);
-      const stockErrorMsg = stockError instanceof Error ? stockError.message : "알 수 없는 오류";
-      const isOverloaded = /503|overloaded|service unavailable|high demand/i.test(stockErrorMsg);
-      const userMsg = isOverloaded
-        ? `⚠️ **Google AI 서비스가 일시적으로 과부하 상태입니다.**\n\n잠시 후(보통 몇 분 내) 다시 시도해 주세요.`
-        : `⚠️ AI 리포트 생성 중 오류가 발생했습니다: ${stockErrorMsg}`;
-      reportsMap.set(
-        stock.symbol,
-        `## ${displayName} 분석 리포트\n\n${userMsg}`,
-      );
     }
   }
 
