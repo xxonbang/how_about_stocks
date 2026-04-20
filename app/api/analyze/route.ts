@@ -649,9 +649,14 @@ ${stockPrompt}
       }
     } catch (stockError) {
       console.error(`[Gemini] Failed to generate report for ${stock.symbol}:`, stockError);
+      const stockErrorMsg = stockError instanceof Error ? stockError.message : "알 수 없는 오류";
+      const isOverloaded = /503|overloaded|service unavailable|high demand/i.test(stockErrorMsg);
+      const userMsg = isOverloaded
+        ? `⚠️ **Google AI 서비스가 일시적으로 과부하 상태입니다.**\n\n잠시 후(보통 몇 분 내) 다시 시도해 주세요.`
+        : `⚠️ AI 리포트 생성 중 오류가 발생했습니다: ${stockErrorMsg}`;
       reportsMap.set(
         stock.symbol,
-        `## ${displayName} 분석 리포트\n\n⚠️ AI 리포트 생성 중 오류가 발생했습니다: ${stockError instanceof Error ? stockError.message : "알 수 없는 오류"}`,
+        `## ${displayName} 분석 리포트\n\n${userMsg}`,
       );
     }
   }
