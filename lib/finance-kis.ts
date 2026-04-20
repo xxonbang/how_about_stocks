@@ -149,81 +149,39 @@ async function validateKISCredentialsWithToken(
 }
 
 /**
- * KIS 키 조회 (Supabase 우선, 환경변수 Fallback, 자동 갱신)
+ * KIS 키 조회 (Supabase 우선, 환경변수 Fallback)
  *
- * 로직:
- * 1. Supabase에서 키 조회
- * 2. Supabase 키로 토큰 발급 테스트
- * 3. 실패 시 환경변수로 Fallback
- * 4. 환경변수 키가 유효하면 Supabase 업데이트
+ * 키 유효성 검증은 여기서 하지 않음 — 실제 토큰 발급(getAccessToken) 시 검증.
+ * 이전에는 검증 목적으로 토큰 발급 API를 호출했으나, 콜드 스타트마다 불필요한
+ * 토큰 발급이 발생하여 KIS 1일 1회 권장 정책과 충돌.
  */
 async function getKISCredentials(): Promise<KISCredentials> {
-  // 이미 검증된 캐시가 있으면 사용
+  // 이미 조회된 캐시가 있으면 사용
   if (cachedCredentials && credentialsValidated) {
     return cachedCredentials;
   }
 
-  // 1. Supabase에서 조회
+  // 1. Supabase에서 조회 (검증은 토큰 발급 시 수행)
   const supabaseCredentials = await getKISCredentialsFromSupabase();
-
   if (supabaseCredentials) {
-    // 2. Supabase 키 유효성 검증 (발급된 토큰을 캐시에 저장하여 재활용)
-    console.log('[KIS] Supabase 키 유효성 검증 중...');
-    const tokenResult = await validateKISCredentialsWithToken(
-      supabaseCredentials.appKey,
-      supabaseCredentials.appSecret
-    );
-
-    if (tokenResult) {
-      console.log('[KIS] Supabase 키 유효 - 사용 (검증 토큰 캐시 저장)');
-      cachedCredentials = supabaseCredentials;
-      credentialsValidated = true;
-
-      // 검증 시 발급받은 토큰을 모든 캐시 계층에 저장 (토큰 낭비 방지)
-      cachedToken = tokenResult;
-      saveTokenToFile(tokenResult);
-      saveTokenToSupabase(tokenResult);
-
-      return supabaseCredentials;
-    }
-
-    console.warn('[KIS] Supabase 키 유효하지 않음 - 환경변수로 Fallback');
+    cachedCredentials = supabaseCredentials;
+    credentialsValidated = true;
+    return supabaseCredentials;
   }
 
-  // 3. 환경변수로 Fallback
+  // 2. 환경변수로 Fallback
   const envCredentials = getKISCredentialsFromEnv();
-
   if (!envCredentials) {
     throw new Error('KIS API 키가 설정되지 않았습니다. (Supabase 및 환경변수 모두 없음)');
   }
 
-  // 4. 환경변수 키 유효성 검증 (발급된 토큰을 캐시에 저장하여 재활용)
-  console.log('[KIS] 환경변수 키 유효성 검증 중...');
-  const envTokenResult = await validateKISCredentialsWithToken(
-    envCredentials.appKey,
-    envCredentials.appSecret
-  );
-
-  if (!envTokenResult) {
-    throw new Error('KIS API 키가 유효하지 않습니다. (환경변수 키도 무효)');
-  }
-
-  console.log('[KIS] 환경변수 키 유효 - 사용 (검증 토큰 캐시 저장)');
   cachedCredentials = envCredentials;
   credentialsValidated = true;
 
-  // 검증 시 발급받은 토큰을 모든 캐시 계층에 저장
-  cachedToken = envTokenResult;
-  saveTokenToFile(envTokenResult);
-  saveTokenToSupabase(envTokenResult);
-
-  // 5. Supabase에 유효한 키 저장/갱신 (비동기, 실패해도 무시)
-  if (!supabaseCredentials || supabaseCredentials.appKey !== envCredentials.appKey) {
-    console.log('[KIS] Supabase에 유효한 키 동기화 시작...');
-    saveKISCredentialsToSupabase(envCredentials.appKey, envCredentials.appSecret).catch((err) => {
-      console.warn('[KIS] Supabase 키 동기화 실패:', err instanceof Error ? err.message : err);
-    });
-  }
+  // Supabase에 환경변수 키 동기화 (비동기)
+  saveKISCredentialsToSupabase(envCredentials.appKey, envCredentials.appSecret).catch((err) => {
+    console.warn('[KIS] Supabase 키 동기화 실패:', err instanceof Error ? err.message : err);
+  });
 
   return envCredentials;
 }
@@ -598,15 +556,8 @@ async function getAccessToken(): Promise<string> {
     return fileToken.token;
   }
 
-  // 4. KIS 키 조회 (Supabase 우선, 환경변수 Fallback)
-  //    getKISCredentials 내부에서 검증 시 발급된 토큰이 cachedToken에 저장될 수 있음
+  // 4. KIS 키 조회 (Supabase 우선, 환경변수 Fallback — 토큰 발급 없이 키만 반환)
   const credentials = await getKISCredentials();
-
-  // 4-1. 검증 과정에서 이미 토큰이 캐시되었는지 확인
-  if (cachedToken && cachedToken.expiresAt > Date.now() + 10 * 60 * 1000) {
-    console.log('[KIS] 키 검증 시 발급된 토큰 재사용');
-    return cachedToken.token;
-  }
 
   // 5. Rate Limit 체크 (23시간 이내 재발급 차단)
   if (!canRefreshToken()) {
@@ -617,7 +568,7 @@ async function getAccessToken(): Promise<string> {
     );
   }
 
-  // 6. 새 토큰 발급 (마지막 수단)
+  // 6. 새 토큰 발급 (캐시 미스 시에만 도달 — 1일 1회 이하)
   const env = process.env.NODE_ENV || 'development';
   const cacheMode = fileCacheEnabled ? `파일(${TOKEN_CACHE_FILE})` : '메모리만';
   console.log(`[KIS] 새 토큰 발급 요청... (환경: ${env}, 키 소스: ${credentials.source}, 캐시: ${cacheMode})`);
@@ -655,6 +606,25 @@ async function getAccessToken(): Promise<string> {
     console.log(`[KIS] 새 접근 토큰 발급 완료 (유효기간: ${expiresInHours}시간)`);
     return access_token;
   } catch (error) {
+    // Supabase 키로 토큰 발급 실패 → 환경변수 키로 Fallback
+    if (axios.isAxiosError(error) && credentials.source === 'supabase') {
+      const envCredentials = getKISCredentialsFromEnv();
+      if (envCredentials) {
+        console.log('[KIS] Supabase 키 토큰 발급 실패, 환경변수 키로 재시도...');
+        const envToken = await validateKISCredentialsWithToken(envCredentials.appKey, envCredentials.appSecret);
+        if (envToken) {
+          cachedToken = envToken;
+          saveTokenToFile(envToken);
+          saveTokenToSupabase(envToken);
+          cachedCredentials = envCredentials;
+          credentialsValidated = true;
+          // Supabase에 유효 키 동기화
+          saveKISCredentialsToSupabase(envCredentials.appKey, envCredentials.appSecret).catch(() => {});
+          console.log('[KIS] 환경변수 키로 토큰 발급 성공 (Supabase 키 갱신)');
+          return envToken.token;
+        }
+      }
+    }
     if (axios.isAxiosError(error)) {
       throw new Error(`KIS 토큰 발급 실패: ${error.response?.data?.msg1 || error.message}`);
     }
