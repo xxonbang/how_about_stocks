@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-04-24T17:48:34.365454",
+  "generated_at": "2026-04-25T01:55:48.994914",
   "korea": {
     "count": 4279,
     "stocks": [
@@ -25681,7 +25681,7 @@
     ]
   },
   "us": {
-    "count": 30336,
+    "count": 30332,
     "stocks": [
       {
         "code": "FTCE",
@@ -237833,27 +237833,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "DAWN",
-        "name": "DAWN",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "QVCGA",
-        "name": "QVCGA",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "QVCGP",
-        "name": "QVCGP",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "AHL",
         "name": "AHL",
         "market": "NYSE",
@@ -237877,13 +237856,6 @@
       {
         "code": "ANG",
         "name": "ANG",
-        "market": "NYSE",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "ASGN",
-        "name": "ASGN",
         "market": "NYSE",
         "country": "US",
         "type": "Common Stock"
@@ -238037,5 +238009,5 @@
       }
     ]
   },
-  "total": 34615
+  "total": 34611
 }
