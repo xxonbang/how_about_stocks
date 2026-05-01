@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-04-30T18:08:51.407171",
+  "generated_at": "2026-05-01T02:34:11.639463",
   "korea": {
     "count": 4283,
     "stocks": [
@@ -25705,7 +25705,7 @@
     ]
   },
   "us": {
-    "count": 30336,
+    "count": 30333,
     "stocks": [
       {
         "code": "COYY",
@@ -237857,29 +237857,8 @@
         "type": "PUBLIC"
       },
       {
-        "code": "EM",
-        "name": "EM",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "MIGI",
-        "name": "MIGI",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "USGOW",
         "name": "USGOW",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "VBIX",
-        "name": "VBIX",
         "market": "NASDAQ",
         "country": "US",
         "type": "Common Stock"
@@ -238061,5 +238040,5 @@
       }
     ]
   },
-  "total": 34619
+  "total": 34616
 }
