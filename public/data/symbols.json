@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-05-01T17:58:11.025917",
+  "generated_at": "2026-05-02T02:10:32.227241",
   "korea": {
     "count": 4283,
     "stocks": [
@@ -25705,7 +25705,7 @@
     ]
   },
   "us": {
-    "count": 30351,
+    "count": 30343,
     "stocks": [
       {
         "code": "ETHE",
@@ -237934,62 +237934,6 @@
         "type": "ETP"
       },
       {
-        "code": "ESHA",
-        "name": "ESHA",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "ESHAR",
-        "name": "ESHAR",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "ETHM",
-        "name": "ETHM",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "ETHMU",
-        "name": "ETHMU",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "ETHMW",
-        "name": "ETHMW",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "GDEN",
-        "name": "GDEN",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "LNKB",
-        "name": "LNKB",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "MAXN",
-        "name": "MAXN",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "AHL",
         "name": "AHL",
         "market": "NYSE",
@@ -238166,5 +238110,5 @@
       }
     ]
   },
-  "total": 34634
+  "total": 34626
 }
