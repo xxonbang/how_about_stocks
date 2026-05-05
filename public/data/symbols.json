@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-05-04T18:13:28.742630",
+  "generated_at": "2026-05-05T02:13:32.986816",
   "korea": {
     "count": 4283,
     "stocks": [
@@ -25705,7 +25705,7 @@
     ]
   },
   "us": {
-    "count": 30338,
+    "count": 30336,
     "stocks": [
       {
         "code": "KAT",
@@ -237885,13 +237885,6 @@
         "type": "ETP"
       },
       {
-        "code": "STKL",
-        "name": "STKL",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "AHL",
         "name": "AHL",
         "market": "NYSE",
@@ -238004,13 +237997,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "MEG",
-        "name": "MEG",
-        "market": "NYSE",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "MER",
         "name": "MER",
         "market": "NYSE",
@@ -238075,5 +238061,5 @@
       }
     ]
   },
-  "total": 34621
+  "total": 34619
 }
