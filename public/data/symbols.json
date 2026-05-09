@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-05-08T18:08:20.137255",
+  "generated_at": "2026-05-09T02:25:43.506964",
   "korea": {
     "count": 4282,
     "stocks": [
@@ -25699,7 +25699,7 @@
     ]
   },
   "us": {
-    "count": 30401,
+    "count": 30394,
     "stocks": [
       {
         "code": "LTRN",
@@ -238285,41 +238285,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "APAD",
-        "name": "APAD",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "APADR",
-        "name": "APADR",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "APADU",
-        "name": "APADU",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "EXPI",
-        "name": "EXPI",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "GLPG",
-        "name": "GLPG",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "AHL",
         "name": "AHL",
         "market": "NYSE",
@@ -238411,20 +238376,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "ECCW",
-        "name": "ECCW",
-        "market": "NYSE",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "ECCX",
-        "name": "ECCX",
-        "market": "NYSE",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "ETI",
         "name": "ETI",
         "market": "NYSE",
@@ -238510,5 +238461,5 @@
       }
     ]
   },
-  "total": 34683
+  "total": 34676
 }
