@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-05-15T18:21:44.956104",
+  "generated_at": "2026-05-16T02:28:57.137719",
   "korea": {
     "count": 4280,
     "stocks": [
@@ -25687,7 +25687,7 @@
     ]
   },
   "us": {
-    "count": 30466,
+    "count": 30463,
     "stocks": [
       {
         "code": "BMPSY",
@@ -238756,27 +238756,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "APLS",
-        "name": "APLS",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "CCLDO",
-        "name": "CCLDO",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "CSGS",
-        "name": "CSGS",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "AHL",
         "name": "AHL",
         "market": "NYSE",
@@ -238953,5 +238932,5 @@
       }
     ]
   },
-  "total": 34746
+  "total": 34743
 }
