@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-05-29T19:31:56.388077",
+  "generated_at": "2026-05-30T02:36:00.359771",
   "korea": {
     "count": 4273,
     "stocks": [
@@ -25645,7 +25645,7 @@
     ]
   },
   "us": {
-    "count": 30542,
+    "count": 30539,
     "stocks": [
       {
         "code": "CXSE",
@@ -239246,20 +239246,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "AMWD",
-        "name": "AMWD",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "CVGW",
-        "name": "CVGW",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "I",
         "name": "I",
         "market": "NYSE",
@@ -239428,13 +239414,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "OTH",
-        "name": "OTH",
-        "market": "AMEX",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "PHXE",
         "name": "PHXE",
         "market": "AMEX",
@@ -239443,5 +239422,5 @@
       }
     ]
   },
-  "total": 34815
+  "total": 34812
 }
