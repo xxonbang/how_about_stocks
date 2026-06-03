@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-06-02T20:07:09.325701",
+  "generated_at": "2026-06-03T03:34:08.457751",
   "korea": {
     "count": 4270,
     "stocks": [
@@ -25627,7 +25627,7 @@
     ]
   },
   "us": {
-    "count": 30546,
+    "count": 30547,
     "stocks": [
       {
         "code": "FRBP",
@@ -239431,6 +239431,13 @@
         "type": "Common Stock"
       },
       {
+        "code": "VSXY",
+        "name": "VSXY",
+        "market": "NYSE",
+        "country": "US",
+        "type": "Common Stock"
+      },
+      {
         "code": "Y",
         "name": "Y",
         "market": "NYSE",
@@ -239453,5 +239460,5 @@
       }
     ]
   },
-  "total": 34816
+  "total": 34817
 }
