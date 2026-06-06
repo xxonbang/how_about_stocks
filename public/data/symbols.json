@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-06-05T18:57:42.127728",
+  "generated_at": "2026-06-06T02:38:00.563779",
   "korea": {
     "count": 4270,
     "stocks": [
@@ -25627,7 +25627,7 @@
     ]
   },
   "us": {
-    "count": 30565,
+    "count": 30567,
     "stocks": [
       {
         "code": "CRRTF",
@@ -239319,6 +239319,20 @@
         "type": "Common Stock"
       },
       {
+        "code": "OHAC",
+        "name": "OHAC",
+        "market": "NASDAQ",
+        "country": "US",
+        "type": "Common Stock"
+      },
+      {
+        "code": "OHACR",
+        "name": "OHACR",
+        "market": "NASDAQ",
+        "country": "US",
+        "type": "Common Stock"
+      },
+      {
         "code": "PBK",
         "name": "PBK",
         "market": "NASDAQ",
@@ -239586,5 +239600,5 @@
       }
     ]
   },
-  "total": 34835
+  "total": 34837
 }
