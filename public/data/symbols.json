@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-06-12T19:03:14.481521",
+  "generated_at": "2026-06-13T02:50:15.165650",
   "korea": {
     "count": 4266,
     "stocks": [
@@ -25603,7 +25603,7 @@
     ]
   },
   "us": {
-    "count": 30669,
+    "count": 30663,
     "stocks": [
       {
         "code": "USCMF",
@@ -240072,48 +240072,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "FITBI",
-        "name": "FITBI",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "FITBM",
-        "name": "FITBM",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "FITBO",
-        "name": "FITBO",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "FITBP",
-        "name": "FITBP",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "KALV",
-        "name": "KALV",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "SCVL",
-        "name": "SCVL",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "I",
         "name": "I",
         "market": "NYSE",
@@ -240290,5 +240248,5 @@
       }
     ]
   },
-  "total": 34935
+  "total": 34929
 }
