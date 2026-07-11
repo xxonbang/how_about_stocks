@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-07-10T18:21:38.267574",
+  "generated_at": "2026-07-11T02:05:08.210148",
   "korea": {
     "count": 4268,
     "stocks": [
@@ -25615,7 +25615,7 @@
     ]
   },
   "us": {
-    "count": 30854,
+    "count": 30853,
     "stocks": [
       {
         "code": "BOSXF",
@@ -241414,13 +241414,6 @@
         "type": "ETP"
       },
       {
-        "code": "TBRG",
-        "name": "TBRG",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "I",
         "name": "I",
         "market": "NYSE",
@@ -241597,5 +241590,5 @@
       }
     ]
   },
-  "total": 35122
+  "total": 35121
 }
