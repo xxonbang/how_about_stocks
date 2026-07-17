@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-07-16T18:04:39.930677",
+  "generated_at": "2026-07-17T02:06:07.254408",
   "korea": {
     "count": 4270,
     "stocks": [
@@ -25627,7 +25627,7 @@
     ]
   },
   "us": {
-    "count": 30890,
+    "count": 30886,
     "stocks": [
       {
         "code": "TINLY",
@@ -241664,34 +241664,6 @@
         "type": ""
       },
       {
-        "code": "CPRX",
-        "name": "CPRX",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "NUVL",
-        "name": "NUVL",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "QTEXW",
-        "name": "QTEXW",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "WAI",
-        "name": "WAI",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "I",
         "name": "I",
         "market": "NYSE",
@@ -241861,5 +241833,5 @@
       }
     ]
   },
-  "total": 35160
+  "total": 35156
 }
