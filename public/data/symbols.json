@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-07-17T18:03:05.155666",
+  "generated_at": "2026-07-18T01:55:10.797385",
   "korea": {
     "count": 4270,
     "stocks": [
@@ -25627,7 +25627,7 @@
     ]
   },
   "us": {
-    "count": 30892,
+    "count": 30891,
     "stocks": [
       {
         "code": "EQLT",
@@ -241699,13 +241699,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "EVLVW",
-        "name": "EVLVW",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "I",
         "name": "I",
         "market": "NYSE",
@@ -241875,5 +241868,5 @@
       }
     ]
   },
-  "total": 35162
+  "total": 35161
 }
