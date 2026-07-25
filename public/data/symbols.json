@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-07-24T18:17:14.692362",
+  "generated_at": "2026-07-25T02:06:19.835246",
   "korea": {
     "count": 4260,
     "stocks": [
@@ -25567,7 +25567,7 @@
     ]
   },
   "us": {
-    "count": 30889,
+    "count": 30888,
     "stocks": [
       {
         "code": "ATHGF",
@@ -241618,13 +241618,6 @@
         "type": "ETP"
       },
       {
-        "code": "GREE",
-        "name": "GREE",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "I",
         "name": "I",
         "market": "NYSE",
@@ -241794,5 +241787,5 @@
       }
     ]
   },
-  "total": 35149
+  "total": 35148
 }
