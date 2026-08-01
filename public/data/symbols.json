@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-07-31T18:17:35.544935",
+  "generated_at": "2026-08-01T02:12:28.391448",
   "korea": {
     "count": 4254,
     "stocks": [
@@ -25531,7 +25531,7 @@
     ]
   },
   "us": {
-    "count": 30922,
+    "count": 30919,
     "stocks": [
       {
         "code": "ARTW",
@@ -241799,20 +241799,6 @@
         "type": "ETP"
       },
       {
-        "code": "GV",
-        "name": "GV",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "LPRO",
-        "name": "LPRO",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "I",
         "name": "I",
         "market": "NYSE",
@@ -241974,13 +241960,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "ORLA",
-        "name": "ORLA",
-        "market": "AMEX",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "PHXE",
         "name": "PHXE",
         "market": "AMEX",
@@ -241989,5 +241968,5 @@
       }
     ]
   },
-  "total": 35176
+  "total": 35173
 }
