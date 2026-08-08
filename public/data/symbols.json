@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-08-07T17:45:54.413373",
+  "generated_at": "2026-08-08T01:08:41.000893",
   "korea": {
     "count": 4252,
     "stocks": [
@@ -25519,7 +25519,7 @@
     ]
   },
   "us": {
-    "count": 30938,
+    "count": 30935,
     "stocks": [
       {
         "code": "BIV",
@@ -241899,20 +241899,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "BNZI",
-        "name": "BNZI",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "BNZIW",
-        "name": "BNZIW",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "I",
         "name": "I",
         "market": "NYSE",
@@ -241943,13 +241929,6 @@
       {
         "code": "ATH",
         "name": "ATH",
-        "market": "NYSE",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "AXIA",
-        "name": "AXIA",
         "market": "NYSE",
         "country": "US",
         "type": "Common Stock"
@@ -242089,5 +242068,5 @@
       }
     ]
   },
-  "total": 35190
+  "total": 35187
 }
