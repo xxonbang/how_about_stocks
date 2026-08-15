@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-08-14T17:50:17.410313",
+  "generated_at": "2026-08-15T00:53:45.089326",
   "korea": {
     "count": 4254,
     "stocks": [
@@ -25531,7 +25531,7 @@
     ]
   },
   "us": {
-    "count": 30966,
+    "count": 30965,
     "stocks": [
       {
         "code": "XOMX",
@@ -242114,15 +242114,8 @@
         "type": "ETP"
       },
       {
-        "code": "BNRG",
-        "name": "BNRG",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "LIDRW",
-        "name": "LIDRW",
+        "code": "BRNX",
+        "name": "BRNX",
         "market": "NASDAQ",
         "country": "US",
         "type": "Common Stock"
@@ -242297,5 +242290,5 @@
       }
     ]
   },
-  "total": 35220
+  "total": 35219
 }
