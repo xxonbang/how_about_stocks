@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-09-04T19:17:27.058307",
+  "generated_at": "2026-09-05T02:28:43.522200",
   "korea": {
     "count": 4260,
     "stocks": [
@@ -25567,7 +25567,7 @@
     ]
   },
   "us": {
-    "count": 30998,
+    "count": 30994,
     "stocks": [
       {
         "code": "AVGPF",
@@ -242346,34 +242346,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "APGE",
-        "name": "APGE",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "BTOG",
-        "name": "BTOG",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "JFB",
-        "name": "JFB",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "NHPAP",
-        "name": "NHPAP",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "I",
         "name": "I",
         "market": "NYSE",
@@ -242557,5 +242529,5 @@
       }
     ]
   },
-  "total": 35258
+  "total": 35254
 }
