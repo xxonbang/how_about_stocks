@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-09-11T19:25:18.964015",
+  "generated_at": "2026-09-12T02:38:13.711200",
   "korea": {
     "count": 3376,
     "stocks": [
@@ -20263,7 +20263,7 @@
     ]
   },
   "us": {
-    "count": 31027,
+    "count": 31026,
     "stocks": [
       {
         "code": "WOMN",
@@ -237441,13 +237441,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "PHGE",
-        "name": "PHGE",
-        "market": "AMEX",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "PHXE",
         "name": "PHXE",
         "market": "AMEX",
@@ -237456,5 +237449,5 @@
       }
     ]
   },
-  "total": 34403
+  "total": 34402
 }
