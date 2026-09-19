@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-09-18T19:25:32.244525",
+  "generated_at": "2026-09-19T02:40:18.959047",
   "korea": {
     "count": 3375,
     "stocks": [
@@ -20257,7 +20257,7 @@
     ]
   },
   "us": {
-    "count": 31089,
+    "count": 31086,
     "stocks": [
       {
         "code": "RTEZ",
@@ -237680,13 +237680,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "SNYR",
-        "name": "SNYR",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "I",
         "name": "I",
         "market": "NYSE",
@@ -237820,13 +237813,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "SAT",
-        "name": "SAT",
-        "market": "NYSE",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "SCE",
         "name": "SCE",
         "market": "NYSE",
@@ -237869,13 +237855,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "HCWC",
-        "name": "HCWC",
-        "market": "AMEX",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "PHXE",
         "name": "PHXE",
         "market": "AMEX",
@@ -237884,5 +237863,5 @@
       }
     ]
   },
-  "total": 34464
+  "total": 34461
 }
