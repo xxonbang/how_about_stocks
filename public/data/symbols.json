@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-09-24T20:15:14.689981",
+  "generated_at": "2026-09-25T02:57:50.128280",
   "korea": {
     "count": 3375,
     "stocks": [
@@ -20257,7 +20257,7 @@
     ]
   },
   "us": {
-    "count": 31122,
+    "count": 31117,
     "stocks": [
       {
         "code": "JL",
@@ -237897,41 +237897,6 @@
         "type": "ETP"
       },
       {
-        "code": "DOMO",
-        "name": "DOMO",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "HVII",
-        "name": "HVII",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "HVIIR",
-        "name": "HVIIR",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "HVIIU",
-        "name": "HVIIU",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "TBPH",
-        "name": "TBPH",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "I",
         "name": "I",
         "market": "NYSE",
@@ -238115,5 +238080,5 @@
       }
     ]
   },
-  "total": 34497
+  "total": 34492
 }
