@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-09-25T20:13:06.807005",
+  "generated_at": "2026-09-26T03:00:42.740176",
   "korea": {
     "count": 3375,
     "stocks": [
@@ -20257,7 +20257,7 @@
     ]
   },
   "us": {
-    "count": 31122,
+    "count": 31120,
     "stocks": [
       {
         "code": "BLUWU",
@@ -237918,20 +237918,6 @@
         "type": "ADR"
       },
       {
-        "code": "JSPRW",
-        "name": "JSPRW",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "KLXER",
-        "name": "KLXER",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "I",
         "name": "I",
         "market": "NYSE",
@@ -238115,5 +238101,5 @@
       }
     ]
   },
-  "total": 34497
+  "total": 34495
 }
