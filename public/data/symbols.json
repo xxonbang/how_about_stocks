@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-10-02T21:08:21.349812",
+  "generated_at": "2026-10-03T03:19:25.570094",
   "korea": {
     "count": 3371,
     "stocks": [
@@ -20233,7 +20233,7 @@
     ]
   },
   "us": {
-    "count": 31120,
+    "count": 31113,
     "stocks": [
       {
         "code": "NOWVF",
@@ -237845,48 +237845,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "COLA",
-        "name": "COLA",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "COLAR",
-        "name": "COLAR",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "COLAU",
-        "name": "COLAU",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "FSEA",
-        "name": "FSEA",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "GFAIW",
-        "name": "GFAIW",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "NSTS",
-        "name": "NSTS",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "I",
         "name": "I",
         "market": "NYSE",
@@ -238055,13 +238013,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "VACI",
-        "name": "VACI",
-        "market": "NYSE",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "Y",
         "name": "Y",
         "market": "NYSE",
@@ -238077,5 +238028,5 @@
       }
     ]
   },
-  "total": 34491
+  "total": 34484
 }
