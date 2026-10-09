@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-10-08T21:47:16.146982",
+  "generated_at": "2026-10-09T04:05:01.456277",
   "korea": {
     "count": 3371,
     "stocks": [
@@ -20233,7 +20233,7 @@
     ]
   },
   "us": {
-    "count": 31121,
+    "count": 31119,
     "stocks": [
       {
         "code": "VAIC",
@@ -237894,20 +237894,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "TCBI",
-        "name": "TCBI",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "TCBIO",
-        "name": "TCBIO",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "I",
         "name": "I",
         "market": "NYSE",
@@ -238084,5 +238070,5 @@
       }
     ]
   },
-  "total": 34492
+  "total": 34490
 }
