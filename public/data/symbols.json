@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-10-09T21:26:48.720067",
+  "generated_at": "2026-10-10T03:50:22.015944",
   "korea": {
     "count": 3371,
     "stocks": [
@@ -20233,7 +20233,7 @@
     ]
   },
   "us": {
-    "count": 31125,
+    "count": 31123,
     "stocks": [
       {
         "code": "SSEXF",
@@ -237922,20 +237922,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "HKIT",
-        "name": "HKIT",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "NVNI",
-        "name": "NVNI",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "I",
         "name": "I",
         "market": "NYSE",
@@ -238112,5 +238098,5 @@
       }
     ]
   },
-  "total": 34496
+  "total": 34494
 }
