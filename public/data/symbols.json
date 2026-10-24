@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-10-23T20:15:05.238825",
+  "generated_at": "2026-10-24T02:52:40.277392",
   "korea": {
     "count": 3371,
     "stocks": [
@@ -20233,7 +20233,7 @@
     ]
   },
   "us": {
-    "count": 31123,
+    "count": 31121,
     "stocks": [
       {
         "code": "METQ",
@@ -237915,13 +237915,6 @@
         "type": "ETP"
       },
       {
-        "code": "SABSW",
-        "name": "SABSW",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "I",
         "name": "I",
         "market": "NYSE",
@@ -238041,13 +238034,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "PERF",
-        "name": "PERF",
-        "market": "NYSE",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "PRIF",
         "name": "PRIF",
         "market": "NYSE",
@@ -238098,5 +238084,5 @@
       }
     ]
   },
-  "total": 34494
+  "total": 34492
 }
