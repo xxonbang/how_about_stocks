@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-10-30T21:21:51.708863",
+  "generated_at": "2026-10-31T03:40:24.571308",
   "korea": {
     "count": 3368,
     "stocks": [
@@ -20215,7 +20215,7 @@
     ]
   },
   "us": {
-    "count": 31117,
+    "count": 31112,
     "stocks": [
       {
         "code": "AUSDF",
@@ -237834,34 +237834,6 @@
         "type": ""
       },
       {
-        "code": "DYNC",
-        "name": "DYNC",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "LTRYW",
-        "name": "LTRYW",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "YHNA",
-        "name": "YHNA",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "YHNAU",
-        "name": "YHNAU",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "I",
         "name": "I",
         "market": "NYSE",
@@ -237934,13 +237906,6 @@
       {
         "code": "CFTR",
         "name": "CFTR",
-        "market": "NYSE",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "EICA",
-        "name": "EICA",
         "market": "NYSE",
         "country": "US",
         "type": "Common Stock"
@@ -238038,5 +238003,5 @@
       }
     ]
   },
-  "total": 34485
+  "total": 34480
 }
