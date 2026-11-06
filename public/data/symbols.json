@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-11-05T22:29:41.138003",
+  "generated_at": "2026-11-06T04:40:51.672776",
   "korea": {
     "count": 3368,
     "stocks": [
@@ -15143,26 +15143,14 @@
         "country": "KR"
       },
       {
-        "code": "381180",
-        "name": "TIGER 미국필라델피아반도체나스닥",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "458730",
         "name": "TIGER 미국배당다우존스",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "122630",
-        "name": "KODEX 레버리지",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "091160",
-        "name": "KODEX 반도체",
+        "code": "381180",
+        "name": "TIGER 미국필라델피아반도체나스닥",
         "market": "ETF",
         "country": "KR"
       },
@@ -15179,14 +15167,32 @@
         "country": "KR"
       },
       {
-        "code": "229200",
-        "name": "KODEX 코스닥150",
+        "code": "091160",
+        "name": "KODEX 반도체",
         "market": "ETF",
         "country": "KR"
       },
       {
         "code": "411060",
         "name": "ACE KRX금현물",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "229200",
+        "name": "KODEX 코스닥150",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "122630",
+        "name": "KODEX 레버리지",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "423160",
+        "name": "KODEX KOFR금리액티브(합성)",
         "market": "ETF",
         "country": "KR"
       },
@@ -15203,20 +15209,14 @@
         "country": "KR"
       },
       {
-        "code": "423160",
-        "name": "KODEX KOFR금리액티브(합성)",
+        "code": "273130",
+        "name": "KODEX 종합채권(AA-이상)액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
         "code": "310970",
         "name": "TIGER MSCI Korea TR",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "273130",
-        "name": "KODEX 종합채권(AA-이상)액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -15239,20 +15239,14 @@
         "country": "KR"
       },
       {
-        "code": "102780",
-        "name": "KODEX 삼성그룹",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "481050",
         "name": "KODEX CD1년금리플러스액티브(합성)",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "395270",
-        "name": "HANARO Fn K-반도체",
+        "code": "102780",
+        "name": "KODEX 삼성그룹",
         "market": "ETF",
         "country": "KR"
       },
@@ -15263,14 +15257,8 @@
         "country": "KR"
       },
       {
-        "code": "472150",
-        "name": "TIGER 배당커버드콜액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "233740",
-        "name": "KODEX 코스닥150레버리지",
+        "code": "395270",
+        "name": "HANARO Fn K-반도체",
         "market": "ETF",
         "country": "KR"
       },
@@ -15287,6 +15275,18 @@
         "country": "KR"
       },
       {
+        "code": "472150",
+        "name": "TIGER 배당커버드콜액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "233740",
+        "name": "KODEX 코스닥150레버리지",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
         "code": "161510",
         "name": "PLUS 고배당주",
         "market": "ETF",
@@ -15299,14 +15299,14 @@
         "country": "KR"
       },
       {
-        "code": "487240",
-        "name": "KODEX AI전력핵심설비",
+        "code": "214980",
+        "name": "KODEX 단기채권PLUS",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "214980",
-        "name": "KODEX 단기채권PLUS",
+        "code": "487240",
+        "name": "KODEX AI전력핵심설비",
         "market": "ETF",
         "country": "KR"
       },
@@ -15329,14 +15329,14 @@
         "country": "KR"
       },
       {
-        "code": "284430",
-        "name": "KODEX 200미국채혼합50",
+        "code": "441640",
+        "name": "KODEX 미국배당커버드콜액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "441640",
-        "name": "KODEX 미국배당커버드콜액티브",
+        "code": "284430",
+        "name": "KODEX 200미국채혼합50",
         "market": "ETF",
         "country": "KR"
       },
@@ -15365,26 +15365,14 @@
         "country": "KR"
       },
       {
-        "code": "368590",
-        "name": "RISE 미국나스닥100",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "453850",
         "name": "ACE 미국30년국채액티브(H)",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "105190",
-        "name": "ACE 200",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "294400",
-        "name": "KIWOOM 200TR",
+        "code": "368590",
+        "name": "RISE 미국나스닥100",
         "market": "ETF",
         "country": "KR"
       },
@@ -15395,8 +15383,8 @@
         "country": "KR"
       },
       {
-        "code": "475630",
-        "name": "TIGER CD1년금리액티브(합성)",
+        "code": "105190",
+        "name": "ACE 200",
         "market": "ETF",
         "country": "KR"
       },
@@ -15407,20 +15395,14 @@
         "country": "KR"
       },
       {
-        "code": "465580",
-        "name": "ACE 미국빅테크TOP7 Plus",
+        "code": "475630",
+        "name": "TIGER CD1년금리액티브(합성)",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "446770",
-        "name": "ACE 글로벌반도체TOP4 Plus",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "438080",
-        "name": "ACE 미국S&P500미국채혼합50액티브",
+        "code": "294400",
+        "name": "KIWOOM 200TR",
         "market": "ETF",
         "country": "KR"
       },
@@ -15431,14 +15413,20 @@
         "country": "KR"
       },
       {
-        "code": "442580",
-        "name": "PLUS 글로벌HBM반도체",
+        "code": "465580",
+        "name": "ACE 미국빅테크TOP7 Plus",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "448330",
-        "name": "KODEX 삼성전자채권혼합",
+        "code": "438080",
+        "name": "ACE 미국S&P500미국채혼합50액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "446770",
+        "name": "ACE 글로벌반도체TOP4 Plus",
         "market": "ETF",
         "country": "KR"
       },
@@ -15449,8 +15437,8 @@
         "country": "KR"
       },
       {
-        "code": "152100",
-        "name": "PLUS 200",
+        "code": "448330",
+        "name": "KODEX 삼성전자채권혼합",
         "market": "ETF",
         "country": "KR"
       },
@@ -15461,20 +15449,32 @@
         "country": "KR"
       },
       {
-        "code": "356540",
-        "name": "ACE 종합채권(AA-이상)액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "469830",
         "name": "SOL 초단기채권액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "226490",
-        "name": "KODEX 코스피",
+        "code": "252670",
+        "name": "KODEX 200선물인버스2X",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "356540",
+        "name": "ACE 종합채권(AA-이상)액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "152100",
+        "name": "PLUS 200",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "442580",
+        "name": "PLUS 글로벌HBM반도체",
         "market": "ETF",
         "country": "KR"
       },
@@ -15485,26 +15485,8 @@
         "country": "KR"
       },
       {
-        "code": "449180",
-        "name": "KODEX 미국S&P500(H)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "390390",
-        "name": "KODEX 미국반도체",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "232080",
-        "name": "TIGER 코스닥150",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "487230",
-        "name": "KODEX 미국AI전력핵심인프라",
+        "code": "226490",
+        "name": "KODEX 코스피",
         "market": "ETF",
         "country": "KR"
       },
@@ -15515,14 +15497,32 @@
         "country": "KR"
       },
       {
+        "code": "449180",
+        "name": "KODEX 미국S&P500(H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "232080",
+        "name": "TIGER 코스닥150",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "390390",
+        "name": "KODEX 미국반도체",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
         "code": "402970",
         "name": "ACE 미국배당다우존스",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "252670",
-        "name": "KODEX 200선물인버스2X",
+        "code": "487230",
+        "name": "KODEX 미국AI전력핵심인프라",
         "market": "ETF",
         "country": "KR"
       },
@@ -15539,8 +15539,8 @@
         "country": "KR"
       },
       {
-        "code": "091230",
-        "name": "TIGER 반도체",
+        "code": "466940",
+        "name": "TIGER 은행고배당플러스TOP10",
         "market": "ETF",
         "country": "KR"
       },
@@ -15557,14 +15557,8 @@
         "country": "KR"
       },
       {
-        "code": "455850",
-        "name": "SOL AI반도체소부장",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "466940",
-        "name": "TIGER 은행고배당플러스TOP10",
+        "code": "091230",
+        "name": "TIGER 반도체",
         "market": "ETF",
         "country": "KR"
       },
@@ -15575,14 +15569,8 @@
         "country": "KR"
       },
       {
-        "code": "498410",
-        "name": "KODEX 금융고배당TOP10타겟위클리커버드콜",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "496020",
-        "name": "WON 전단채플러스액티브",
+        "code": "114800",
+        "name": "KODEX 인버스",
         "market": "ETF",
         "country": "KR"
       },
@@ -15593,8 +15581,20 @@
         "country": "KR"
       },
       {
-        "code": "497570",
-        "name": "TIGER 미국필라델피아AI반도체나스닥",
+        "code": "496020",
+        "name": "WON 전단채플러스액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "455850",
+        "name": "SOL AI반도체소부장",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "498410",
+        "name": "KODEX 금융고배당TOP10타겟위클리커버드콜",
         "market": "ETF",
         "country": "KR"
       },
@@ -15605,8 +15605,20 @@
         "country": "KR"
       },
       {
-        "code": "114800",
-        "name": "KODEX 인버스",
+        "code": "497570",
+        "name": "TIGER 미국필라델피아AI반도체나스닥",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "272580",
+        "name": "TIGER 단기채권액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "456610",
+        "name": "TIGER 미국달러SOFR금리액티브(합성)",
         "market": "ETF",
         "country": "KR"
       },
@@ -15617,8 +15629,14 @@
         "country": "KR"
       },
       {
-        "code": "272580",
-        "name": "TIGER 단기채권액티브",
+        "code": "329750",
+        "name": "TIGER 미국달러단기채권액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "476550",
+        "name": "TIGER 미국30년국채커버드콜액티브(H)",
         "market": "ETF",
         "country": "KR"
       },
@@ -15635,14 +15653,8 @@
         "country": "KR"
       },
       {
-        "code": "476550",
-        "name": "TIGER 미국30년국채커버드콜액티브(H)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "456610",
-        "name": "TIGER 미국달러SOFR금리액티브(합성)",
+        "code": "481060",
+        "name": "KODEX 미국30년국채타겟커버드콜(합성 H)",
         "market": "ETF",
         "country": "KR"
       },
@@ -15653,32 +15665,8 @@
         "country": "KR"
       },
       {
-        "code": "329750",
-        "name": "TIGER 미국달러단기채권액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "495050",
         "name": "RISE 코리아밸류업",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "481060",
-        "name": "KODEX 미국30년국채타겟커버드콜(합성 H)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "475720",
-        "name": "RISE 200위클리커버드콜",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "315930",
-        "name": "KODEX Top5PlusTR",
         "market": "ETF",
         "country": "KR"
       },
@@ -15689,8 +15677,8 @@
         "country": "KR"
       },
       {
-        "code": "457480",
-        "name": "ACE 테슬라밸류체인액티브",
+        "code": "475720",
+        "name": "RISE 200위클리커버드콜",
         "market": "ETF",
         "country": "KR"
       },
@@ -15701,14 +15689,20 @@
         "country": "KR"
       },
       {
-        "code": "418660",
-        "name": "TIGER 미국나스닥100레버리지(합성)",
+        "code": "315930",
+        "name": "KODEX Top5PlusTR",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "441800",
-        "name": "TIME Korea플러스배당액티브",
+        "code": "457480",
+        "name": "ACE 테슬라밸류체인액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "418660",
+        "name": "TIGER 미국나스닥100레버리지(합성)",
         "market": "ETF",
         "country": "KR"
       },
@@ -15719,8 +15713,8 @@
         "country": "KR"
       },
       {
-        "code": "490590",
-        "name": "RISE 미국AI밸류체인데일리고정커버드콜",
+        "code": "441800",
+        "name": "TIME Korea플러스배당액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -15731,8 +15725,14 @@
         "country": "KR"
       },
       {
-        "code": "449450",
-        "name": "PLUS K방산",
+        "code": "371460",
+        "name": "TIGER 차이나전기차SOLACTIVE",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "490590",
+        "name": "RISE 미국AI밸류체인데일리고정커버드콜",
         "market": "ETF",
         "country": "KR"
       },
@@ -15743,26 +15743,8 @@
         "country": "KR"
       },
       {
-        "code": "495850",
-        "name": "KODEX 코리아밸류업",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "371460",
-        "name": "TIGER 차이나전기차SOLACTIVE",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "314250",
-        "name": "KODEX 미국빅테크10(H)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "144600",
-        "name": "KODEX 은선물(H)",
+        "code": "449450",
+        "name": "PLUS K방산",
         "market": "ETF",
         "country": "KR"
       },
@@ -15773,14 +15755,26 @@
         "country": "KR"
       },
       {
+        "code": "144600",
+        "name": "KODEX 은선물(H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "495850",
+        "name": "KODEX 코리아밸류업",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
         "code": "434060",
         "name": "KODEX TDF2050액티브 적격",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "494310",
-        "name": "KODEX 반도체레버리지",
+        "code": "314250",
+        "name": "KODEX 미국빅테크10(H)",
         "market": "ETF",
         "country": "KR"
       },
@@ -15797,8 +15791,8 @@
         "country": "KR"
       },
       {
-        "code": "491620",
-        "name": "RISE 미국테크100데일리고정커버드콜",
+        "code": "069660",
+        "name": "KIWOOM 200",
         "market": "ETF",
         "country": "KR"
       },
@@ -15809,20 +15803,14 @@
         "country": "KR"
       },
       {
-        "code": "069660",
-        "name": "KIWOOM 200",
+        "code": "491620",
+        "name": "RISE 미국테크100데일리고정커버드콜",
         "market": "ETF",
         "country": "KR"
       },
       {
         "code": "477050",
         "name": "PLUS 머니마켓액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "449190",
-        "name": "KODEX 미국나스닥100(H)",
         "market": "ETF",
         "country": "KR"
       },
@@ -15839,14 +15827,14 @@
         "country": "KR"
       },
       {
-        "code": "290130",
-        "name": "RISE ESG사회책임투자",
+        "code": "494310",
+        "name": "KODEX 반도체레버리지",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "102970",
-        "name": "KODEX 증권",
+        "code": "449190",
+        "name": "KODEX 미국나스닥100(H)",
         "market": "ETF",
         "country": "KR"
       },
@@ -15857,26 +15845,14 @@
         "country": "KR"
       },
       {
-        "code": "138540",
-        "name": "TIGER 현대차그룹플러스",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "438330",
         "name": "TIGER 우량회사채액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "251350",
-        "name": "KODEX MSCI선진국",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "448290",
-        "name": "TIGER 미국S&P500(H)",
+        "code": "138540",
+        "name": "TIGER 현대차그룹플러스",
         "market": "ETF",
         "country": "KR"
       },
@@ -15893,26 +15869,20 @@
         "country": "KR"
       },
       {
-        "code": "462010",
-        "name": "TIGER 2차전지소재Fn",
+        "code": "290130",
+        "name": "RISE ESG사회책임투자",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "476800",
-        "name": "KODEX 한국부동산리츠인프라",
+        "code": "102970",
+        "name": "KODEX 증권",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "491010",
-        "name": "TIGER 글로벌AI전력인프라액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "466950",
-        "name": "TIGER 글로벌AI액티브",
+        "code": "251350",
+        "name": "KODEX MSCI선진국",
         "market": "ETF",
         "country": "KR"
       },
@@ -15923,8 +15893,14 @@
         "country": "KR"
       },
       {
-        "code": "367760",
-        "name": "RISE 네트워크인프라",
+        "code": "448290",
+        "name": "TIGER 미국S&P500(H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "476800",
+        "name": "KODEX 한국부동산리츠인프라",
         "market": "ETF",
         "country": "KR"
       },
@@ -15941,8 +15917,14 @@
         "country": "KR"
       },
       {
-        "code": "488080",
-        "name": "TIGER 반도체TOP10레버리지",
+        "code": "462010",
+        "name": "TIGER 2차전지소재Fn",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "466950",
+        "name": "TIGER 글로벌AI액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -15953,8 +15935,8 @@
         "country": "KR"
       },
       {
-        "code": "447770",
-        "name": "TIGER 테슬라채권혼합Fn",
+        "code": "491010",
+        "name": "TIGER 글로벌AI전력인프라액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -15965,14 +15947,14 @@
         "country": "KR"
       },
       {
-        "code": "434730",
-        "name": "HANARO 원자력iSelect",
+        "code": "447770",
+        "name": "TIGER 테슬라채권혼합Fn",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "277630",
-        "name": "TIGER 코스피",
+        "code": "367760",
+        "name": "RISE 네트워크인프라",
         "market": "ETF",
         "country": "KR"
       },
@@ -15983,26 +15965,8 @@
         "country": "KR"
       },
       {
-        "code": "448300",
-        "name": "TIGER 미국나스닥100(H)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "471990",
-        "name": "KODEX AI반도체핵심장비",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "483280",
-        "name": "KODEX 미국AI테크TOP10타겟커버드콜",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "315960",
-        "name": "RISE 대형고배당10TR",
+        "code": "277630",
+        "name": "TIGER 코스피",
         "market": "ETF",
         "country": "KR"
       },
@@ -16013,20 +15977,20 @@
         "country": "KR"
       },
       {
-        "code": "474220",
-        "name": "TIGER 미국테크TOP10타겟커버드콜",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "361580",
-        "name": "RISE 200TR",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "480260",
         "name": "TIGER 27-04회사채(A+이상)액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "434730",
+        "name": "HANARO 원자력iSelect",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "483280",
+        "name": "KODEX 미국AI테크TOP10타겟커버드콜",
         "market": "ETF",
         "country": "KR"
       },
@@ -16037,14 +16001,14 @@
         "country": "KR"
       },
       {
-        "code": "496080",
-        "name": "TIGER 코리아밸류업",
+        "code": "474220",
+        "name": "TIGER 미국테크TOP10타겟커버드콜",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "426020",
-        "name": "TIME 미국S&P500액티브",
+        "code": "488080",
+        "name": "TIGER 반도체TOP10레버리지",
         "market": "ETF",
         "country": "KR"
       },
@@ -16055,20 +16019,44 @@
         "country": "KR"
       },
       {
+        "code": "471990",
+        "name": "KODEX AI반도체핵심장비",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "315960",
+        "name": "RISE 대형고배당10TR",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "426020",
+        "name": "TIME 미국S&P500액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
         "code": "458250",
         "name": "TIGER 미국30년국채스트립액티브(합성 H)",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "444200",
-        "name": "SOL 코리아메가테크액티브",
+        "code": "448300",
+        "name": "TIGER 미국나스닥100(H)",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "423920",
-        "name": "TIGER 미국필라델피아반도체레버리지(합성)",
+        "code": "361580",
+        "name": "RISE 200TR",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "496080",
+        "name": "TIGER 코리아밸류업",
         "market": "ETF",
         "country": "KR"
       },
@@ -16079,8 +16067,8 @@
         "country": "KR"
       },
       {
-        "code": "451060",
-        "name": "1Q 200액티브",
+        "code": "444200",
+        "name": "SOL 코리아메가테크액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -16091,14 +16079,8 @@
         "country": "KR"
       },
       {
-        "code": "463250",
-        "name": "TIGER K방산&우주",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "241180",
-        "name": "TIGER 일본니케이225",
+        "code": "453810",
+        "name": "KODEX 인도Nifty50",
         "market": "ETF",
         "country": "KR"
       },
@@ -16109,32 +16091,20 @@
         "country": "KR"
       },
       {
-        "code": "472170",
-        "name": "TIGER 미국테크TOP10채권혼합",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "293180",
-        "name": "HANARO 200",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "453810",
-        "name": "KODEX 인도Nifty50",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "454780",
         "name": "KIWOOM 종합채권(AA-이상)액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "132030",
-        "name": "KODEX 골드선물(H)",
+        "code": "472170",
+        "name": "TIGER 미국테크TOP10채권혼합",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "463250",
+        "name": "TIGER K방산&우주",
         "market": "ETF",
         "country": "KR"
       },
@@ -16145,8 +16115,26 @@
         "country": "KR"
       },
       {
-        "code": "448630",
-        "name": "RISE 삼성그룹Top3채권혼합",
+        "code": "451060",
+        "name": "1Q 200액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "241180",
+        "name": "TIGER 일본니케이225",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "132030",
+        "name": "KODEX 골드선물(H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "423920",
+        "name": "TIGER 미국필라델피아반도체레버리지(합성)",
         "market": "ETF",
         "country": "KR"
       },
@@ -16157,8 +16145,14 @@
         "country": "KR"
       },
       {
-        "code": "091180",
-        "name": "KODEX 자동차",
+        "code": "293180",
+        "name": "HANARO 200",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "448630",
+        "name": "RISE 삼성그룹Top3채권혼합",
         "market": "ETF",
         "country": "KR"
       },
@@ -16169,14 +16163,8 @@
         "country": "KR"
       },
       {
-        "code": "484880",
-        "name": "SOL 금융지주플러스고배당",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "385720",
-        "name": "TIME 코스피액티브",
+        "code": "091180",
+        "name": "KODEX 자동차",
         "market": "ETF",
         "country": "KR"
       },
@@ -16187,14 +16175,8 @@
         "country": "KR"
       },
       {
-        "code": "433330",
-        "name": "SOL 미국S&P500",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "462900",
-        "name": "KoAct 바이오헬스케어액티브",
+        "code": "484880",
+        "name": "SOL 금융지주플러스고배당",
         "market": "ETF",
         "country": "KR"
       },
@@ -16205,14 +16187,14 @@
         "country": "KR"
       },
       {
-        "code": "469070",
-        "name": "RISE AI&로봇",
+        "code": "433330",
+        "name": "SOL 미국S&P500",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "489030",
-        "name": "PLUS 고배당주위클리커버드콜",
+        "code": "469070",
+        "name": "RISE AI&로봇",
         "market": "ETF",
         "country": "KR"
       },
@@ -16223,20 +16205,20 @@
         "country": "KR"
       },
       {
-        "code": "485540",
-        "name": "KODEX 미국AI테크TOP10",
+        "code": "385720",
+        "name": "TIME 코스피액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "310960",
-        "name": "TIGER 200TR",
+        "code": "462900",
+        "name": "KoAct 바이오헬스케어액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "475080",
-        "name": "KODEX 테슬라커버드콜채권혼합액티브",
+        "code": "489030",
+        "name": "PLUS 고배당주위클리커버드콜",
         "market": "ETF",
         "country": "KR"
       },
@@ -16247,14 +16229,20 @@
         "country": "KR"
       },
       {
-        "code": "385510",
-        "name": "KODEX 신재생에너지액티브",
+        "code": "273140",
+        "name": "KODEX 단기변동금리부채권액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "273140",
-        "name": "KODEX 단기변동금리부채권액티브",
+        "code": "475080",
+        "name": "KODEX 테슬라커버드콜채권혼합액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "485540",
+        "name": "KODEX 미국AI테크TOP10",
         "market": "ETF",
         "country": "KR"
       },
@@ -16265,8 +16253,20 @@
         "country": "KR"
       },
       {
-        "code": "302450",
-        "name": "RISE 코스피",
+        "code": "473290",
+        "name": "KODEX 26-12 회사채(AA-이상)액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "385510",
+        "name": "KODEX 신재생에너지액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "310960",
+        "name": "TIGER 200TR",
         "market": "ETF",
         "country": "KR"
       },
@@ -16277,20 +16277,14 @@
         "country": "KR"
       },
       {
-        "code": "473290",
-        "name": "KODEX 26-12 회사채(AA-이상)액티브",
+        "code": "196230",
+        "name": "RISE 단기통안채",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "441680",
-        "name": "TIGER 미국나스닥100커버드콜(합성)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "474590",
-        "name": "WON 반도체밸류체인액티브",
+        "code": "302450",
+        "name": "RISE 코스피",
         "market": "ETF",
         "country": "KR"
       },
@@ -16301,8 +16295,8 @@
         "country": "KR"
       },
       {
-        "code": "196230",
-        "name": "RISE 단기통안채",
+        "code": "441680",
+        "name": "TIGER 미국나스닥100커버드콜(합성)",
         "market": "ETF",
         "country": "KR"
       },
@@ -16313,38 +16307,20 @@
         "country": "KR"
       },
       {
-        "code": "270810",
-        "name": "RISE 코스닥150",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "475300",
-        "name": "SOL 반도체전공정",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "472920",
         "name": "HK 종합채권(AA-이상)액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "271050",
-        "name": "KODEX WTI원유선물인버스(H)",
+        "code": "270810",
+        "name": "RISE 코스닥150",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "452360",
-        "name": "SOL 미국배당다우존스(H)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "329650",
-        "name": "KODEX TRF3070",
+        "code": "474590",
+        "name": "WON 반도체밸류체인액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -16355,8 +16331,20 @@
         "country": "KR"
       },
       {
-        "code": "243880",
-        "name": "TIGER 200IT레버리지",
+        "code": "329650",
+        "name": "KODEX TRF3070",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "452360",
+        "name": "SOL 미국배당다우존스(H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "475300",
+        "name": "SOL 반도체전공정",
         "market": "ETF",
         "country": "KR"
       },
@@ -16373,14 +16361,8 @@
         "country": "KR"
       },
       {
-        "code": "409820",
-        "name": "KODEX 미국나스닥100레버리지(합성 H)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "493810",
-        "name": "TIGER 미국AI빅테크10타겟데일리커버드콜",
+        "code": "271050",
+        "name": "KODEX WTI원유선물인버스(H)",
         "market": "ETF",
         "country": "KR"
       },
@@ -16391,20 +16373,8 @@
         "country": "KR"
       },
       {
-        "code": "483320",
-        "name": "ACE 엔비디아밸류체인액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "471780",
-        "name": "TIGER 코리아테크액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "307520",
-        "name": "TIGER 지주회사",
+        "code": "493810",
+        "name": "TIGER 미국AI빅테크10타겟데일리커버드콜",
         "market": "ETF",
         "country": "KR"
       },
@@ -16415,8 +16385,8 @@
         "country": "KR"
       },
       {
-        "code": "463050",
-        "name": "TIME K바이오액티브",
+        "code": "307520",
+        "name": "TIGER 지주회사",
         "market": "ETF",
         "country": "KR"
       },
@@ -16427,8 +16397,14 @@
         "country": "KR"
       },
       {
-        "code": "422420",
-        "name": "RISE 2차전지액티브",
+        "code": "483320",
+        "name": "ACE 엔비디아밸류체인액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "409820",
+        "name": "KODEX 미국나스닥100레버리지(합성 H)",
         "market": "ETF",
         "country": "KR"
       },
@@ -16439,8 +16415,20 @@
         "country": "KR"
       },
       {
+        "code": "463050",
+        "name": "TIME K바이오액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
         "code": "448540",
         "name": "ACE 엔비디아채권혼합",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "302190",
+        "name": "TIGER 중장기국채",
         "market": "ETF",
         "country": "KR"
       },
@@ -16451,8 +16439,62 @@
         "country": "KR"
       },
       {
-        "code": "302190",
-        "name": "TIGER 중장기국채",
+        "code": "422420",
+        "name": "RISE 2차전지액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "471780",
+        "name": "TIGER 코리아테크액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "243880",
+        "name": "TIGER 200IT레버리지",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "414780",
+        "name": "TIGER 차이나과창판STAR50(합성)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "363570",
+        "name": "KODEX 장기종합채권(AA-이상)액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "244580",
+        "name": "KODEX 바이오",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "433980",
+        "name": "KODEX TDF2040액티브 적격",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "490090",
+        "name": "TIGER 미국AI빅테크10",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "228790",
+        "name": "TIGER 화장품",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "478150",
+        "name": "TIME 글로벌우주테크&방산액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -16469,20 +16511,8 @@
         "country": "KR"
       },
       {
-        "code": "414780",
-        "name": "TIGER 차이나과창판STAR50(합성)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "244580",
-        "name": "KODEX 바이오",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "490090",
-        "name": "TIGER 미국AI빅테크10",
+        "code": "261260",
+        "name": "KODEX 미국달러선물인버스2X",
         "market": "ETF",
         "country": "KR"
       },
@@ -16493,26 +16523,8 @@
         "country": "KR"
       },
       {
-        "code": "478150",
-        "name": "TIME 글로벌우주테크&방산액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "433980",
-        "name": "KODEX TDF2040액티브 적격",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "228790",
-        "name": "TIGER 화장품",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "363570",
-        "name": "KODEX 장기종합채권(AA-이상)액티브",
+        "code": "483290",
+        "name": "KODEX 미국배당다우존스타겟커버드콜",
         "market": "ETF",
         "country": "KR"
       },
@@ -16523,26 +16535,8 @@
         "country": "KR"
       },
       {
-        "code": "261260",
-        "name": "KODEX 미국달러선물인버스2X",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "495230",
-        "name": "KoAct 코리아밸류업액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "213610",
         "name": "KODEX 삼성그룹밸류",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "117700",
-        "name": "KODEX 건설",
         "market": "ETF",
         "country": "KR"
       },
@@ -16553,38 +16547,14 @@
         "country": "KR"
       },
       {
-        "code": "483290",
-        "name": "KODEX 미국배당다우존스타겟커버드콜",
+        "code": "495230",
+        "name": "KoAct 코리아밸류업액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "498270",
-        "name": "KIWOOM 미국양자컴퓨팅",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "480040",
-        "name": "ACE 미국반도체데일리타겟커버드콜(합성)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "363580",
-        "name": "KODEX 200IT TR",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "123320",
-        "name": "TIGER 레버리지",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "457990",
-        "name": "PLUS 태양광&ESS",
+        "code": "117700",
+        "name": "KODEX 건설",
         "market": "ETF",
         "country": "KR"
       },
@@ -16595,20 +16565,8 @@
         "country": "KR"
       },
       {
-        "code": "488720",
-        "name": "WON 종합채권(AA-이상)액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "490600",
-        "name": "RISE 미국배당100데일리고정커버드콜",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "388420",
-        "name": "RISE 비메모리반도체액티브",
+        "code": "480040",
+        "name": "ACE 미국반도체데일리타겟커버드콜(합성)",
         "market": "ETF",
         "country": "KR"
       },
@@ -16619,14 +16577,38 @@
         "country": "KR"
       },
       {
-        "code": "486450",
-        "name": "SOL 미국AI전력인프라",
+        "code": "251340",
+        "name": "KODEX 코스닥150선물인버스",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "266160",
-        "name": "RISE 고배당",
+        "code": "457990",
+        "name": "PLUS 태양광&ESS",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "488720",
+        "name": "WON 종합채권(AA-이상)액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "498270",
+        "name": "KIWOOM 미국양자컴퓨팅",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "363580",
+        "name": "KODEX 200IT TR",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "490600",
+        "name": "RISE 미국배당100데일리고정커버드콜",
         "market": "ETF",
         "country": "KR"
       },
@@ -16643,26 +16625,14 @@
         "country": "KR"
       },
       {
-        "code": "442320",
-        "name": "RISE 글로벌원자력",
+        "code": "486450",
+        "name": "SOL 미국AI전력인프라",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "494330",
-        "name": "ACE 라이프자산주주가치액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "251340",
-        "name": "KODEX 코스닥150선물인버스",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "480030",
-        "name": "ACE 미국500데일리타겟커버드콜(합성)",
+        "code": "266160",
+        "name": "RISE 고배당",
         "market": "ETF",
         "country": "KR"
       },
@@ -16673,14 +16643,32 @@
         "country": "KR"
       },
       {
-        "code": "139230",
-        "name": "TIGER 200 중공업",
+        "code": "480030",
+        "name": "ACE 미국500데일리타겟커버드콜(합성)",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "461950",
-        "name": "KODEX 2차전지핵심소재10",
+        "code": "494330",
+        "name": "ACE 라이프자산주주가치액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "442320",
+        "name": "RISE 글로벌원자력",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "123320",
+        "name": "TIGER 레버리지",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "388420",
+        "name": "RISE 비메모리반도체액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -16691,86 +16679,20 @@
         "country": "KR"
       },
       {
-        "code": "157500",
-        "name": "TIGER 증권",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "412570",
-        "name": "TIGER 2차전지TOP10레버리지",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "458210",
         "name": "KIWOOM CD금리액티브(합성)",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "219480",
-        "name": "KODEX 미국S&P500선물(H)",
+        "code": "461950",
+        "name": "KODEX 2차전지핵심소재10",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "495550",
-        "name": "SOL 코리아밸류업TR",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "332930",
-        "name": "HANARO 200TR",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "466930",
-        "name": "SOL 자동차TOP3플러스",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "433500",
-        "name": "ACE 원자력TOP10",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "245340",
-        "name": "TIGER 미국다우존스30",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "495060",
-        "name": "TIME 코리아밸류업액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "498180",
-        "name": "파워 종합채권(AA-이상)액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "160580",
-        "name": "TIGER 구리실물",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "122090",
-        "name": "PLUS 코스피50",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "143860",
-        "name": "TIGER 헬스케어",
+        "code": "139230",
+        "name": "TIGER 200 중공업",
         "market": "ETF",
         "country": "KR"
       },
@@ -16781,14 +16703,74 @@
         "country": "KR"
       },
       {
-        "code": "403790",
-        "name": "MIDAS 코스피액티브",
+        "code": "412570",
+        "name": "TIGER 2차전지TOP10레버리지",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "475310",
-        "name": "SOL 반도체후공정",
+        "code": "498180",
+        "name": "파워 종합채권(AA-이상)액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "219480",
+        "name": "KODEX 미국S&P500선물(H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "157500",
+        "name": "TIGER 증권",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "466930",
+        "name": "SOL 자동차TOP3플러스",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "495550",
+        "name": "SOL 코리아밸류업TR",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "245340",
+        "name": "TIGER 미국다우존스30",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "160580",
+        "name": "TIGER 구리실물",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "143860",
+        "name": "TIGER 헬스케어",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "332930",
+        "name": "HANARO 200TR",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "433500",
+        "name": "ACE 원자력TOP10",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "495060",
+        "name": "TIME 코리아밸류업액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -16799,14 +16781,8 @@
         "country": "KR"
       },
       {
-        "code": "332500",
-        "name": "ACE 200TR",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "476030",
-        "name": "SOL 미국나스닥100",
+        "code": "122090",
+        "name": "PLUS 코스피50",
         "market": "ETF",
         "country": "KR"
       },
@@ -16817,8 +16793,8 @@
         "country": "KR"
       },
       {
-        "code": "337160",
-        "name": "KODEX 200ESG",
+        "code": "403790",
+        "name": "MIDAS 코스피액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -16835,8 +16811,38 @@
         "country": "KR"
       },
       {
+        "code": "476030",
+        "name": "SOL 미국나스닥100",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "475310",
+        "name": "SOL 반도체후공정",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
         "code": "304660",
         "name": "KODEX 미국30년국채울트라선물(H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "332500",
+        "name": "ACE 200TR",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "337160",
+        "name": "KODEX 200ESG",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "438570",
+        "name": "SOL 국고채10년",
         "market": "ETF",
         "country": "KR"
       },
@@ -16853,122 +16859,8 @@
         "country": "KR"
       },
       {
-        "code": "354500",
-        "name": "ACE 코스닥150",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "152870",
-        "name": "파워 200",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "438570",
-        "name": "SOL 국고채10년",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "494220",
-        "name": "UNICORN SK하이닉스밸류체인액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "491230",
         "name": "PLUS 국공채머니마켓액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "139220",
-        "name": "TIGER 200 건설",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "233160",
-        "name": "TIGER 코스닥150 레버리지",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "463680",
-        "name": "KODEX 미국S&P500테크놀로지",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "267770",
-        "name": "TIGER 200선물레버리지",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "488500",
-        "name": "TIGER 미국S&P500동일가중",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "399110",
-        "name": "SOL 미국S&P500ESG",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "309230",
-        "name": "ACE 미국WideMoat동일가중",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "114820",
-        "name": "TIGER 국채3년",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "192090",
-        "name": "TIGER 차이나CSI300",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "182480",
-        "name": "TIGER 미국MSCI리츠(합성 H)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "495330",
-        "name": "1Q 코리아밸류업",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "411420",
-        "name": "KODEX 미국나스닥AI테크액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "203780",
-        "name": "TIGER 미국나스닥바이오",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "469170",
-        "name": "ACE 포스코그룹포커스",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "438560",
-        "name": "SOL 국고채3년",
         "market": "ETF",
         "country": "KR"
       },
@@ -16979,14 +16871,104 @@
         "country": "KR"
       },
       {
-        "code": "308620",
-        "name": "KODEX 미국10년국채선물",
+        "code": "354500",
+        "name": "ACE 코스닥150",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "114820",
+        "name": "TIGER 국채3년",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "488500",
+        "name": "TIGER 미국S&P500동일가중",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "139220",
+        "name": "TIGER 200 건설",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "309230",
+        "name": "ACE 미국WideMoat동일가중",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "152870",
+        "name": "파워 200",
         "market": "ETF",
         "country": "KR"
       },
       {
         "code": "451530",
         "name": "TIGER 국고채30년스트립액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "399110",
+        "name": "SOL 미국S&P500ESG",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "463680",
+        "name": "KODEX 미국S&P500테크놀로지",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "192090",
+        "name": "TIGER 차이나CSI300",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "438560",
+        "name": "SOL 국고채3년",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "494220",
+        "name": "UNICORN SK하이닉스밸류체인액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "233160",
+        "name": "TIGER 코스닥150 레버리지",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "308620",
+        "name": "KODEX 미국10년국채선물",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "182480",
+        "name": "TIGER 미국MSCI리츠(합성 H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "203780",
+        "name": "TIGER 미국나스닥바이오",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "411420",
+        "name": "KODEX 미국나스닥AI테크액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -17003,8 +16985,20 @@
         "country": "KR"
       },
       {
-        "code": "304940",
-        "name": "KODEX 미국나스닥100선물(H)",
+        "code": "495330",
+        "name": "1Q 코리아밸류업",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "469170",
+        "name": "ACE 포스코그룹포커스",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "267770",
+        "name": "TIGER 200선물레버리지",
         "market": "ETF",
         "country": "KR"
       },
@@ -17015,8 +17009,14 @@
         "country": "KR"
       },
       {
-        "code": "448100",
-        "name": "WON 200",
+        "code": "304940",
+        "name": "KODEX 미국나스닥100선물(H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "372330",
+        "name": "KODEX 차이나항셍테크",
         "market": "ETF",
         "country": "KR"
       },
@@ -17027,8 +17027,50 @@
         "country": "KR"
       },
       {
-        "code": "372330",
-        "name": "KODEX 차이나항셍테크",
+        "code": "473440",
+        "name": "ACE 11월만기자동연장회사채AA-이상액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "448100",
+        "name": "WON 200",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "114100",
+        "name": "RISE 국고채3년",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "468380",
+        "name": "KODEX iShares미국하이일드액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "433970",
+        "name": "KODEX TDF2030액티브 적격",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "429760",
+        "name": "PLUS 미국S&P500",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "168580",
+        "name": "ACE 중국본토CSI300",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "464310",
+        "name": "TIGER 글로벌AI&로보틱스 INDXX",
         "market": "ETF",
         "country": "KR"
       },
@@ -17045,62 +17087,20 @@
         "country": "KR"
       },
       {
-        "code": "491820",
-        "name": "HANARO 전력설비투자",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "473440",
-        "name": "ACE 11월만기자동연장회사채AA-이상액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "429760",
-        "name": "PLUS 미국S&P500",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "328370",
         "name": "PLUS 코스피TR",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "433970",
-        "name": "KODEX TDF2030액티브 적격",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "468380",
-        "name": "KODEX iShares미국하이일드액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "114100",
-        "name": "RISE 국고채3년",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "464310",
-        "name": "TIGER 글로벌AI&로보틱스 INDXX",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "168580",
-        "name": "ACE 중국본토CSI300",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "465610",
         "name": "ACE 미국빅테크TOP7 Plus레버리지(합성)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "491820",
+        "name": "HANARO 전력설비투자",
         "market": "ETF",
         "country": "KR"
       },
@@ -17117,20 +17117,8 @@
         "country": "KR"
       },
       {
-        "code": "476850",
-        "name": "KoAct 배당성장액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "453080",
-        "name": "KIWOOM 미국나스닥100(H)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "269540",
-        "name": "PLUS 미국S&P500(H)",
+        "code": "329670",
+        "name": "KODEX TRF7030",
         "market": "ETF",
         "country": "KR"
       },
@@ -17141,20 +17129,20 @@
         "country": "KR"
       },
       {
-        "code": "418670",
-        "name": "TIGER 글로벌AI사이버보안",
+        "code": "476850",
+        "name": "KoAct 배당성장액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "332940",
-        "name": "HANARO MSCI Korea TR",
+        "code": "269540",
+        "name": "PLUS 미국S&P500(H)",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "329670",
-        "name": "KODEX TRF7030",
+        "code": "453080",
+        "name": "KIWOOM 미국나스닥100(H)",
         "market": "ETF",
         "country": "KR"
       },
@@ -17165,14 +17153,14 @@
         "country": "KR"
       },
       {
-        "code": "453330",
-        "name": "RISE 미국S&P500(H)",
+        "code": "329660",
+        "name": "KODEX TRF5050",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "377990",
-        "name": "TIGER Fn신재생에너지",
+        "code": "418670",
+        "name": "TIGER 글로벌AI사이버보안",
         "market": "ETF",
         "country": "KR"
       },
@@ -17183,32 +17171,26 @@
         "country": "KR"
       },
       {
-        "code": "496090",
-        "name": "KIWOOM 코리아밸류업",
+        "code": "453330",
+        "name": "RISE 미국S&P500(H)",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "326240",
-        "name": "RISE IT플러스",
+        "code": "475280",
+        "name": "ACE 8월만기자동연장회사채AA-이상액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "329660",
-        "name": "KODEX TRF5050",
+        "code": "377990",
+        "name": "TIGER Fn신재생에너지",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "367770",
-        "name": "RISE 수소경제테마",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "211900",
-        "name": "KODEX 코리아배당성장",
+        "code": "332940",
+        "name": "HANARO MSCI Korea TR",
         "market": "ETF",
         "country": "KR"
       },
@@ -17219,14 +17201,32 @@
         "country": "KR"
       },
       {
+        "code": "211900",
+        "name": "KODEX 코리아배당성장",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "496090",
+        "name": "KIWOOM 코리아밸류업",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
         "code": "449770",
         "name": "KIWOOM 미국S&P500",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "475280",
-        "name": "ACE 8월만기자동연장회사채AA-이상액티브",
+        "code": "326240",
+        "name": "RISE IT플러스",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "367770",
+        "name": "RISE 수소경제테마",
         "market": "ETF",
         "country": "KR"
       },
@@ -17239,12 +17239,6 @@
       {
         "code": "298340",
         "name": "PLUS 국채선물3년",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "266370",
-        "name": "KODEX IT",
         "market": "ETF",
         "country": "KR"
       },
@@ -17267,8 +17261,26 @@
         "country": "KR"
       },
       {
+        "code": "266370",
+        "name": "KODEX IT",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
         "code": "292770",
         "name": "KODEX 국채선물3년인버스",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "157490",
+        "name": "TIGER 소프트웨어",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "458750",
+        "name": "TIGER 미국배당다우존스타겟커버드콜1호",
         "market": "ETF",
         "country": "KR"
       },
@@ -17281,36 +17293,6 @@
       {
         "code": "364960",
         "name": "TIGER BBIG",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "479620",
-        "name": "SOL 미국AI반도체칩메이커",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "458750",
-        "name": "TIGER 미국배당다우존스타겟커버드콜1호",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "108450",
-        "name": "ACE 삼성그룹섹터가중",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "157490",
-        "name": "TIGER 소프트웨어",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "495040",
-        "name": "PLUS 코리아밸류업",
         "market": "ETF",
         "country": "KR"
       },
@@ -17333,26 +17315,20 @@
         "country": "KR"
       },
       {
-        "code": "486240",
-        "name": "DAISHIN AI반도체&인프라액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "359210",
-        "name": "KODEX 코스피TR",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "278620",
         "name": "PLUS 단기채권액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "298770",
-        "name": "KODEX 한국대만IT프리미어",
+        "code": "108450",
+        "name": "ACE 삼성그룹섹터가중",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "455960",
+        "name": "RISE 미국달러SOFR금리액티브(합성)",
         "market": "ETF",
         "country": "KR"
       },
@@ -17363,8 +17339,14 @@
         "country": "KR"
       },
       {
-        "code": "485690",
-        "name": "RISE 미국AI밸류체인TOP3Plus",
+        "code": "479620",
+        "name": "SOL 미국AI반도체칩메이커",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "495040",
+        "name": "PLUS 코리아밸류업",
         "market": "ETF",
         "country": "KR"
       },
@@ -17381,44 +17363,26 @@
         "country": "KR"
       },
       {
-        "code": "261270",
-        "name": "KODEX 미국달러선물인버스",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "455960",
-        "name": "RISE 미국달러SOFR금리액티브(합성)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "138530",
-        "name": "TIGER LG그룹플러스",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "211560",
-        "name": "TIGER 배당성장",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "228800",
-        "name": "TIGER 여행레저",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "419890",
         "name": "KIWOOM 단기채권ESG액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "473640",
-        "name": "HANARO 글로벌금채굴기업",
+        "code": "261270",
+        "name": "KODEX 미국달러선물인버스",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "359210",
+        "name": "KODEX 코스피TR",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "298770",
+        "name": "KODEX 한국대만IT프리미어",
         "market": "ETF",
         "country": "KR"
       },
@@ -17429,14 +17393,14 @@
         "country": "KR"
       },
       {
-        "code": "495750",
-        "name": "HANARO 코리아밸류업",
+        "code": "138530",
+        "name": "TIGER LG그룹플러스",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "454320",
-        "name": "HANARO CAPEX설비투자iSelect",
+        "code": "485690",
+        "name": "RISE 미국AI밸류체인TOP3Plus",
         "market": "ETF",
         "country": "KR"
       },
@@ -17447,20 +17411,26 @@
         "country": "KR"
       },
       {
-        "code": "465330",
-        "name": "RISE 2차전지TOP10",
+        "code": "228800",
+        "name": "TIGER 여행레저",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "469060",
-        "name": "RISE 미국반도체NYSE",
+        "code": "486240",
+        "name": "DAISHIN AI반도체&인프라액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
         "code": "295020",
         "name": "RISE 국채선물10년인버스",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "211560",
+        "name": "TIGER 배당성장",
         "market": "ETF",
         "country": "KR"
       },
@@ -17477,20 +17447,26 @@
         "country": "KR"
       },
       {
-        "code": "365040",
-        "name": "TIGER AI코리아그로스액티브",
+        "code": "473640",
+        "name": "HANARO 글로벌금채굴기업",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "412770",
-        "name": "TIGER 글로벌AI플랫폼액티브",
+        "code": "465330",
+        "name": "RISE 2차전지TOP10",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "442560",
-        "name": "RISE TDF2040액티브 적격",
+        "code": "495750",
+        "name": "HANARO 코리아밸류업",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "454320",
+        "name": "HANARO CAPEX설비투자iSelect",
         "market": "ETF",
         "country": "KR"
       },
@@ -17501,44 +17477,14 @@
         "country": "KR"
       },
       {
-        "code": "337140",
-        "name": "KODEX 코스피대형주",
+        "code": "469060",
+        "name": "RISE 미국반도체NYSE",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "275980",
-        "name": "TIGER 글로벌4차산업혁신기술(합성 H)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "292190",
-        "name": "KODEX KRX300",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "225040",
-        "name": "TIGER 미국S&P500레버리지(합성 H)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "441540",
-        "name": "HANARO Fn조선해운",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "481430",
-        "name": "RISE 국고채10년액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "114470",
-        "name": "KIWOOM 국고채3년",
+        "code": "412770",
+        "name": "TIGER 글로벌AI플랫폼액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -17549,20 +17495,56 @@
         "country": "KR"
       },
       {
-        "code": "453950",
-        "name": "TIGER TSMC파운드리밸류체인",
+        "code": "365040",
+        "name": "TIGER AI코리아그로스액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "292560",
-        "name": "TIGER 일본엔선물",
+        "code": "442560",
+        "name": "RISE TDF2040액티브 적격",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "277640",
-        "name": "TIGER 코스피대형주",
+        "code": "481430",
+        "name": "RISE 국고채10년액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "275980",
+        "name": "TIGER 글로벌4차산업혁신기술(합성 H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "337140",
+        "name": "KODEX 코스피대형주",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "441540",
+        "name": "HANARO Fn조선해운",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "292190",
+        "name": "KODEX KRX300",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "114470",
+        "name": "KIWOOM 국고채3년",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "225040",
+        "name": "TIGER 미국S&P500레버리지(합성 H)",
         "market": "ETF",
         "country": "KR"
       },
@@ -17573,8 +17555,8 @@
         "country": "KR"
       },
       {
-        "code": "150460",
-        "name": "TIGER 중국소비테마",
+        "code": "292560",
+        "name": "TIGER 일본엔선물",
         "market": "ETF",
         "country": "KR"
       },
@@ -17585,14 +17567,38 @@
         "country": "KR"
       },
       {
-        "code": "101280",
-        "name": "KODEX 일본TOPIX100",
+        "code": "453950",
+        "name": "TIGER TSMC파운드리밸류체인",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "150460",
+        "name": "TIGER 중국소비테마",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "140700",
+        "name": "KODEX 보험",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "336160",
+        "name": "RISE 금융채액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
         "code": "352560",
         "name": "KODEX 미국부동산리츠(H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "277640",
+        "name": "TIGER 코스피대형주",
         "market": "ETF",
         "country": "KR"
       },
@@ -17609,32 +17615,32 @@
         "country": "KR"
       },
       {
-        "code": "336160",
-        "name": "RISE 금융채액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "495940",
-        "name": "RISE 미국AI테크액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "360140",
         "name": "KODEX 200롱코스닥150숏선물",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "140700",
-        "name": "KODEX 보험",
+        "code": "101280",
+        "name": "KODEX 일본TOPIX100",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "261220",
+        "name": "KODEX WTI원유선물(H)",
         "market": "ETF",
         "country": "KR"
       },
       {
         "code": "490480",
         "name": "SOL K방산",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "252710",
+        "name": "TIGER 200선물인버스2X",
         "market": "ETF",
         "country": "KR"
       },
@@ -17651,44 +17657,8 @@
         "country": "KR"
       },
       {
-        "code": "491220",
-        "name": "PLUS 200TR",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "261070",
         "name": "TIGER 코스닥150바이오테크",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "447430",
-        "name": "ACE 주주환원가치주액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "476260",
-        "name": "HANARO 반도체핵심공정주도주",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "200030",
-        "name": "KODEX 미국S&P500산업재(합성)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "261220",
-        "name": "KODEX WTI원유선물(H)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "287180",
-        "name": "PLUS 미국나스닥테크",
         "market": "ETF",
         "country": "KR"
       },
@@ -17699,8 +17669,20 @@
         "country": "KR"
       },
       {
-        "code": "385590",
-        "name": "ACE ESG액티브",
+        "code": "447430",
+        "name": "ACE 주주환원가치주액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "495940",
+        "name": "RISE 미국AI테크액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "200030",
+        "name": "KODEX 미국S&P500산업재(합성)",
         "market": "ETF",
         "country": "KR"
       },
@@ -17711,8 +17693,8 @@
         "country": "KR"
       },
       {
-        "code": "434960",
-        "name": "DAISHIN K200",
+        "code": "491220",
+        "name": "PLUS 200TR",
         "market": "ETF",
         "country": "KR"
       },
@@ -17723,14 +17705,8 @@
         "country": "KR"
       },
       {
-        "code": "196030",
-        "name": "ACE 일본TOPIX레버리지(H)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "252710",
-        "name": "TIGER 200선물인버스2X",
+        "code": "287180",
+        "name": "PLUS 미국나스닥테크",
         "market": "ETF",
         "country": "KR"
       },
@@ -17747,20 +17723,14 @@
         "country": "KR"
       },
       {
-        "code": "238720",
-        "name": "ACE 일본Nikkei225(H)",
+        "code": "385590",
+        "name": "ACE ESG액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "473490",
-        "name": "KIWOOM 글로벌AI반도체",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "276990",
-        "name": "KODEX 글로벌로봇(합성)",
+        "code": "434960",
+        "name": "DAISHIN K200",
         "market": "ETF",
         "country": "KR"
       },
@@ -17771,14 +17741,20 @@
         "country": "KR"
       },
       {
-        "code": "275300",
-        "name": "KODEX 우량주",
+        "code": "305050",
+        "name": "ACE 코스피",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "445150",
-        "name": "KODEX 친환경조선해운액티브",
+        "code": "276990",
+        "name": "KODEX 글로벌로봇(합성)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "276970",
+        "name": "KODEX 미국S&P500배당귀족커버드콜(합성 H)",
         "market": "ETF",
         "country": "KR"
       },
@@ -17789,8 +17765,32 @@
         "country": "KR"
       },
       {
-        "code": "276970",
-        "name": "KODEX 미국S&P500배당귀족커버드콜(합성 H)",
+        "code": "445150",
+        "name": "KODEX 친환경조선해운액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "238720",
+        "name": "ACE 일본Nikkei225(H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "275300",
+        "name": "KODEX 우량주",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "473490",
+        "name": "KIWOOM 글로벌AI반도체",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "196030",
+        "name": "ACE 일본TOPIX레버리지(H)",
         "market": "ETF",
         "country": "KR"
       },
@@ -17807,50 +17807,14 @@
         "country": "KR"
       },
       {
+        "code": "465350",
+        "name": "RISE 2차전지TOP10인버스(합성)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
         "code": "322410",
         "name": "HANARO K고배당",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "465660",
-        "name": "TIGER 일본반도체FACTSET",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "139320",
-        "name": "TIGER 금은선물(H)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "140950",
-        "name": "파워 코스피100",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "183700",
-        "name": "RISE 200채권혼합50",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "452250",
-        "name": "ACE 미국30년국채선물레버리지(합성 H)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "195930",
-        "name": "TIGER 유로스탁스50(합성 H)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "305050",
-        "name": "ACE 코스피",
         "market": "ETF",
         "country": "KR"
       },
@@ -17861,8 +17825,32 @@
         "country": "KR"
       },
       {
-        "code": "442260",
-        "name": "마이티 다이나믹퀀트액티브",
+        "code": "195930",
+        "name": "TIGER 유로스탁스50(합성 H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "139320",
+        "name": "TIGER 금은선물(H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "183700",
+        "name": "RISE 200채권혼합50",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "316670",
+        "name": "KIWOOM 코스닥150",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "266360",
+        "name": "KODEX K콘텐츠",
         "market": "ETF",
         "country": "KR"
       },
@@ -17873,8 +17861,20 @@
         "country": "KR"
       },
       {
-        "code": "316670",
-        "name": "KIWOOM 코스닥150",
+        "code": "465660",
+        "name": "TIGER 일본반도체FACTSET",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "140950",
+        "name": "파워 코스피100",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "442260",
+        "name": "마이티 다이나믹퀀트액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -17891,74 +17891,8 @@
         "country": "KR"
       },
       {
-        "code": "217770",
-        "name": "TIGER 원유선물인버스(H)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "465350",
-        "name": "RISE 2차전지TOP10인버스(합성)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "306950",
-        "name": "KODEX KRX300레버리지",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "266360",
-        "name": "KODEX K콘텐츠",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "375770",
-        "name": "KODEX 탄소효율그린뉴딜",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "252400",
-        "name": "RISE 200선물레버리지",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "256750",
         "name": "KODEX 차이나심천ChiNext(합성)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "494410",
-        "name": "PLUS 미국S&P500성장주",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "278240",
-        "name": "RISE 코스닥150선물레버리지",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "104530",
-        "name": "KIWOOM 코리아고배당",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "474800",
-        "name": "KIWOOM 미국원유에너지기업",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "449780",
-        "name": "KIWOOM 미국S&P500(H)",
         "market": "ETF",
         "country": "KR"
       },
@@ -17969,8 +17903,14 @@
         "country": "KR"
       },
       {
-        "code": "476690",
-        "name": "TIGER 글로벌비만치료제TOP2Plus",
+        "code": "375770",
+        "name": "KODEX 탄소효율그린뉴딜",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "474800",
+        "name": "KIWOOM 미국원유에너지기업",
         "market": "ETF",
         "country": "KR"
       },
@@ -17981,14 +17921,116 @@
         "country": "KR"
       },
       {
-        "code": "241390",
-        "name": "RISE V&S셀렉트밸류채권혼합",
+        "code": "104530",
+        "name": "KIWOOM 코리아고배당",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "217770",
+        "name": "TIGER 원유선물인버스(H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "494410",
+        "name": "PLUS 미국S&P500성장주",
         "market": "ETF",
         "country": "KR"
       },
       {
         "code": "122260",
         "name": "KIWOOM 통안채1년",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "449780",
+        "name": "KIWOOM 미국S&P500(H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "476690",
+        "name": "TIGER 글로벌비만치료제TOP2Plus",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "241390",
+        "name": "RISE V&S셀렉트밸류채권혼합",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "476260",
+        "name": "HANARO 반도체핵심공정주도주",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "099140",
+        "name": "KODEX 차이나H",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "468630",
+        "name": "KODEX iShares미국투자등급회사채액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "278240",
+        "name": "RISE 코스닥150선물레버리지",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "426150",
+        "name": "WON 대한민국국고채액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "365000",
+        "name": "TIGER 인터넷TOP10",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "227540",
+        "name": "TIGER 200 헬스케어",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "481340",
+        "name": "RISE 미국30년국채액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "306950",
+        "name": "KODEX KRX300레버리지",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "252400",
+        "name": "RISE 200선물레버리지",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "448570",
+        "name": "FOCUS AI코리아액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "395290",
+        "name": "HANARO Fn K-POP&미디어",
         "market": "ETF",
         "country": "KR"
       },
@@ -18005,68 +18047,8 @@
         "country": "KR"
       },
       {
-        "code": "448570",
-        "name": "FOCUS AI코리아액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "304780",
-        "name": "HANARO 200선물레버리지",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "099140",
-        "name": "KODEX 차이나H",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "472840",
-        "name": "IBK 200",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "468630",
-        "name": "KODEX iShares미국투자등급회사채액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "227540",
-        "name": "TIGER 200 헬스케어",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "407830",
         "name": "에셋플러스 글로벌플랫폼액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "426150",
-        "name": "WON 대한민국국고채액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "481340",
-        "name": "RISE 미국30년국채액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "365000",
-        "name": "TIGER 인터넷TOP10",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "395290",
-        "name": "HANARO Fn K-POP&미디어",
         "market": "ETF",
         "country": "KR"
       },
@@ -18077,8 +18059,14 @@
         "country": "KR"
       },
       {
-        "code": "491700",
-        "name": "HK 200",
+        "code": "452250",
+        "name": "ACE 미국30년국채선물레버리지(합성 H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "472840",
+        "name": "IBK 200",
         "market": "ETF",
         "country": "KR"
       },
@@ -18089,26 +18077,8 @@
         "country": "KR"
       },
       {
-        "code": "275280",
-        "name": "KODEX 모멘텀주",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "428510",
-        "name": "KODEX 차이나AI테크액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "253150",
-        "name": "PLUS 200선물레버리지",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "459750",
-        "name": "RISE 글로벌주식분산액티브",
+        "code": "261250",
+        "name": "KODEX 미국달러선물레버리지",
         "market": "ETF",
         "country": "KR"
       },
@@ -18119,32 +18089,8 @@
         "country": "KR"
       },
       {
-        "code": "138910",
-        "name": "KODEX 구리선물(H)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "476070",
-        "name": "KODEX 글로벌비만치료제TOP2 Plus",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "469050",
-        "name": "RISE 미국반도체NYSE(H)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "498860",
-        "name": "RISE 코리아금융고배당",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "450910",
-        "name": "SOL 코스닥150",
+        "code": "174360",
+        "name": "RISE 중국본토대형주CSI100",
         "market": "ETF",
         "country": "KR"
       },
@@ -18155,38 +18101,44 @@
         "country": "KR"
       },
       {
-        "code": "487130",
-        "name": "KoAct AI인프라액티브",
+        "code": "138910",
+        "name": "KODEX 구리선물(H)",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "261250",
-        "name": "KODEX 미국달러선물레버리지",
+        "code": "428510",
+        "name": "KODEX 차이나AI테크액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "174360",
-        "name": "RISE 중국본토대형주CSI100",
+        "code": "491700",
+        "name": "HK 200",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "496770",
-        "name": "PLUS 글로벌방산",
+        "code": "459750",
+        "name": "RISE 글로벌주식분산액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "152500",
-        "name": "ACE 레버리지",
+        "code": "476070",
+        "name": "KODEX 글로벌비만치료제TOP2 Plus",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "449690",
-        "name": "TIGER 한중반도체(합성)",
+        "code": "304780",
+        "name": "HANARO 200선물레버리지",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "450910",
+        "name": "SOL 코스닥150",
         "market": "ETF",
         "country": "KR"
       },
@@ -18197,20 +18149,26 @@
         "country": "KR"
       },
       {
-        "code": "117460",
-        "name": "KODEX 에너지화학",
+        "code": "498860",
+        "name": "RISE 코리아금융고배당",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "475070",
-        "name": "KoAct 글로벌친환경전력인프라액티브",
+        "code": "496770",
+        "name": "PLUS 글로벌방산",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "489290",
-        "name": "WON 미국빌리어네어",
+        "code": "275280",
+        "name": "KODEX 모멘텀주",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "469050",
+        "name": "RISE 미국반도체NYSE(H)",
         "market": "ETF",
         "country": "KR"
       },
@@ -18221,14 +18179,14 @@
         "country": "KR"
       },
       {
-        "code": "385520",
-        "name": "KODEX 자율주행액티브",
+        "code": "117460",
+        "name": "KODEX 에너지화학",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "139270",
-        "name": "TIGER 200 금융",
+        "code": "489290",
+        "name": "WON 미국빌리어네어",
         "market": "ETF",
         "country": "KR"
       },
@@ -18239,8 +18197,14 @@
         "country": "KR"
       },
       {
-        "code": "105780",
-        "name": "RISE 5대그룹주",
+        "code": "475070",
+        "name": "KoAct 글로벌친환경전력인프라액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "487130",
+        "name": "KoAct AI인프라액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -18251,20 +18215,14 @@
         "country": "KR"
       },
       {
-        "code": "459790",
-        "name": "KIWOOM 미국성장기업30액티브",
+        "code": "385520",
+        "name": "KODEX 자율주행액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "289480",
-        "name": "TIGER 200커버드콜",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "223190",
-        "name": "KODEX 200가치저변동",
+        "code": "449690",
+        "name": "TIGER 한중반도체(합성)",
         "market": "ETF",
         "country": "KR"
       },
@@ -18275,26 +18233,8 @@
         "country": "KR"
       },
       {
-        "code": "380340",
-        "name": "ACE 코리아AI테크핵심산업",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "245350",
         "name": "TIGER 유로스탁스배당30",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "395170",
-        "name": "KODEX Top10동일가중",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "464920",
-        "name": "PLUS 일본반도체소부장",
         "market": "ETF",
         "country": "KR"
       },
@@ -18305,14 +18245,68 @@
         "country": "KR"
       },
       {
+        "code": "253150",
+        "name": "PLUS 200선물레버리지",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
         "code": "475270",
         "name": "ACE 5월만기자동연장회사채AA-이상액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "387270",
-        "name": "TIGER 글로벌이노베이션액티브",
+        "code": "139270",
+        "name": "TIGER 200 금융",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "380340",
+        "name": "ACE 코리아AI테크핵심산업",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "152500",
+        "name": "ACE 레버리지",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "223190",
+        "name": "KODEX 200가치저변동",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "459790",
+        "name": "KIWOOM 미국성장기업30액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "105780",
+        "name": "RISE 5대그룹주",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "464920",
+        "name": "PLUS 일본반도체소부장",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "289480",
+        "name": "TIGER 200커버드콜",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "395170",
+        "name": "KODEX Top10동일가중",
         "market": "ETF",
         "country": "KR"
       },
@@ -18323,26 +18317,8 @@
         "country": "KR"
       },
       {
-        "code": "275290",
-        "name": "KODEX 가치주",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "491090",
         "name": "KODEX 미국테크TOP3플러스",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "261140",
-        "name": "TIGER 우선주",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "156080",
-        "name": "KODEX MSCI Korea",
         "market": "ETF",
         "country": "KR"
       },
@@ -18353,56 +18329,8 @@
         "country": "KR"
       },
       {
-        "code": "185680",
-        "name": "KODEX 미국S&P바이오(합성)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "414270",
-        "name": "ACE 글로벌자율주행액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "195970",
-        "name": "PLUS 선진국MSCI(합성 H)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "153270",
-        "name": "KIWOOM 코스피100",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "415920",
-        "name": "PLUS 글로벌희토류&전략자원생산기업",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "469790",
-        "name": "KIWOOM 코리아테크TOP10",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "471460",
-        "name": "KIWOOM 국고채30년액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "442550",
-        "name": "RISE TDF2030액티브 적격",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "368190",
-        "name": "HANARO Fn K-뉴딜디지털플러스",
+        "code": "275290",
+        "name": "KODEX 가치주",
         "market": "ETF",
         "country": "KR"
       },
@@ -18413,8 +18341,62 @@
         "country": "KR"
       },
       {
+        "code": "185680",
+        "name": "KODEX 미국S&P바이오(합성)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "415920",
+        "name": "PLUS 글로벌희토류&전략자원생산기업",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "471460",
+        "name": "KIWOOM 국고채30년액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "195970",
+        "name": "PLUS 선진국MSCI(합성 H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "414270",
+        "name": "ACE 글로벌자율주행액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "261140",
+        "name": "TIGER 우선주",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "442550",
+        "name": "RISE TDF2030액티브 적격",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
         "code": "269420",
         "name": "KODEX S&P글로벌인프라(합성)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "156080",
+        "name": "KODEX MSCI Korea",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "387270",
+        "name": "TIGER 글로벌이노베이션액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -18425,62 +18407,8 @@
         "country": "KR"
       },
       {
-        "code": "261120",
-        "name": "TIGER 미국달러선물인버스2X",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "415340",
-        "name": "KODEX 차이나과창판STAR50(합성)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "147970",
-        "name": "TIGER 모멘텀",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "117680",
-        "name": "KODEX 철강",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "461600",
-        "name": "SOL 미국30년국채액티브(H)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "300950",
-        "name": "KODEX 게임산업",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "450190",
-        "name": "KODEX 한중반도체(합성)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "239660",
-        "name": "PLUS 우량회사채50",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "277540",
-        "name": "ACE 아시아TOP50",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "271060",
-        "name": "KODEX 3대농산물선물(H)",
+        "code": "368190",
+        "name": "HANARO Fn K-뉴딜디지털플러스",
         "market": "ETF",
         "country": "KR"
       },
@@ -18491,14 +18419,50 @@
         "country": "KR"
       },
       {
-        "code": "280930",
-        "name": "KODEX 미국러셀2000(H)",
+        "code": "300950",
+        "name": "KODEX 게임산업",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "282000",
-        "name": "RISE 국고채3년선물인버스",
+        "code": "415340",
+        "name": "KODEX 차이나과창판STAR50(합성)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "469790",
+        "name": "KIWOOM 코리아테크TOP10",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "461600",
+        "name": "SOL 미국30년국채액티브(H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "239660",
+        "name": "PLUS 우량회사채50",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "261120",
+        "name": "TIGER 미국달러선물인버스2X",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "153270",
+        "name": "KIWOOM 코스피100",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "271060",
+        "name": "KODEX 3대농산물선물(H)",
         "market": "ETF",
         "country": "KR"
       },
@@ -18509,14 +18473,32 @@
         "country": "KR"
       },
       {
+        "code": "117680",
+        "name": "KODEX 철강",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "282000",
+        "name": "RISE 국고채3년선물인버스",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
         "code": "388280",
         "name": "RISE K엔터&여행레저",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "494340",
-        "name": "ACE 글로벌AI맞춤형반도체",
+        "code": "277540",
+        "name": "ACE 아시아TOP50",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "450190",
+        "name": "KODEX 한중반도체(합성)",
         "market": "ETF",
         "country": "KR"
       },
@@ -18533,14 +18515,8 @@
         "country": "KR"
       },
       {
-        "code": "419430",
-        "name": "KODEX 차이나2차전지MSCI(합성)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "225130",
-        "name": "ACE 골드선물 레버리지(합성 H)",
+        "code": "280930",
+        "name": "KODEX 미국러셀2000(H)",
         "market": "ETF",
         "country": "KR"
       },
@@ -18551,14 +18527,14 @@
         "country": "KR"
       },
       {
-        "code": "446690",
-        "name": "KODEX 아시아AI반도체exChina액티브",
+        "code": "494340",
+        "name": "ACE 글로벌AI맞춤형반도체",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "300640",
-        "name": "RISE 게임테마",
+        "code": "419430",
+        "name": "KODEX 차이나2차전지MSCI(합성)",
         "market": "ETF",
         "country": "KR"
       },
@@ -18569,14 +18545,14 @@
         "country": "KR"
       },
       {
-        "code": "465670",
-        "name": "TIGER 미국캐시카우100",
+        "code": "300640",
+        "name": "RISE 게임테마",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "496120",
-        "name": "ACE 코리아밸류업",
+        "code": "147970",
+        "name": "TIGER 모멘텀",
         "market": "ETF",
         "country": "KR"
       },
@@ -18587,14 +18563,26 @@
         "country": "KR"
       },
       {
+        "code": "225130",
+        "name": "ACE 골드선물 레버리지(합성 H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
         "code": "437070",
         "name": "KODEX 아시아달러채권ESG플러스액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "379790",
-        "name": "RISE 유로스탁스50(H)",
+        "code": "465670",
+        "name": "TIGER 미국캐시카우100",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "446690",
+        "name": "KODEX 아시아AI반도체exChina액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -18605,26 +18593,8 @@
         "country": "KR"
       },
       {
-        "code": "367740",
-        "name": "HANARO Fn5G산업",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "371450",
-        "name": "TIGER 글로벌클라우드컴퓨팅INDXX",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "292500",
-        "name": "SOL KRX300",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "261060",
-        "name": "TIGER 코스닥150IT",
+        "code": "379790",
+        "name": "RISE 유로스탁스50(H)",
         "market": "ETF",
         "country": "KR"
       },
@@ -18635,8 +18605,8 @@
         "country": "KR"
       },
       {
-        "code": "139250",
-        "name": "TIGER 200 에너지화학",
+        "code": "496120",
+        "name": "ACE 코리아밸류업",
         "market": "ETF",
         "country": "KR"
       },
@@ -18647,14 +18617,14 @@
         "country": "KR"
       },
       {
-        "code": "159800",
-        "name": "마이티 코스피100",
+        "code": "463300",
+        "name": "RISE 중국본토CSI300",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "292160",
-        "name": "TIGER KRX300",
+        "code": "367740",
+        "name": "HANARO Fn5G산업",
         "market": "ETF",
         "country": "KR"
       },
@@ -18665,20 +18635,8 @@
         "country": "KR"
       },
       {
-        "code": "438320",
-        "name": "TIGER 차이나항셍테크레버리지(합성 H)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "463300",
-        "name": "RISE 중국본토CSI300",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "433220",
-        "name": "에셋플러스 글로벌대장장이액티브",
+        "code": "276000",
+        "name": "TIGER 글로벌자원생산기업(합성 H)",
         "market": "ETF",
         "country": "KR"
       },
@@ -18689,14 +18647,32 @@
         "country": "KR"
       },
       {
-        "code": "276000",
-        "name": "TIGER 글로벌자원생산기업(합성 H)",
+        "code": "292500",
+        "name": "SOL KRX300",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "461900",
-        "name": "PLUS 미국테크TOP10",
+        "code": "438320",
+        "name": "TIGER 차이나항셍테크레버리지(합성 H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "371450",
+        "name": "TIGER 글로벌클라우드컴퓨팅INDXX",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "433220",
+        "name": "에셋플러스 글로벌대장장이액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "139250",
+        "name": "TIGER 200 에너지화학",
         "market": "ETF",
         "country": "KR"
       },
@@ -18707,8 +18683,20 @@
         "country": "KR"
       },
       {
-        "code": "364690",
-        "name": "KODEX 혁신기술테마액티브",
+        "code": "292160",
+        "name": "TIGER KRX300",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "159800",
+        "name": "마이티 코스피100",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "461900",
+        "name": "PLUS 미국테크TOP10",
         "market": "ETF",
         "country": "KR"
       },
@@ -18725,14 +18713,44 @@
         "country": "KR"
       },
       {
-        "code": "375760",
-        "name": "HANARO 탄소효율그린뉴딜",
+        "code": "261060",
+        "name": "TIGER 코스닥150IT",
         "market": "ETF",
         "country": "KR"
       },
       {
         "code": "468370",
         "name": "KODEX iShares미국인플레이션국채액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "236350",
+        "name": "TIGER 인도니프티50레버리지(합성)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "364690",
+        "name": "KODEX 혁신기술테마액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "250730",
+        "name": "RISE 차이나HSCEI(H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "445910",
+        "name": "TIGER MKF배당귀족",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "409810",
+        "name": "KODEX 미국나스닥100선물인버스(H)",
         "market": "ETF",
         "country": "KR"
       },
@@ -18749,14 +18767,8 @@
         "country": "KR"
       },
       {
-        "code": "195920",
-        "name": "TIGER 일본TOPIX(합성 H)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "445910",
-        "name": "TIGER MKF배당귀족",
+        "code": "484890",
+        "name": "SOL 머니마켓액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -18767,8 +18779,44 @@
         "country": "KR"
       },
       {
+        "code": "375760",
+        "name": "HANARO 탄소효율그린뉴딜",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "487950",
+        "name": "KODEX 대만테크고배당다우존스",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "332620",
+        "name": "PLUS 미국장기우량회사채",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "195920",
+        "name": "TIGER 일본TOPIX(합성 H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
         "code": "108590",
         "name": "TREX 200",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "091220",
+        "name": "TIGER 은행",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "265690",
+        "name": "ACE 러시아MSCI(합성)",
         "market": "ETF",
         "country": "KR"
       },
@@ -18779,26 +18827,8 @@
         "country": "KR"
       },
       {
-        "code": "250730",
-        "name": "RISE 차이나HSCEI(H)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "253250",
-        "name": "KIWOOM 200선물레버리지",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "236350",
-        "name": "TIGER 인도니프티50레버리지(합성)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "487950",
-        "name": "KODEX 대만테크고배당다우존스",
+        "code": "453630",
+        "name": "KODEX 미국S&P500필수소비재",
         "market": "ETF",
         "country": "KR"
       },
@@ -18815,26 +18845,14 @@
         "country": "KR"
       },
       {
+        "code": "474920",
+        "name": "에셋플러스 차이나일등기업포커스10액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
         "code": "337120",
         "name": "KODEX 멀티팩터",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "484890",
-        "name": "SOL 머니마켓액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "091220",
-        "name": "TIGER 은행",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "404120",
-        "name": "TIME K신재생에너지액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -18845,26 +18863,44 @@
         "country": "KR"
       },
       {
+        "code": "404120",
+        "name": "TIME K신재생에너지액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
         "code": "464600",
         "name": "SOL 자동차소부장Fn",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "409810",
-        "name": "KODEX 미국나스닥100선물인버스(H)",
+        "code": "114460",
+        "name": "ACE 국고채3년",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "332620",
-        "name": "PLUS 미국장기우량회사채",
+        "code": "416090",
+        "name": "ACE 중국과창판STAR50",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "289040",
-        "name": "KODEX MSCI KOREA ESG유니버설",
+        "code": "453820",
+        "name": "KODEX 인도Nifty50레버리지(합성)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "219390",
+        "name": "RISE 미국S&P원유생산기업(합성 H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "483330",
+        "name": "ACE 마이크로소프트밸류체인액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -18881,38 +18917,8 @@
         "country": "KR"
       },
       {
-        "code": "265690",
-        "name": "ACE 러시아MSCI(합성)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "453630",
-        "name": "KODEX 미국S&P500필수소비재",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "461450",
-        "name": "KODEX 코스닥글로벌",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "416090",
-        "name": "ACE 중국과창판STAR50",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "228820",
-        "name": "TIGER KTOP30",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "474920",
-        "name": "에셋플러스 차이나일등기업포커스10액티브",
+        "code": "404260",
+        "name": "KODEX 기후변화솔루션",
         "market": "ETF",
         "country": "KR"
       },
@@ -18923,32 +18929,32 @@
         "country": "KR"
       },
       {
-        "code": "304770",
-        "name": "HANARO 코스닥150",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "404260",
-        "name": "KODEX 기후변화솔루션",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "219390",
-        "name": "RISE 미국S&P원유생산기업(합성 H)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "376410",
-        "name": "TIGER 탄소효율그린뉴딜",
+        "code": "289040",
+        "name": "KODEX MSCI KOREA ESG유니버설",
         "market": "ETF",
         "country": "KR"
       },
       {
         "code": "432840",
         "name": "HANARO 미국S&P500",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "461450",
+        "name": "KODEX 코스닥글로벌",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "228820",
+        "name": "TIGER KTOP30",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "453010",
+        "name": "PLUS KOFR금리",
         "market": "ETF",
         "country": "KR"
       },
@@ -18965,80 +18971,8 @@
         "country": "KR"
       },
       {
-        "code": "114460",
-        "name": "ACE 국고채3년",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "385600",
-        "name": "ACE 2차전지&친환경차액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "407310",
-        "name": "HANARO 200 TOP10",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "483330",
-        "name": "ACE 마이크로소프트밸류체인액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "174350",
-        "name": "TIGER 로우볼",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "485810",
-        "name": "TIME 글로벌바이오액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "304760",
-        "name": "HANARO KRX300",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "453010",
-        "name": "PLUS KOFR금리",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "229720",
-        "name": "KODEX KTOP30",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "453820",
-        "name": "KODEX 인도Nifty50레버리지(합성)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "438900",
-        "name": "HANARO Fn K-푸드",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "381560",
-        "name": "HANARO Fn전기&수소차",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "227830",
-        "name": "PLUS 코스피",
+        "code": "253250",
+        "name": "KIWOOM 200선물레버리지",
         "market": "ETF",
         "country": "KR"
       },
@@ -19049,20 +18983,56 @@
         "country": "KR"
       },
       {
-        "code": "225060",
-        "name": "TIGER 이머징마켓MSCI레버리지(합성 H)",
+        "code": "174350",
+        "name": "TIGER 로우볼",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "289260",
-        "name": "TIGER MSCI KOREA ESG리더스",
+        "code": "376410",
+        "name": "TIGER 탄소효율그린뉴딜",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "491510",
-        "name": "파워 K-주주가치액티브",
+        "code": "385600",
+        "name": "ACE 2차전지&친환경차액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "485810",
+        "name": "TIME 글로벌바이오액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "304770",
+        "name": "HANARO 코스닥150",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "407310",
+        "name": "HANARO 200 TOP10",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "438900",
+        "name": "HANARO Fn K-푸드",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "229720",
+        "name": "KODEX KTOP30",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "304760",
+        "name": "HANARO KRX300",
         "market": "ETF",
         "country": "KR"
       },
@@ -19073,20 +19043,14 @@
         "country": "KR"
       },
       {
-        "code": "292050",
-        "name": "RISE KRX300",
+        "code": "381560",
+        "name": "HANARO Fn전기&수소차",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "428560",
-        "name": "KODEX 미국ETF산업Top10 Indxx",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "419650",
-        "name": "PLUS 글로벌수소&차세대연료전지",
+        "code": "491510",
+        "name": "파워 K-주주가치액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -19097,8 +19061,14 @@
         "country": "KR"
       },
       {
-        "code": "391670",
-        "name": "HK 베스트일레븐액티브",
+        "code": "227830",
+        "name": "PLUS 코스피",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "428560",
+        "name": "KODEX 미국ETF산업Top10 Indxx",
         "market": "ETF",
         "country": "KR"
       },
@@ -19109,8 +19079,26 @@
         "country": "KR"
       },
       {
+        "code": "225060",
+        "name": "TIGER 이머징마켓MSCI레버리지(합성 H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
         "code": "363510",
         "name": "SOL KIS단기통안채",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "419650",
+        "name": "PLUS 글로벌수소&차세대연료전지",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "292050",
+        "name": "RISE KRX300",
         "market": "ETF",
         "country": "KR"
       },
@@ -19133,8 +19121,14 @@
         "country": "KR"
       },
       {
-        "code": "337150",
-        "name": "KODEX 200exTOP",
+        "code": "453060",
+        "name": "HANARO KOFR금리액티브(합성)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "289260",
+        "name": "TIGER MSCI KOREA ESG리더스",
         "market": "ETF",
         "country": "KR"
       },
@@ -19145,8 +19139,8 @@
         "country": "KR"
       },
       {
-        "code": "453060",
-        "name": "HANARO KOFR금리액티브(합성)",
+        "code": "391670",
+        "name": "HK 베스트일레븐액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -19163,32 +19157,8 @@
         "country": "KR"
       },
       {
-        "code": "387280",
-        "name": "TIGER 퓨처모빌리티액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "435550",
-        "name": "KIWOOM TDF2050액티브 적격",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "413930",
-        "name": "WON AI ESG액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "251590",
-        "name": "PLUS 고배당저변동50",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "489860",
-        "name": "KIWOOM 글로벌전력GRID인프라",
+        "code": "337150",
+        "name": "KODEX 200exTOP",
         "market": "ETF",
         "country": "KR"
       },
@@ -19199,26 +19169,8 @@
         "country": "KR"
       },
       {
-        "code": "430500",
-        "name": "KIWOOM 물가채KIS",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "234310",
-        "name": "RISE V&S셀렉트밸류",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "332610",
         "name": "PLUS 미국단기회사채(AAA~A)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "269370",
-        "name": "TIGER S&P글로벌인프라(합성)",
         "market": "ETF",
         "country": "KR"
       },
@@ -19229,14 +19181,32 @@
         "country": "KR"
       },
       {
-        "code": "404650",
-        "name": "SOL KRX기후변화솔루션",
+        "code": "430500",
+        "name": "KIWOOM 물가채KIS",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "451150",
-        "name": "에셋플러스 글로벌영에이지액티브",
+        "code": "251590",
+        "name": "PLUS 고배당저변동50",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "435550",
+        "name": "KIWOOM TDF2050액티브 적격",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "387280",
+        "name": "TIGER 퓨처모빌리티액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "269370",
+        "name": "TIGER S&P글로벌인프라(합성)",
         "market": "ETF",
         "country": "KR"
       },
@@ -19247,56 +19217,32 @@
         "country": "KR"
       },
       {
+        "code": "489860",
+        "name": "KIWOOM 글로벌전력GRID인프라",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
         "code": "448490",
         "name": "HANARO 32-10 국고채액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "496130",
-        "name": "TRUSTON 코리아밸류업액티브",
+        "code": "451150",
+        "name": "에셋플러스 글로벌영에이지액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "488290",
-        "name": "MIDAS 일본테크액티브",
+        "code": "404650",
+        "name": "SOL KRX기후변화솔루션",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "373490",
-        "name": "KODEX 코리아혁신성장액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "472720",
-        "name": "TRUSTON 주주가치액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "140580",
-        "name": "RISE 우량업종대표주",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "244620",
-        "name": "KODEX 모멘텀Plus",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "266410",
-        "name": "KODEX 필수소비재",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "463640",
-        "name": "KODEX 미국S&P500유틸리티",
+        "code": "234310",
+        "name": "RISE V&S셀렉트밸류",
         "market": "ETF",
         "country": "KR"
       },
@@ -19307,20 +19253,50 @@
         "country": "KR"
       },
       {
+        "code": "463640",
+        "name": "KODEX 미국S&P500유틸리티",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "140580",
+        "name": "RISE 우량업종대표주",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
         "code": "410870",
         "name": "TIME K컬처액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "417450",
-        "name": "RISE 글로벌수소경제",
+        "code": "496130",
+        "name": "TRUSTON 코리아밸류업액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "279540",
-        "name": "KODEX 최소변동성",
+        "code": "266410",
+        "name": "KODEX 필수소비재",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "373490",
+        "name": "KODEX 코리아혁신성장액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "488290",
+        "name": "MIDAS 일본테크액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "472720",
+        "name": "TRUSTON 주주가치액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -19331,14 +19307,20 @@
         "country": "KR"
       },
       {
-        "code": "237440",
-        "name": "TIGER 경기방어채권혼합",
+        "code": "413930",
+        "name": "WON AI ESG액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "181480",
-        "name": "ACE 미국부동산리츠(합성 H)",
+        "code": "244620",
+        "name": "KODEX 모멘텀Plus",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "237440",
+        "name": "TIGER 경기방어채권혼합",
         "market": "ETF",
         "country": "KR"
       },
@@ -19349,8 +19331,14 @@
         "country": "KR"
       },
       {
-        "code": "385710",
-        "name": "TIME K이노베이션액티브",
+        "code": "181480",
+        "name": "ACE 미국부동산리츠(합성 H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "279540",
+        "name": "KODEX 최소변동성",
         "market": "ETF",
         "country": "KR"
       },
@@ -19361,20 +19349,20 @@
         "country": "KR"
       },
       {
+        "code": "417450",
+        "name": "RISE 글로벌수소경제",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
         "code": "354350",
         "name": "HANARO 글로벌럭셔리S&P(합성)",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "166400",
-        "name": "TIGER 200커버드콜OTM",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "252650",
-        "name": "KODEX 200동일가중",
+        "code": "385710",
+        "name": "TIME K이노베이션액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -19385,14 +19373,8 @@
         "country": "KR"
       },
       {
-        "code": "407820",
-        "name": "에셋플러스 코리아플랫폼액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "497510",
-        "name": "ACE 글로벌빅파마",
+        "code": "487910",
+        "name": "ACE 인도컨슈머파워액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -19403,14 +19385,8 @@
         "country": "KR"
       },
       {
-        "code": "487750",
-        "name": "BNK 온디바이스AI",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "487910",
-        "name": "ACE 인도컨슈머파워액티브",
+        "code": "497510",
+        "name": "ACE 글로벌빅파마",
         "market": "ETF",
         "country": "KR"
       },
@@ -19421,26 +19397,14 @@
         "country": "KR"
       },
       {
+        "code": "252650",
+        "name": "KODEX 200동일가중",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
         "code": "371870",
         "name": "ACE 차이나항셍테크",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "227570",
-        "name": "TIGER 우량가치",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "446700",
-        "name": "RISE 배터리 리사이클링",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "102960",
-        "name": "KODEX 기계장비",
         "market": "ETF",
         "country": "KR"
       },
@@ -19451,20 +19415,32 @@
         "country": "KR"
       },
       {
-        "code": "429010",
-        "name": "TIGER 미국나스닥넥스트100",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "456250",
         "name": "KODEX 유럽명품TOP10 STOXX",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "395760",
-        "name": "PLUS ESG성장주액티브",
+        "code": "166400",
+        "name": "TIGER 200커버드콜OTM",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "407820",
+        "name": "에셋플러스 코리아플랫폼액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "446700",
+        "name": "RISE 배터리 리사이클링",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "429010",
+        "name": "TIGER 미국나스닥넥스트100",
         "market": "ETF",
         "country": "KR"
       },
@@ -19475,8 +19451,44 @@
         "country": "KR"
       },
       {
+        "code": "487750",
+        "name": "BNK 온디바이스AI",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "102960",
+        "name": "KODEX 기계장비",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "266390",
+        "name": "KODEX 경기소비재",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "395150",
+        "name": "KODEX 웹툰&드라마",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
         "code": "230480",
         "name": "KIWOOM 미국달러선물인버스2X",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "341850",
+        "name": "TIGER 리츠부동산인프라채권",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "395760",
+        "name": "PLUS ESG성장주액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -19493,26 +19505,8 @@
         "country": "KR"
       },
       {
-        "code": "395150",
-        "name": "KODEX 웹툰&드라마",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "341850",
-        "name": "TIGER 리츠부동산인프라채권",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "266390",
-        "name": "KODEX 경기소비재",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "419420",
-        "name": "KODEX 미국클린에너지나스닥",
+        "code": "281990",
+        "name": "RISE 중소형고배당",
         "market": "ETF",
         "country": "KR"
       },
@@ -19523,32 +19517,8 @@
         "country": "KR"
       },
       {
-        "code": "281990",
-        "name": "RISE 중소형고배당",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "266550",
-        "name": "PLUS 중형주저변동50",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "225050",
         "name": "TIGER 유로스탁스레버리지(합성 H)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "498050",
-        "name": "HANARO 바이오코리아액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "140570",
-        "name": "RISE 수출주",
         "market": "ETF",
         "country": "KR"
       },
@@ -19559,8 +19529,8 @@
         "country": "KR"
       },
       {
-        "code": "462340",
-        "name": "에셋플러스 글로벌다이나믹시니어액티브",
+        "code": "419420",
+        "name": "KODEX 미국클린에너지나스닥",
         "market": "ETF",
         "country": "KR"
       },
@@ -19571,20 +19541,26 @@
         "country": "KR"
       },
       {
-        "code": "438740",
-        "name": "MIDAS 중소형액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "463690",
         "name": "KODEX 미국S&P500커뮤니케이션",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "461580",
-        "name": "TIGER 코스닥글로벌",
+        "code": "140570",
+        "name": "RISE 수출주",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "498050",
+        "name": "HANARO 바이오코리아액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "462340",
+        "name": "에셋플러스 글로벌다이나믹시니어액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -19595,62 +19571,20 @@
         "country": "KR"
       },
       {
-        "code": "375270",
-        "name": "RISE 글로벌데이터센터리츠(합성)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "280920",
-        "name": "PLUS 주도업종",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "270800",
-        "name": "RISE KQ고배당",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "482030",
-        "name": "KoAct 반도체&2차전지핵심소재액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "487920",
         "name": "ACE 인도시장대표BIG5그룹액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "404540",
-        "name": "TIGER KRX기후변화솔루션",
+        "code": "375270",
+        "name": "RISE 글로벌데이터센터리츠(합성)",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "371150",
-        "name": "RISE 차이나항셍테크",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "466810",
-        "name": "BNK 2차전지양극재",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "395280",
-        "name": "HANARO Fn K-게임",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "189400",
-        "name": "PLUS 글로벌MSCI(합성 H)",
+        "code": "438740",
+        "name": "MIDAS 중소형액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -19661,14 +19595,20 @@
         "country": "KR"
       },
       {
-        "code": "449680",
-        "name": "TIGER 한중전기차(합성)",
+        "code": "395280",
+        "name": "HANARO Fn K-게임",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "277650",
-        "name": "TIGER 코스피중형주",
+        "code": "371150",
+        "name": "RISE 차이나항셍테크",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "270800",
+        "name": "RISE KQ고배당",
         "market": "ETF",
         "country": "KR"
       },
@@ -19679,26 +19619,20 @@
         "country": "KR"
       },
       {
-        "code": "435530",
-        "name": "KIWOOM TDF2030액티브 적격",
+        "code": "280920",
+        "name": "PLUS 주도업종",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "304670",
-        "name": "KODEX 미국30년국채울트라선물인버스(H)",
+        "code": "449680",
+        "name": "TIGER 한중전기차(합성)",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "400590",
-        "name": "SOL 글로벌탄소배출권선물ICE(합성)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "301400",
-        "name": "PLUS 코스닥150",
+        "code": "189400",
+        "name": "PLUS 글로벌MSCI(합성 H)",
         "market": "ETF",
         "country": "KR"
       },
@@ -19709,26 +19643,32 @@
         "country": "KR"
       },
       {
-        "code": "429980",
-        "name": "SOL 한국형글로벌전기차&2차전지액티브",
+        "code": "304670",
+        "name": "KODEX 미국30년국채울트라선물인버스(H)",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "494210",
-        "name": "SOL 미국500타겟데일리커버드콜액티브",
+        "code": "435530",
+        "name": "KIWOOM TDF2030액티브 적격",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "381570",
-        "name": "HANARO Fn친환경에너지",
+        "code": "482030",
+        "name": "KoAct 반도체&2차전지핵심소재액티브",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "253280",
-        "name": "RISE 헬스케어",
+        "code": "400590",
+        "name": "SOL 글로벌탄소배출권선물ICE(합성)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "277650",
+        "name": "TIGER 코스피중형주",
         "market": "ETF",
         "country": "KR"
       },
@@ -19739,8 +19679,26 @@
         "country": "KR"
       },
       {
+        "code": "466810",
+        "name": "BNK 2차전지양극재",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "381570",
+        "name": "HANARO Fn친환경에너지",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
         "code": "250780",
         "name": "TIGER 코스닥150선물인버스",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "461580",
+        "name": "TIGER 코스닥글로벌",
         "market": "ETF",
         "country": "KR"
       },
@@ -19751,8 +19709,38 @@
         "country": "KR"
       },
       {
+        "code": "253280",
+        "name": "RISE 헬스케어",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "301400",
+        "name": "PLUS 코스닥150",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "494210",
+        "name": "SOL 미국500타겟데일리커버드콜액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "429980",
+        "name": "SOL 한국형글로벌전기차&2차전지액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
         "code": "474390",
         "name": "SOL 국고채30년액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "252420",
+        "name": "RISE 200선물인버스2X",
         "market": "ETF",
         "country": "KR"
       },
@@ -19763,38 +19751,14 @@
         "country": "KR"
       },
       {
-        "code": "457930",
-        "name": "BNK 미래전략기술액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "139660",
         "name": "KIWOOM 미국달러선물인버스",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "488480",
-        "name": "RISE 일본섹터TOP4Plus",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "244670",
-        "name": "KODEX 밸류Plus",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "139240",
-        "name": "TIGER 200 철강소재",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "483020",
-        "name": "KIWOOM 의료AI",
+        "code": "457930",
+        "name": "BNK 미래전략기술액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -19805,26 +19769,44 @@
         "country": "KR"
       },
       {
-        "code": "395750",
-        "name": "PLUS ESG가치주액티브",
+        "code": "404540",
+        "name": "TIGER KRX기후변화솔루션",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "285690",
-        "name": "FOCUS ESG리더스",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "400580",
-        "name": "SOL 유럽탄소배출권선물S&P(H)",
+        "code": "139240",
+        "name": "TIGER 200 철강소재",
         "market": "ETF",
         "country": "KR"
       },
       {
         "code": "289670",
         "name": "PLUS 국채선물10년",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "483020",
+        "name": "KIWOOM 의료AI",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "244670",
+        "name": "KODEX 밸류Plus",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "488480",
+        "name": "RISE 일본섹터TOP4Plus",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "400580",
+        "name": "SOL 유럽탄소배출권선물S&P(H)",
         "market": "ETF",
         "country": "KR"
       },
@@ -19841,8 +19823,8 @@
         "country": "KR"
       },
       {
-        "code": "252420",
-        "name": "RISE 200선물인버스2X",
+        "code": "285690",
+        "name": "FOCUS ESG리더스",
         "market": "ETF",
         "country": "KR"
       },
@@ -19859,8 +19841,8 @@
         "country": "KR"
       },
       {
-        "code": "368680",
-        "name": "KODEX K-뉴딜디지털플러스",
+        "code": "395750",
+        "name": "PLUS ESG가치주액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -19877,6 +19859,12 @@
         "country": "KR"
       },
       {
+        "code": "368680",
+        "name": "KODEX K-뉴딜디지털플러스",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
         "code": "138920",
         "name": "KODEX 콩선물(H)",
         "market": "ETF",
@@ -19885,6 +19873,18 @@
       {
         "code": "139290",
         "name": "TIGER 200 경기소비재",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "432600",
+        "name": "RISE 국채선물3년",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "267450",
+        "name": "RISE 미국장기국채선물인버스(H)",
         "market": "ETF",
         "country": "KR"
       },
@@ -19901,20 +19901,8 @@
         "country": "KR"
       },
       {
-        "code": "432600",
-        "name": "RISE 국채선물3년",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "314700",
         "name": "HANARO 농업융복합산업",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "267450",
-        "name": "RISE 미국장기국채선물인버스(H)",
         "market": "ETF",
         "country": "KR"
       },
@@ -19925,14 +19913,14 @@
         "country": "KR"
       },
       {
-        "code": "256450",
-        "name": "PLUS 심천차이넥스트(합성)",
+        "code": "295000",
+        "name": "RISE 국채선물10년",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "295000",
-        "name": "RISE 국채선물10년",
+        "code": "256450",
+        "name": "PLUS 심천차이넥스트(합성)",
         "market": "ETF",
         "country": "KR"
       },
@@ -19949,14 +19937,8 @@
         "country": "KR"
       },
       {
-        "code": "499150",
-        "name": "SOL 미국S&P500엔화노출(H)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "291890",
-        "name": "KODEX MSCI EM선물(H)",
+        "code": "227570",
+        "name": "TIGER 우량가치",
         "market": "ETF",
         "country": "KR"
       },
@@ -19967,14 +19949,8 @@
         "country": "KR"
       },
       {
-        "code": "307510",
-        "name": "TIGER 의료기기",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "411860",
-        "name": "KIWOOM 독일DAX",
+        "code": "499150",
+        "name": "SOL 미국S&P500엔화노출(H)",
         "market": "ETF",
         "country": "KR"
       },
@@ -19985,20 +19961,50 @@
         "country": "KR"
       },
       {
-        "code": "267440",
-        "name": "RISE 미국장기국채선물(H)",
+        "code": "411860",
+        "name": "KIWOOM 독일DAX",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "220130",
-        "name": "SOL 차이나강소기업CSI500(합성 H)",
+        "code": "291890",
+        "name": "KODEX MSCI EM선물(H)",
         "market": "ETF",
         "country": "KR"
       },
       {
         "code": "413220",
         "name": "SOL 차이나태양광CSI(합성)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "267440",
+        "name": "RISE 미국장기국채선물(H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "219900",
+        "name": "ACE 중국본토CSI300레버리지(합성)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "205720",
+        "name": "ACE 일본TOPIX인버스(합성 H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "307510",
+        "name": "TIGER 의료기기",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "220130",
+        "name": "SOL 차이나강소기업CSI500(합성 H)",
         "market": "ETF",
         "country": "KR"
       },
@@ -20015,20 +20021,8 @@
         "country": "KR"
       },
       {
-        "code": "219900",
-        "name": "ACE 중국본토CSI300레버리지(합성)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "490330",
         "name": "KoAct 미국치매&뇌질환치료제액티브",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "433250",
-        "name": "UNICORN R&D 액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -20039,8 +20033,14 @@
         "country": "KR"
       },
       {
-        "code": "205720",
-        "name": "ACE 일본TOPIX인버스(합성 H)",
+        "code": "225030",
+        "name": "TIGER 미국S&P500선물인버스(H)",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "433250",
+        "name": "UNICORN R&D 액티브",
         "market": "ETF",
         "country": "KR"
       },
@@ -20051,8 +20051,8 @@
         "country": "KR"
       },
       {
-        "code": "225030",
-        "name": "TIGER 미국S&P500선물인버스(H)",
+        "code": "266550",
+        "name": "PLUS 중형주저변동50",
         "market": "ETF",
         "country": "KR"
       },
@@ -20069,20 +20069,14 @@
         "country": "KR"
       },
       {
-        "code": "315270",
-        "name": "TIGER 200커뮤니케이션서비스",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "491630",
         "name": "RISE 미국반도체인버스(합성 H)",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "267490",
-        "name": "RISE 미국장기국채선물레버리지(합성 H)",
+        "code": "315270",
+        "name": "TIGER 200커뮤니케이션서비스",
         "market": "ETF",
         "country": "KR"
       },
@@ -20093,8 +20087,8 @@
         "country": "KR"
       },
       {
-        "code": "291630",
-        "name": "KIWOOM 코스닥150선물레버리지",
+        "code": "267490",
+        "name": "RISE 미국장기국채선물레버리지(합성 H)",
         "market": "ETF",
         "country": "KR"
       },
@@ -20111,32 +20105,14 @@
         "country": "KR"
       },
       {
+        "code": "291630",
+        "name": "KIWOOM 코스닥150선물레버리지",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
         "code": "321410",
         "name": "KODEX 멀티에셋하이인컴(H)",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "243890",
-        "name": "TIGER 200에너지화학레버리지",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "227560",
-        "name": "TIGER 200 생활소비재",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "275750",
-        "name": "RISE 코스닥150선물인버스",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
-        "code": "427120",
-        "name": "RISE AI플랫폼",
         "market": "ETF",
         "country": "KR"
       },
@@ -20147,8 +20123,26 @@
         "country": "KR"
       },
       {
-        "code": "227550",
-        "name": "TIGER 200 산업재",
+        "code": "275750",
+        "name": "RISE 코스닥150선물인버스",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "227560",
+        "name": "TIGER 200 생활소비재",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "427120",
+        "name": "RISE AI플랫폼",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "243890",
+        "name": "TIGER 200에너지화학레버리지",
         "market": "ETF",
         "country": "KR"
       },
@@ -20159,26 +20153,26 @@
         "country": "KR"
       },
       {
-        "code": "244660",
-        "name": "KODEX 퀄리티Plus",
-        "market": "ETF",
-        "country": "KR"
-      },
-      {
         "code": "280940",
         "name": "KODEX 골드선물인버스(H)",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "476000",
-        "name": "UNICORN 포스트IPO액티브",
+        "code": "244660",
+        "name": "KODEX 퀄리티Plus",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "306530",
-        "name": "HANARO 코스닥150선물레버리지",
+        "code": "227550",
+        "name": "TIGER 200 산업재",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
+        "code": "291620",
+        "name": "KIWOOM 코스닥150선물인버스",
         "market": "ETF",
         "country": "KR"
       },
@@ -20195,14 +20189,20 @@
         "country": "KR"
       },
       {
+        "code": "476000",
+        "name": "UNICORN 포스트IPO액티브",
+        "market": "ETF",
+        "country": "KR"
+      },
+      {
         "code": "253160",
         "name": "PLUS 200선물인버스2X",
         "market": "ETF",
         "country": "KR"
       },
       {
-        "code": "291620",
-        "name": "KIWOOM 코스닥150선물인버스",
+        "code": "306530",
+        "name": "HANARO 코스닥150선물레버리지",
         "market": "ETF",
         "country": "KR"
       },
@@ -20215,7 +20215,7 @@
     ]
   },
   "us": {
-    "count": 31126,
+    "count": 31123,
     "stocks": [
       {
         "code": "CDJM",
@@ -237911,27 +237911,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "CCXI",
-        "name": "CCXI",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "CCXIU",
-        "name": "CCXIU",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "CCXIW",
-        "name": "CCXIW",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "I",
         "name": "I",
         "market": "NYSE",
@@ -238101,5 +238080,5 @@
       }
     ]
   },
-  "total": 34494
+  "total": 34491
 }
