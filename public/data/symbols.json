@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-11-06T21:55:26.547201",
+  "generated_at": "2026-11-07T04:06:28.536813",
   "korea": {
     "count": 3368,
     "stocks": [
@@ -20215,7 +20215,7 @@
     ]
   },
   "us": {
-    "count": 31121,
+    "count": 31122,
     "stocks": [
       {
         "code": "MAAL",
@@ -237890,13 +237890,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "ALDF",
-        "name": "ALDF",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "I",
         "name": "I",
         "market": "NYSE",
@@ -237995,8 +237988,22 @@
         "type": "Common Stock"
       },
       {
+        "code": "KCAC",
+        "name": "KCAC",
+        "market": "NYSE",
+        "country": "US",
+        "type": "Common Stock"
+      },
+      {
         "code": "MER",
         "name": "MER",
+        "market": "NYSE",
+        "country": "US",
+        "type": "Common Stock"
+      },
+      {
+        "code": "MOG",
+        "name": "MOG",
         "market": "NYSE",
         "country": "US",
         "type": "Common Stock"
@@ -238066,5 +238073,5 @@
       }
     ]
   },
-  "total": 34489
+  "total": 34490
 }
