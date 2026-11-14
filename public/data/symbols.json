@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generated_at": "2026-11-13T22:21:17.322610",
+  "generated_at": "2026-11-14T04:30:52.233656",
   "korea": {
     "count": 3366,
     "stocks": [
@@ -20203,7 +20203,7 @@
     ]
   },
   "us": {
-    "count": 31142,
+    "count": 31140,
     "stocks": [
       {
         "code": "CTA",
@@ -238004,20 +238004,6 @@
         "type": "Common Stock"
       },
       {
-        "code": "CLGN",
-        "name": "CLGN",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
-        "code": "PTLE",
-        "name": "PTLE",
-        "market": "NASDAQ",
-        "country": "US",
-        "type": "Common Stock"
-      },
-      {
         "code": "I",
         "name": "I",
         "market": "NYSE",
@@ -238201,5 +238187,5 @@
       }
     ]
   },
-  "total": 34508
+  "total": 34506
 }
